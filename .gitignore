@@ -1,0 +1,30 @@
+# Android and Gradle build
+.gradle/
+build/
+app/build/
+*.apk
+*.ap_
+*.aab
+local.properties
+.idea/
+*.iml
+.kotlin/
+META-INF/
+
+# Screenshots & Dumps
+print_*.png
+screen_*.png
+*.xml
+*.py
+*.txt
+*.js
+_temp_diag.html
+!lib/*.js
+!index.html
+!simulador_paginacao_pro.html
+
+# Cache
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

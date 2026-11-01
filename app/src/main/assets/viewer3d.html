@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Visualizador 3D — Paginação Pro</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+        body {
+            background-color: #0F172A;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #F8FAFC;
+        }
+        #canvas3d {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        /* Top Bar Controls */
+        #topBar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            pointer-events: auto;
+        }
+        .hud-btn {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 8px;
+            color: #F1F5F9;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+        }
+        .hud-btn.active {
+            background: #0284C7;
+            border-color: #38BDF8;
+            color: #FFFFFF;
+        }
+
+        /* Retractable Legend */
+        #legendContainer {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            pointer-events: auto;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        #legendToggleBtn {
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(245, 158, 11, 0.85);
+            border-radius: 16px;
+            color: #FBBF24;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        #legendCard {
+            margin-top: 6px;
+            width: 190px;
+            max-height: 280px;
+            overflow-y: auto;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            display: none;
+        }
+        .legend-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 6px;
+            border-radius: 6px;
+            margin-bottom: 3px;
+            background: rgba(30, 41, 59, 0.7);
+            font-size: 10px;
+            cursor: pointer;
+        }
+        .legend-swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            margin-right: 6px;
+            display: inline-block;
+        }
+
+        /* Bottom Status Info */
+        #bottomInfo {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 10.5px;
+            color: #94A3B8;
+            backdrop-filter: blur(6px);
+            pointer-events: none;
+            z-index: 100;
+        }
+        #bottomInfo strong { color: #38BDF8; }
+    </style>
+    <script src="lib/three.min.js"></script>
+    <script src="lib/OrbitControls.js"></script>
+</head>
+<body>
+    <canvas id="canvas3d"></canvas>
+
+    <div id="topBar">
+        <div class="btn-group">
+            <button id="btnModeSingle" class="hud-btn active" onclick="setMode('single')">🧱 Parede</button>
+            <button id="btnModeAll" class="hud-btn" onclick="setMode('all')">🏠 Casa Completa</button>
+        </div>
+        <div class="btn-group">
+            <button class="hud-btn" onclick="setPreset('iso')">📐 ISO</button>
+            <button class="hud-btn" onclick="setPreset('top')">🔝 Topo</button>
+            <button class="hud-btn" onclick="setPreset('front')">↔ Frente</button>
+            <button id="btnAutoRotate" class="hud-btn" onclick="toggleAutoRotate()">🔄 Girar</button>
+        </div>
+    </div>
+
+    <div id="legendContainer">
+        <div id="legendToggleBtn" onclick="toggleLegend()">— Legenda & Cores • <span id="legendTotal">0</span> un</div>
+        <div id="legendCard">
+            <div style="font-size:9.5px; font-weight:800; color:#FBBF24; margin-bottom:6px; display:flex; justify-content:space-between;">
+                <span>LEGENDA 3D</span>
+                <span onclick="toggleLegend()" style="cursor:pointer; color:#94A3B8;">✕</span>
+            </div>
+            <div id="legendList"></div>
+        </div>
+    </div>
+
+    <div id="bottomInfo">
+        <span id="infoWallTitle"><strong>Parede A</strong> • Carregando 3D...</span>
+    </div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let currentGroup = null;
+        let wallData = null;
+        let houseData = null;
+        let viewMode = 'single';
+        let autoRotate = false;
+        let highlightedType = null;
+
+        const COLOR_MAP = {
+            'WHOLE': 0x94A3B8,       // Cinza concreto
+            'CORNER_TIE': 0xF97316,  // Laranja
+            'T_JUNCTION': 0x0284C7,  // Azul
+            'HALF': 0x10B981,        // Verde
+            'COMPENSATOR': 0xA855F7, // Roxo
+            'ADJUSTMENT': 0xEC4899,  // Rosa
+            'LINTEL': 0xE11D48       // Vermelho Canaleta
+        };
+
+        const LABEL_MAP = {
+            'WHOLE': 'Bloco Padrão 39',
+            'CORNER_TIE': 'Bloco Canto 34',
+            'T_JUNCTION': 'Compensador T 54',
+            'HALF': 'Meio Bloco 19',
+            'COMPENSATOR': 'Compensador 9',
+            'ADJUSTMENT': 'Pastilha 4',
+            'LINTEL': 'Canaleta U 39'
+        };
+
+        function initScene() {
+            const canvas = document.getElementById('canvas3d');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0F172A);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.set(600, 500, 800);
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: 'high-performance' });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.maxPolarAngle = Math.PI / 2 + 0.05; // Don't go under floor
+
+            // Iluminação realista de canteiro de obras
+            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambient);
+
+            const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+            sun.position.set(500, 1000, 600);
+            scene.add(sun);
+
+            const fill = new THREE.DirectionalLight(0x38BDF8, 0.35);
+            fill.position.set(-500, 400, -400);
+            scene.add(fill);
+
+            window.addEventListener('resize', onWindowResize, false);
+            animate();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (autoRotate && controls) {
+                controls.autoRotate = true;
+                controls.autoRotateSpeed = 1.2;
+            } else if (controls) {
+                controls.autoRotate = false;
+            }
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function toggleAutoRotate() {
+            autoRotate = !autoRotate;
+            const btn = document.getElementById('btnAutoRotate');
+            if (autoRotate) btn.classList.add('active'); else btn.classList.remove('active');
+        }
+
+        function toggleLegend() {
+            const card = document.getElementById('legendCard');
+            card.style.display = (card.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function setMode(mode) {
+            viewMode = mode;
+            document.getElementById('btnModeSingle').className = 'hud-btn ' + (mode === 'single' ? 'active' : '');
+            document.getElementById('btnModeAll').className = 'hud-btn ' + (mode === 'all' ? 'active' : '');
+            renderModel();
+        }
+
+        function setPreset(preset) {
+            if (!controls) return;
+            if (preset === 'top') {
+                camera.position.set(0, 1200, 1);
+                controls.target.set(0, 140, 0);
+            } else if (preset === 'front') {
+                camera.position.set(0, 140, 1200);
+                controls.target.set(0, 140, 0);
+            } else {
+                camera.position.set(600, 500, 800);
+                controls.target.set(0, 140, 0);
+            }
+            controls.update();
+        }
+
+        // Constrói malha 3D de uma parede individual a partir dos blocos da paginação
+        function buildWallGroup(wall, isCentered) {
+            const group = new THREE.Group();
+            const W = wall.lengthCm || 800;
+            const H = wall.heightCm || 280;
+            const thick = wall.thicknessCm || 14;
+            const offsetX = isCentered ? -W / 2 : 0;
+
+            const counts = {};
+
+            if (wall.courses) {
+                wall.courses.forEach(course => {
+                    course.forEach(b => {
+                        const bLen = b.lengthCm;
+                        const bH = b.heightCm || 19;
+                        const bThick = b.thicknessCm || thick;
+                        const bType = b.pieceType || 'WHOLE';
+
+                        counts[bType] = (counts[bType] || 0) + 1;
+
+                        const hexColor = COLOR_MAP[bType] || 0x94A3B8;
+                        const geom = new THREE.BoxGeometry(bLen - 0.2, bH - 0.2, bThick - 0.2);
+                        const mat = new THREE.MeshStandardMaterial({
+                            color: hexColor,
+                            roughness: 0.82,
+                            metalness: 0.08
+                        });
+
+                        const mesh = new THREE.Mesh(geom, mat);
+                        const posX = offsetX + b.xCm + (bLen / 2);
+                        const posY = b.yCm + (bH / 2);
+                        const posZ = 0;
+
+                        mesh.position.set(posX, posY, posZ);
+
+                        // Arestas chanfradas escuras
+                        const edges = new THREE.EdgesGeometry(geom);
+                        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x1E293B, linewidth: 1 }));
+                        mesh.add(line);
+
+                        group.add(mesh);
+                    });
+                });
+            }
+
+            return { group, counts, W, H, thick };
+        }
+
+        function renderModel() {
+            if (!scene) return;
+            if (currentGroup) {
+                scene.remove(currentGroup);
+                currentGroup = null;
+            }
+
+            currentGroup = new THREE.Group();
+
+            if (viewMode === 'single' && wallData) {
+                const { group, counts, W, H, thick } = buildWallGroup(wallData, true);
+                currentGroup.add(group);
+
+                const grid = new THREE.GridHelper(Math.max(W * 2, 1600), 40, 0x38BDF8, 0x1E293B);
+                grid.position.y = -0.5;
+                currentGroup.add(grid);
+
+                updateLegend(counts);
+                document.getElementById('infoWallTitle').innerHTML = `<strong>${wallData.wallName}</strong> • ${W.toFixed(0)}×${H.toFixed(0)}×${thick} cm • ${(H/20).toFixed(0)} Fiadas`;
+                controls.target.set(0, H / 2, 0);
+            } else if (houseData && houseData.walls) {
+                let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+                houseData.walls.forEach(w => {
+                    minX = Math.min(minX, w.startX * 100, w.endX * 100);
+                    maxX = Math.max(maxX, w.startX * 100, w.endX * 100);
+                    minY = Math.min(minY, w.startY * 100, w.endY * 100);
+                    maxY = Math.max(maxY, w.startY * 100, w.endY * 100);
+                });
+                const centerX = (minX + maxX) / 2;
+                const centerY = (minY + maxY) / 2;
+
+                const globalCounts = {};
+
+                houseData.walls.forEach(w => {
+                    const { group, counts } = buildWallGroup(w, false);
+                    Object.keys(counts).forEach(k => globalCounts[k] = (globalCounts[k] || 0) + counts[k]);
+
+                    const x1 = w.startX * 100 - centerX;
+                    const z1 = w.startY * 100 - centerY;
+                    const x2 = w.endX * 100 - centerX;
+                    const z2 = w.endY * 100 - centerY;
+                    const angle = Math.atan2(z2 - z1, x2 - x1);
+
+                    group.position.set(x1, 0, z1);
+                    group.rotation.y = -angle;
+                    currentGroup.add(group);
+                });
+
+                const houseSpan = Math.max(maxX - minX, maxY - minY, 1200) * 1.8;
+                const grid = new THREE.GridHelper(houseSpan, 50, 0x38BDF8, 0x1E293B);
+                grid.position.y = -0.5;
+                currentGroup.add(grid);
+
+                updateLegend(globalCounts);
+                document.getElementById('infoWallTitle').innerHTML = `<strong>Casa Completa</strong> • ${houseData.walls.length} Paredes Levantadas em 3D`;
+                controls.target.set(0, 140, 0);
+            }
+
+            scene.add(currentGroup);
+            controls.update();
+        }
+
+        function updateLegend(counts) {
+            let total = 0;
+            const list = document.getElementById('legendList');
+            list.innerHTML = '';
+
+            Object.keys(COLOR_MAP).forEach(type => {
+                const count = counts[type] || 0;
+                if (count > 0) {
+                    total += count;
+                    const hexStr = '#' + COLOR_MAP[type].toString(16).padStart(6, '0');
+                    const label = LABEL_MAP[type] || type;
+                    const row = document.createElement('div');
+                    row.className = 'legend-row';
+                    row.innerHTML = `
+                        <div style="display:flex;align-items:center;">
+                            <span class="legend-swatch" style="background:${hexStr};"></span>
+                            <span>${label}</span>
+                        </div>
+                        <strong style="color:#F1F5F9;">${count} un</strong>
+                    `;
+                    list.appendChild(row);
+                }
+            });
+
+            document.getElementById('legendTotal').textContent = total;
+        }
+
+        // Funções chamadas diretamente pela ponte Android WebView (JavaScriptInterface / evaluateJavascript)
+        window.loadWallData = function(jsonStr) {
+            try {
+                wallData = (typeof jsonStr === 'string') ? JSON.parse(jsonStr) : jsonStr;
+                renderModel();
+            } catch(e) {
+                console.error("Erro ao carregar dados da parede 3D:", e);
+            }
+        };
+
+        window.loadHouseData = function(jsonStr) {
+            try {
+                houseData = (typeof jsonStr === 'string') ? JSON.parse(jsonStr) : jsonStr;
+                if (viewMode === 'all') renderModel();
+            } catch(e) {
+                console.error("Erro ao carregar dados da casa 3D:", e);
+            }
+        };
+
+        window.onload = function() {
+            initScene();
+        };
+    </script>
+</body>
+</html>
