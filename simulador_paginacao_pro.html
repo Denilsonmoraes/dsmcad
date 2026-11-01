@@ -2485,22 +2485,219 @@
     <!-- Mostra todas as modulações memorizadas automaticamente pela IA            -->
     <!-- e permite repaginar qualquer parede ou a obra inteira com 1 clique!       -->
     <!-- ========================================================================= -->
-            <div id="learnedPatternsModal" class="hidden absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 select-none">
-      <div class="bg-slate-900 border-2 border-indigo-500 rounded-2xl w-full max-w-2xl text-white shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
-        <!-- Cabeçalho -->
-        <div class="p-3 border-b border-slate-700 bg-slate-950 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="text-2xl">🧠</span>
+                <div id="learnedPatternsModal" class="hidden absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-3 select-none">
+      <div id="iaModalCard" class="bg-slate-900 border-2 border-indigo-500 rounded-2xl w-full max-w-[96vw] xl:max-w-7xl text-white shadow-2xl flex flex-col h-[94vh] max-h-[94vh] overflow-hidden transition-all duration-300">
+        
+        <!-- Cabeçalho Expandido com Tabs -->
+        <div class="px-4 py-3 border-b border-slate-700 bg-slate-950 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl animate-pulse">🧠</span>
             <div>
-              <div class="text-sm font-extrabold text-indigo-300">PAGINADOR INTELIGENTE • IA DE VÃOS & MODULAÇÃO</div>
-              <div class="text-xs text-slate-400">Separação estrita por família de bloco • Soma modular com +1 cm de argamassa por peça</div>
+              <div class="text-sm font-extrabold text-indigo-300 tracking-wide flex items-center gap-2">
+                PAGINADOR INTELIGENTE • IA DSMCAD
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600/60 border border-indigo-400 text-indigo-200">PRO v2.0</span>
+              </div>
+              <div class="text-xs text-slate-400">Aprende cantos em L, encontros em T, vãos e modulações diretamente com você em 3D</div>
             </div>
           </div>
-          <button onclick="closeLearnedPatternsModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center">✕</button>
+
+          <!-- Seletor de Modos / Abas da IA -->
+          <div class="flex items-center gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
+            <button id="iaTabBtn_game3d" onclick="switchIaTab('game3d')" class="px-3.5 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow flex items-center gap-2 transition active:scale-95">
+              <span>🎮</span> Jogo 3D • Construir & Ensinar IA
+              <span class="px-1.5 py-0.2 rounded bg-amber-900/80 text-[10px] text-amber-200 border border-amber-400/50">NOVO</span>
+            </button>
+            <button id="iaTabBtn_vaos" onclick="switchIaTab('vaos')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1.5 transition">
+              <span>📋</span> Tabela de Vãos & Modulações
+            </button>
+          </div>
+
+          <button onclick="closeLearnedPatternsModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition">✕</button>
         </div>
 
-        <!-- Conteúdo -->
-        <div class="p-3.5 flex flex-col gap-3 overflow-y-auto">
+        <!-- ABA 1: JOGO 3D CONSTRUIR DO ZERO & ENSINAR IA -->
+        <div id="iaTabContent_game3d" class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+          
+          <!-- Viewport 3D Interativo -->
+          <div class="flex-1 h-full relative bg-slate-950 flex flex-col overflow-hidden">
+            <!-- Barra Superior de Ferramentas do 3D -->
+            <div class="absolute top-2 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+              <!-- Presets Rápidos do Jogo -->
+              <div class="pointer-events-auto flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-lg text-xs">
+                <span class="text-[11px] font-bold text-slate-400 px-2">Começar do Zero:</span>
+                <button onclick="game3dPreset('straight')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white font-bold transition flex items-center gap-1">
+                  <span>🧱</span> Parede Reta
+                </button>
+                <button onclick="game3dPreset('corner_L')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-orange-600 text-slate-200 hover:text-white font-bold transition flex items-center gap-1">
+                  <span>📐</span> Canto em L
+                </button>
+                <button onclick="game3dPreset('junction_T')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white font-bold transition flex items-center gap-1">
+                  <span>🔀</span> Encontro em T
+                </button>
+                <button onclick="game3dClearAll()" class="px-2 py-1 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 font-bold border border-rose-800 transition" title="Limpar tudo e começar do zero">
+                  🧹 Limpar
+                </button>
+              </div>
+
+              <!-- Câmera e Vistas -->
+              <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-lg text-xs">
+                <button onclick="game3dSetCamera('iso')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Isométrica">🎥 3D</button>
+                <button onclick="game3dSetCamera('top')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Superior (Planta)">📐 Topo</button>
+                <button onclick="game3dSetCamera('front')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Frontal (Elevação)">🧱 Frente</button>
+                <button onclick="game3dResetCamera()" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Resetar Câmera">🎯 Focar</button>
+              </div>
+            </div>
+
+            <!-- Canvas 3D WebGL -->
+            <canvas id="iaGame3dCanvas" class="w-full h-full block flex-1 cursor-grab active:cursor-grabbing"></canvas>
+
+            <!-- Rodapé Flutuante do Viewport 3D -->
+            <div class="absolute bottom-2 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none text-xs">
+              <div class="pointer-events-auto bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80 shadow-lg flex items-center gap-3">
+                <div class="flex items-center gap-1.5 font-bold text-amber-300">
+                  <span>🧱</span> <span id="game3dHudFam">Baiano 9×14×19</span>
+                </div>
+                <div class="h-3 w-px bg-slate-700"></div>
+                <div class="text-slate-300">
+                  Fiada Ativa: <span id="game3dHudFiada" class="font-extrabold text-indigo-300">1 (Ímpar - Base)</span>
+                </div>
+                <div class="h-3 w-px bg-slate-700"></div>
+                <div class="text-slate-300">
+                  Total Blocos: <span id="game3dHudCount" class="font-bold text-white">0</span>
+                </div>
+              </div>
+
+              <div class="pointer-events-auto bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700 text-slate-400 text-[11px] hidden sm:flex items-center gap-2">
+                <span>🖱️ Arraste para girar a parede 3D • Roda do mouse dá zoom</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Painel Lateral: Controles do Jogo & Ensinamento da IA -->
+          <div class="w-full lg:w-[410px] bg-slate-900/95 border-l border-slate-800 p-3.5 flex flex-col gap-3 overflow-y-auto shrink-0 shadow-2xl">
+            
+            <!-- Seletor de Família -->
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-300">1. Família da Parede:</span>
+                <span id="game3dFamBadge" class="text-[10px] font-black px-2 py-0.5 rounded bg-orange-600/30 text-orange-300 border border-orange-500/50">Baiano</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 text-xs font-bold">
+                <button onclick="game3dSetFamily('baiano')" id="gFamBtn_baiano" class="p-2 rounded-lg bg-orange-600 text-white shadow text-left flex items-center gap-1.5">
+                  <span>🧱</span> Baiano 9×14×19
+                </button>
+                <button onclick="game3dSetFamily('14')" id="gFamBtn_14" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-left flex items-center gap-1.5">
+                  <span>🏢</span> Concreto 14 cm
+                </button>
+                <button onclick="game3dSetFamily('11.5')" id="gFamBtn_115" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-left flex items-center gap-1.5">
+                  <span>🏢</span> Concreto 11.5
+                </button>
+                <button onclick="game3dSetFamily('19')" id="gFamBtn_19" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-left flex items-center gap-1.5">
+                  <span>🏢</span> Concreto 19 cm
+                </button>
+              </div>
+            </div>
+
+            <!-- Controle de Fiadas & Direção do Assentamento -->
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-300">2. Fiada & Direção de Assentamento:</span>
+                <span id="game3dFiadaBadge" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-indigo-600/40 text-indigo-300">Fiada 1</span>
+              </div>
+
+              <!-- Seletor de Fiadas -->
+              <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                <button onclick="game3dSetFiada(1)" id="gFiadaBtn_1" class="px-2.5 py-1 rounded-lg font-black bg-indigo-600 text-white shadow shrink-0">1ª Fiada (Ímpar)</button>
+                <button onclick="game3dSetFiada(2)" id="gFiadaBtn_2" class="px-2.5 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">2ª Fiada (Par)</button>
+                <button onclick="game3dSetFiada(3)" id="gFiadaBtn_3" class="px-2 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">3ª Fiada</button>
+                <button onclick="game3dSetFiada(4)" id="gFiadaBtn_4" class="px-2 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">4ª Fiada</button>
+              </div>
+
+              <!-- Direção do Bloco (Parede Principal vs 90° Canto L ou T) -->
+              <div class="grid grid-cols-2 gap-1.5 text-xs">
+                <button onclick="game3dSetDir('X')" id="gDirBtn_X" class="p-2 rounded-lg font-black bg-indigo-600 text-white shadow flex items-center justify-center gap-1">
+                  <span>➡️</span> Eixo Principal (Parede)
+                </button>
+                <button onclick="game3dSetDir('Z')" id="gDirBtn_Z" class="p-2 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex items-center justify-center gap-1 border border-amber-500/30">
+                  <span>⬆️</span> A 90° (Canto L / Ramal T)
+                </button>
+              </div>
+            </div>
+
+            <!-- Paleta de Blocos para Assentar no Jogo -->
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-300">3. Escolha o Bloco para Assentar:</span>
+                <span class="text-[10px] text-emerald-400 font-bold">+1 cm massa somada</span>
+              </div>
+              
+              <!-- Container dinâmico com os botões das peças da família -->
+              <div id="game3dPiecesContainer" class="flex flex-col gap-1.5">
+                <!-- Inserido dinamicamente via JS -->
+              </div>
+
+              <!-- Ações da Fiada -->
+              <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-800">
+                <button onclick="game3dUndo()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-1.5 transition active:scale-95">
+                  <span>⬅️</span> Desfazer Bloco
+                </button>
+                <button onclick="game3dClearCurrentFiada()" class="px-3 py-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-300 text-xs font-bold transition">
+                  Limpar Fiada Atual
+                </button>
+              </div>
+            </div>
+
+            <!-- Painel de Análise da IA em Tempo Real -->
+            <div class="p-3 rounded-xl bg-indigo-950/40 border border-indigo-700/60 flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5 text-xs font-extrabold text-indigo-300">
+                  <span class="animate-pulse">🧠</span> DIAGNÓSTICO DA IA EM TEMPO REAL
+                </div>
+                <span id="game3dAiStatusBadge" class="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-600/40 text-emerald-300 border border-emerald-500/50">Analisando</span>
+              </div>
+
+              <div class="text-xs space-y-1 bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 font-mono">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Tipo de Estrutura:</span>
+                  <span id="game3dAiType" class="font-bold text-white">Parede Reta</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">1ª Fiada (Ímpar):</span>
+                  <span id="game3dAiFiada1" class="font-bold text-indigo-300">-</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">2ª Fiada (Par):</span>
+                  <span id="game3dAiFiada2" class="font-bold text-indigo-300">-</span>
+                </div>
+                <div class="flex justify-between border-t border-slate-800 pt-1">
+                  <span class="text-slate-400">Amarração / Traspasse:</span>
+                  <span id="game3dAiBond" class="font-bold text-emerald-400">10 cm (Perfeito)</span>
+                </div>
+              </div>
+
+              <!-- Botão para a IA autocompletar a próxima fiada amarrada -->
+              <button onclick="game3dAiAutocompleteNextFiada()" class="w-full py-1.5 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-black shadow flex items-center justify-center gap-1.5 transition active:scale-95 border border-indigo-400/40">
+                <span>✨</span> IA, Sugerir / Amarrar Próxima Fiada!
+              </button>
+            </div>
+
+            <!-- Botão Principal: Ensinar para a IA e Gravar na Memória -->
+            <div class="pt-1 flex flex-col gap-2">
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] font-bold text-slate-400">Nome do Padrão Aprendido:</label>
+                <input id="game3dPatternName" type="text" placeholder="Ex: Canto L Baiano 90° Amarrado" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-white text-xs font-semibold focus:border-amber-400 focus:outline-none" />
+              </div>
+
+              <button onclick="game3dTeachAiPattern()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-sm font-black shadow-xl flex items-center justify-center gap-2 transition active:scale-95 border border-emerald-400/40 tracking-wide">
+                <span class="text-lg">🧠</span> ENSINAR ESTE PADRÃO PARA A IA
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ABA 2: TABELA DE VÃOS & MODULAÇÕES INTELIGENTES (CONTEÚDO ANTERIOR) -->
+        <div id="iaTabContent_vaos" class="hidden flex-1 flex flex-col p-3.5 gap-3 overflow-y-auto">
           <!-- Barra de Ações Rápidas -->
           <div class="flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800">
             <div class="flex items-center gap-2">
@@ -2546,89 +2743,86 @@
               <button onclick="closeVaoEditor()" class="text-slate-400 hover:text-white text-xs font-bold">✕ Fechar</button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <!-- Família de Bloco -->
-              <div>
-                <label class="text-[11px] font-bold text-amber-300 block mb-0.5">Família de Bloco:</label>
-                <select id="lpEditFamily" onchange="onVaoEditorFamilyChange()"
-                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white outline-none focus:border-indigo-400">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] font-bold text-slate-400">Família de Bloco:</label>
+                <select id="lpEditFamily" onchange="onVaoEditorFamilyChange()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
                   <option value="baiano">🧱 Tijolo Baiano 9×14×19 cm</option>
                   <option value="14">Blocos Concreto Família 14 cm</option>
                   <option value="11.5">Blocos Concreto Família 11.5 cm</option>
                   <option value="19">Blocos Concreto Família 19 cm</option>
-                  <option value="9">Blocos Concreto Família 9 cm</option>
                 </select>
               </div>
 
-              <!-- Comprimento do Vão -->
-              <div>
-                <label class="text-[11px] font-bold text-slate-400 block mb-0.5">Vão Total com Argamassa (cm):</label>
-                <input id="lpEditSpan" type="number" min="10" max="2000" step="1"
-                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white outline-none focus:border-indigo-400"
-                  placeholder="Ex: 100, 120, 180, 200" oninput="updateVaoEditorValidation()" />
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] font-bold text-slate-400">Vão Total com Argamassa (cm):</label>
+                <input id="lpEditSpan" type="number" step="1" min="10" placeholder="Ex: 100, 120, 180, 200" oninput="updateVaoEditorValidation()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none" />
               </div>
 
-              <!-- Aplicação da Fiada -->
-              <div>
-                <label class="text-[11px] font-bold text-slate-400 block mb-0.5">Aplicação da Fiada:</label>
-                <select id="lpEditParity" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white outline-none focus:border-indigo-400">
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] font-bold text-slate-400">Aplicação da Fiada:</label>
+                <select id="lpEditParity" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
                   <option value="any">Qualquer Fiada (Par e Ímpar)</option>
-                  <option value="0">Fiada Par (Fiadas 2, 4, 6...)</option>
-                  <option value="1">Fiada Ímpar (Fiadas 1, 3, 5...)</option>
+                  <option value="0">Apenas Fiada Par (2, 4, 6...)</option>
+                  <option value="1">Apenas Fiada Ímpar (1, 3, 5...)</option>
                 </select>
               </div>
             </div>
 
-            <!-- Campo de Peças e Validação com +1 cm de Argamassa -->
-            <div>
-              <div class="flex items-center justify-between mb-0.5">
-                <label class="text-[11px] font-bold text-slate-300">Sequência de Blocos da Família:</label>
-                <span id="lpEditValidationBadge" class="text-[10px] font-bold text-amber-400 font-mono">Soma: 0 cm</span>
-              </div>
-              <input id="lpEditPieces" type="text"
-                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-emerald-300 outline-none focus:border-indigo-400"
-                placeholder="Ex: 19, 19, 19, 9, 4" oninput="updateVaoEditorValidation()" />
-            </div>
-
-            <!-- Paleta Dinâmica de Blocos (Restrita à Família Selecionada!) -->
-            <div class="flex flex-col gap-1 pt-1 border-t border-slate-800">
+            <div class="flex flex-col gap-1 text-xs">
               <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold text-indigo-300">Peças da Família (clique para inserir):</span>
-                <span class="text-[10px] text-emerald-400 font-bold">+1 cm de massa somado por bloco</span>
+                <label class="text-[11px] font-bold text-slate-400">Sequência de Blocos da Família:</label>
+                <span id="vaoPiecesCalcInfo" class="text-[11px] font-mono text-indigo-300">Blocos: 0cm + 0cm argamassa = 0cm (0 peças)</span>
               </div>
-              <div id="lpFamilyPaletteButtons" class="flex flex-wrap items-center gap-1.5">
-                <!-- Gerado dinamicamente para mostrar SOMENTE os blocos da família ativa (incluindo 4cm!) -->
+              <input id="lpEditPieces" type="text" placeholder="Ex: 19, 19, 19, 9, 4" oninput="updateVaoEditorValidation()" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono text-xs focus:border-indigo-400 focus:outline-none" />
+            </div>
+
+            <!-- Paleta de Blocos Rápidos da Família Selecionada -->
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="text-slate-400 font-semibold">Peças da Família (clique para inserir):</span>
+                <span class="text-emerald-400 font-bold">+1 cm de massa somado por bloco</span>
+              </div>
+              <div id="vaoEditorPalette" class="flex flex-wrap items-center gap-1.5">
+                <!-- Preenchido dinamicamente por renderVaoEditorFamilyPalette(fam) -->
               </div>
             </div>
 
-            <!-- Botões Salvar -->
-            <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/80">
-              <button type="button" onclick="closeVaoEditor()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">
-                Cancelar
-              </button>
-              <button type="button" onclick="saveVaoEditor()" class="px-4 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-black shadow-lg active:scale-95 transition">
-                💾 Salvar e Memorizar na Família
-              </button>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-800">
+              <div id="vaoValidationBadge" class="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400">
+                Aguardando preenchimento
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="closeVaoEditor()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Cancelar</button>
+                <button onclick="saveVaoEditor()" class="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black shadow-lg flex items-center gap-1 active:scale-95 transition">
+                  <span>💾</span> Salvar e Memorizar na Família
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="text-xs font-bold text-slate-300 flex items-center justify-between">
-            <span id="lpListHeading">Vãos Memorizados na IA:</span>
-            <span id="lpTotalCountBadge" class="text-[11px] text-indigo-400 font-bold">0 cadastrados</span>
+          <!-- Lista de Vãos Cadastrados -->
+          <div class="flex-1 flex flex-col gap-2 min-h-[140px]">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-300">Vãos Memorizados na IA:</span>
+              <span id="lpListCount" class="text-xs text-indigo-400 font-semibold">0 memorizados</span>
+            </div>
+            <div id="learnedPatternsGrid" class="flex-1 flex flex-col gap-2 overflow-y-auto max-h-[380px] p-1">
+              <!-- Cards de vãos inseridos dinamicamente -->
+            </div>
           </div>
 
-          <div id="learnedPatternsGrid" class="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
-            <!-- Gerado dinamicamente -->
+          <!-- Rodapé de Ação Global -->
+          <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+            <button onclick="closeLearnedPatternsModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">
+              Fechar
+            </button>
+            <button onclick="repaginarTudoComIa()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-black shadow-lg transition active:scale-95 flex items-center gap-1.5">
+              <span>⚡</span> Repaginar Todas as Paredes com a IA
+            </button>
           </div>
         </div>
 
-        <!-- Rodapé -->
-        <div class="p-3 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-          <button onclick="closeLearnedPatternsModal()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700">Fechar</button>
-          <button onclick="repaginateAllWallsWithAI()" class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-black shadow-lg transition active:scale-95 flex items-center gap-1.5">
-            <span>⚡</span> Repaginar Todas as Paredes com a IA
-          </button>
-        </div>
       </div>
     </div>
 
@@ -9887,13 +10081,17 @@
         renderLearnedPatternsList();
       }
 
-      function openLearnedPatternsModal() {
+      function openLearnedPatternsModal(defaultTab = 'game3d') {
         const curFam = (typeof activeThicknessCm !== 'undefined') ? getFamilyKey(activeThicknessCm) : "baiano";
         currentLearnedFamilyFilter = curFam;
         renderLearnedPatternsList();
         closeVaoEditor();
         const m = document.getElementById("learnedPatternsModal");
         if (m) m.classList.remove("hidden");
+        switchIaTab(defaultTab);
+        if (typeof game3dSetFamily === 'function') {
+          game3dSetFamily(curFam);
+        }
       }
 
       function closeLearnedPatternsModal() {
@@ -10154,6 +10352,783 @@
         showLearningToast(`🧠 Vão de ${roundSpan} cm memorizado na Família ${famPrefix.toUpperCase()} com +1cm de argamassa!`);
       }
 
+      
+      // ============================================================================
+      // JOGO 3D INTERATIVO • CONSTRUIR DO ZERO & ENSINAR A IA (DSMCAD)
+      // ============================================================================
+      let game3d = {
+        initialized: false,
+        activeTab: "game3d", // "game3d" or "vaos"
+        scene: null,
+        camera: null,
+        renderer: null,
+        controls: null,
+        animFrameId: null,
+        activeFamily: "baiano",
+        activeFiada: 1, // 1 to 4
+        activeDir: "X", // "X" (main axis) or "Z" (90 deg corner/T)
+        structureType: "straight", // "straight", "corner_L", "junction_T"
+        blocks: [], // { id, family, fiada, type, len, width, height, dir, x, y, z }
+        meshGroup: null
+      };
+
+      const game3dFamilySpecs = {
+        "baiano": {
+          name: "🧱 Baiano 9×14×19",
+          badge: "Baiano",
+          width: 9,
+          height: 14,
+          color: 0xD9531E,
+          edgeColor: 0x5C2007,
+          pieces: [
+            { id: "b_19", len: 19, name: "Tijolo Inteiro", label: "19 cm (+1massa = 20cm)", type: "WHOLE", color: "bg-orange-600" },
+            { id: "b_9",  len: 9,  name: "Meio Tijolo",    label: "9 cm (+1massa = 10cm)",  type: "HALF",  color: "bg-amber-600" },
+            { id: "b_4",  len: 4,  name: "Compensador 4",  label: "4 cm (+1massa = 5cm)",   type: "COMPENSATOR", color: "bg-emerald-600" }
+          ]
+        },
+        "14": {
+          name: "🏢 Bloco Concreto 14",
+          badge: "Família 14",
+          width: 14,
+          height: 19,
+          color: 0x64748B,
+          edgeColor: 0x1E293B,
+          pieces: [
+            { id: "c14_39", len: 39, name: "Bloco Inteiro 39", label: "39 cm (+1massa = 40cm)", type: "WHOLE", color: "bg-slate-600" },
+            { id: "c14_34", len: 34, name: "Canto em L 34",    label: "34 cm (+1massa = 35cm)", type: "CORNER_TIE", color: "bg-orange-600" },
+            { id: "c14_29", len: 29, name: "Modular 29",       label: "29 cm (+1massa = 30cm)", type: "MODULAR", color: "bg-cyan-700" },
+            { id: "c14_19", len: 19, name: "Meio Bloco 19",    label: "19 cm (+1massa = 20cm)", type: "HALF", color: "bg-emerald-700" },
+            { id: "c14_14", len: 14, name: "Compensador 14",   label: "14 cm (+1massa = 15cm)", type: "COMPENSATOR", color: "bg-amber-700" },
+            { id: "c14_9",  len: 9,  name: "Compensador 9",    label: "9 cm (+1massa = 10cm)",  type: "COMPENSATOR", color: "bg-purple-700" },
+            { id: "c14_4",  len: 4,  name: "Compensador 4",    label: "4 cm (+1massa = 5cm)",   type: "COMPENSATOR", color: "bg-rose-700" }
+          ]
+        },
+        "11.5": {
+          name: "🏢 Bloco Concreto 11.5",
+          badge: "Família 11.5",
+          width: 11.5,
+          height: 19,
+          color: 0x64748B,
+          edgeColor: 0x1E293B,
+          pieces: [
+            { id: "c11_39", len: 39, name: "Bloco Inteiro 39", label: "39 cm (+1massa = 40cm)", type: "WHOLE", color: "bg-slate-600" },
+            { id: "c11_19", len: 19, name: "Meio Bloco 19",    label: "19 cm (+1massa = 20cm)", type: "HALF", color: "bg-emerald-700" },
+            { id: "c11_11", len: 11.5, name: "Compensador 11.5", label: "11.5 cm (+1massa = 12.5cm)", type: "COMPENSATOR", color: "bg-amber-700" },
+            { id: "c11_4",  len: 4,  name: "Compensador 4",    label: "4 cm (+1massa = 5cm)",   type: "COMPENSATOR", color: "bg-rose-700" }
+          ]
+        },
+        "19": {
+          name: "🏢 Bloco Concreto 19",
+          badge: "Família 19",
+          width: 19,
+          height: 19,
+          color: 0x64748B,
+          edgeColor: 0x1E293B,
+          pieces: [
+            { id: "c19_39", len: 39, name: "Bloco Inteiro 39", label: "39 cm (+1massa = 40cm)", type: "WHOLE", color: "bg-slate-600" },
+            { id: "c19_19", len: 19, name: "Meio Bloco 19",    label: "19 cm (+1massa = 20cm)", type: "HALF", color: "bg-emerald-700" },
+            { id: "c19_4",  len: 4,  name: "Compensador 4",    label: "4 cm (+1massa = 5cm)",   type: "COMPENSATOR", color: "bg-rose-700" }
+          ]
+        }
+      };
+
+      function switchIaTab(tab) {
+        game3d.activeTab = tab;
+        const btnGame = document.getElementById("iaTabBtn_game3d");
+        const btnVaos = document.getElementById("iaTabBtn_vaos");
+        const viewGame = document.getElementById("iaTabContent_game3d");
+        const viewVaos = document.getElementById("iaTabContent_vaos");
+
+        if (tab === "game3d") {
+          btnGame.className = "px-3.5 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow flex items-center gap-2 transition active:scale-95";
+          btnVaos.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1.5 transition";
+          viewGame.classList.remove("hidden");
+          viewVaos.classList.add("hidden");
+          initGame3D();
+          onGame3DResize();
+          setTimeout(() => {
+            initGame3D();
+            onGame3DResize();
+          }, 80);
+        } else {
+          btnGame.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1.5 transition";
+          btnVaos.className = "px-3.5 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white shadow flex items-center gap-1.5 transition";
+          viewGame.classList.add("hidden");
+          viewVaos.classList.remove("hidden");
+        }
+      }
+
+      function initGame3D() {
+        const canvas = document.getElementById("iaGame3dCanvas");
+        if (!canvas || typeof THREE === "undefined") return;
+
+        if (!game3d.initialized) {
+          const rect = canvas.getBoundingClientRect();
+          const w = rect.width || 800;
+          const h = rect.height || 600;
+
+          game3d.scene = new THREE.Scene();
+          game3d.scene.background = new THREE.Color(0x060B15);
+
+          game3d.camera = new THREE.PerspectiveCamera(45, w / h, 1, 5000);
+          game3d.camera.position.set(120, 160, 260);
+
+          game3d.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+          game3d.renderer.setSize(w, h);
+          game3d.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+          if (THREE.OrbitControls) {
+            game3d.controls = new THREE.OrbitControls(game3d.camera, game3d.renderer.domElement);
+            game3d.controls.enableDamping = true;
+            game3d.controls.dampingFactor = 0.08;
+            game3d.controls.target.set(60, 30, 20);
+            game3d.controls.maxPolarAngle = Math.PI / 2 + 0.05;
+          }
+
+          // Iluminação suave e nítida
+          const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 0.7);
+          game3d.scene.add(hemiLight);
+
+          const dirLight1 = new THREE.DirectionalLight(0xfff7ed, 0.85);
+          dirLight1.position.set(200, 300, 200);
+          game3d.scene.add(dirLight1);
+
+          const dirLight2 = new THREE.DirectionalLight(0x93c5fd, 0.4);
+          dirLight2.position.set(-150, 150, -100);
+          game3d.scene.add(dirLight2);
+
+          // Grade do chão (Grid de Assentamento)
+          const gridHelper = new THREE.GridHelper(300, 30, 0x3b82f6, 0x1e293b);
+          gridHelper.position.set(50, -0.1, 50);
+          game3d.scene.add(gridHelper);
+
+          // Eixos Guia
+          const axes = new THREE.AxesHelper(40);
+          axes.position.set(0, 0.1, 0);
+          game3d.scene.add(axes);
+
+          // Grupo para blocos colocados
+          game3d.meshGroup = new THREE.Group();
+          game3d.scene.add(game3d.meshGroup);
+
+          // Animação contínua
+          function animate() {
+            game3d.animFrameId = requestAnimationFrame(animate);
+            if (game3d.controls) game3d.controls.update();
+            if (game3d.renderer && game3d.scene && game3d.camera) {
+              game3d.renderer.render(game3d.scene, game3d.camera);
+            }
+          }
+          animate();
+
+          window.addEventListener("resize", onGame3DResize);
+          game3d.initialized = true;
+
+          // Se estiver vazio, inicia com um preset bonito
+          if (game3d.blocks.length === 0) {
+            game3dPreset("corner_L");
+          } else {
+            rebuildGame3DMeshes();
+            game3dResetCamera();
+          }
+        } else {
+          rebuildGame3DMeshes();
+        }
+
+        renderGame3DPalette();
+        updateGame3DUI();
+      }
+
+      function onGame3DResize() {
+        const canvas = document.getElementById("iaGame3dCanvas");
+        if (!canvas || !game3d.renderer || !game3d.camera) return;
+        const rect = canvas.getBoundingClientRect();
+        const w = rect.width || 800;
+        const h = rect.height || 600;
+        if (w === 0 || h === 0) return;
+        game3d.camera.aspect = w / h;
+        game3d.camera.updateProjectionMatrix();
+        game3d.renderer.setSize(w, h);
+      }
+
+      function game3dSetCamera(view) {
+        if (!game3d.camera || !game3d.controls) return;
+        const t = game3d.controls.target;
+        if (view === "top") {
+          game3d.camera.position.set(t.x, 320, t.z + 0.1);
+        } else if (view === "front") {
+          game3d.camera.position.set(t.x, t.y + 20, t.z + 300);
+        } else {
+          // Iso
+          game3d.camera.position.set(t.x + 130, t.y + 160, t.z + 240);
+        }
+        game3d.controls.update();
+      }
+
+      function game3dResetCamera() {
+        if (!game3d.controls || !game3d.camera) return;
+        // Centraliza nos blocos
+        if (game3d.blocks.length > 0) {
+          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, minZ = Infinity, maxZ = -Infinity;
+          game3d.blocks.forEach(b => {
+            minX = Math.min(minX, b.x - b.len / 2);
+            maxX = Math.max(maxX, b.x + b.len / 2);
+            minY = Math.min(minY, b.y - b.height / 2);
+            maxY = Math.max(maxY, b.y + b.height / 2);
+            minZ = Math.min(minZ, b.z - b.width / 2);
+            maxZ = Math.max(maxZ, b.z + b.width / 2);
+          });
+          const cx = (minX + maxX) / 2;
+          const cy = (minY + maxY) / 2;
+          const cz = (minZ + maxZ) / 2;
+          game3d.controls.target.set(cx, cy, cz);
+          game3d.camera.position.set(cx + 120, cy + 140, cz + 220);
+        } else {
+          game3d.controls.target.set(60, 30, 20);
+          game3d.camera.position.set(120, 160, 260);
+        }
+        game3d.controls.update();
+      }
+
+      function game3dSetFamily(fam) {
+        game3d.activeFamily = fam;
+        renderGame3DPalette();
+        // Atualiza botões da família
+        ['baiano', '14', '11.5', '19'].forEach(f => {
+          const btn = document.getElementById("gFamBtn_" + f.replace('.', ''));
+          if (btn) {
+            if (f === fam) {
+              btn.className = "p-2 rounded-lg bg-orange-600 text-white shadow text-left flex items-center gap-1.5 font-black";
+            } else {
+              btn.className = "p-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-left flex items-center gap-1.5 font-bold";
+            }
+          }
+        });
+        const spec = game3dFamilySpecs[fam] || game3dFamilySpecs["baiano"];
+        const badge = document.getElementById("game3dFamBadge");
+        if (badge) badge.textContent = spec.badge;
+        const hudFam = document.getElementById("game3dHudFam");
+        if (hudFam) hudFam.textContent = spec.name;
+
+        // Se houver blocos de outra família, reconstrói o preset com a nova família
+        game3dPreset(game3d.structureType);
+      }
+
+      function game3dSetFiada(f) {
+        game3d.activeFiada = f;
+        for (let i = 1; i <= 4; i++) {
+          const btn = document.getElementById("gFiadaBtn_" + i);
+          if (btn) {
+            if (i === f) {
+              btn.className = "px-2.5 py-1 rounded-lg font-black bg-indigo-600 text-white shadow shrink-0";
+            } else {
+              btn.className = "px-2 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0";
+            }
+          }
+        }
+        const b = document.getElementById("game3dFiadaBadge");
+        if (b) b.textContent = `Fiada ${f} (${f % 2 === 1 ? 'Ímpar' : 'Par'})`;
+        const hudF = document.getElementById("game3dHudFiada");
+        if (hudF) hudF.textContent = `${f} (${f % 2 === 1 ? 'Ímpar' : 'Par'})`;
+        highlightActiveFiadaMeshes();
+      }
+
+      function game3dSetDir(d) {
+        game3d.activeDir = d;
+        const btnX = document.getElementById("gDirBtn_X");
+        const btnZ = document.getElementById("gDirBtn_Z");
+        if (d === "X") {
+          btnX.className = "p-2 rounded-lg font-black bg-indigo-600 text-white shadow flex items-center justify-center gap-1";
+          btnZ.className = "p-2 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex items-center justify-center gap-1 border border-amber-500/30";
+        } else {
+          btnX.className = "p-2 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center gap-1";
+          btnZ.className = "p-2 rounded-lg font-black bg-amber-600 text-white shadow flex items-center justify-center gap-1 border border-amber-400";
+        }
+      }
+
+      function renderGame3DPalette() {
+        const c = document.getElementById("game3dPiecesContainer");
+        if (!c) return;
+        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
+        let html = "";
+        spec.pieces.forEach(p => {
+          html += `
+            <button onclick="game3dPlacePiece('${p.id}', ${p.len}, '${p.type}')" class="w-full p-2 rounded-lg ${p.color} hover:brightness-110 text-white text-xs font-black shadow flex items-center justify-between transition active:scale-95">
+              <span class="flex items-center gap-1.5"><span>➕</span> ${p.name}</span>
+              <span class="font-mono text-[11px] bg-black/30 px-1.5 py-0.5 rounded">${p.label}</span>
+            </button>
+          `;
+        });
+        c.innerHTML = html;
+      }
+
+      function game3dPlacePiece(pieceId, len, pieceType) {
+        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
+        const fiada = game3d.activeFiada;
+        const dir = game3d.activeDir; // 'X' or 'Z'
+        const mortar = 1; // 1 cm mortar joint
+
+        // Calcula a posição do novo bloco
+        const fiadaBlocks = game3d.blocks.filter(b => b.fiada === fiada && b.dir === dir);
+        let posX = 0, posZ = 0;
+
+        if (dir === "X") {
+          if (fiadaBlocks.length === 0) {
+            posX = len / 2;
+            posZ = spec.width / 2;
+          } else {
+            // Último bloco na direção X
+            let maxEndX = -Infinity;
+            fiadaBlocks.forEach(b => {
+              maxEndX = Math.max(maxEndX, b.x + b.len / 2);
+            });
+            posX = maxEndX + mortar + len / 2;
+            posZ = spec.width / 2;
+          }
+        } else {
+          // Direção Z (90 graus)
+          const zBlocks = game3d.blocks.filter(b => b.fiada === fiada && b.dir === "Z");
+          if (zBlocks.length === 0) {
+            posX = spec.width / 2;
+            posZ = spec.width + mortar + len / 2;
+          } else {
+            let maxEndZ = -Infinity;
+            zBlocks.forEach(b => {
+              maxEndZ = Math.max(maxEndZ, b.z + b.len / 2);
+            });
+            posX = spec.width / 2;
+            posZ = maxEndZ + mortar + len / 2;
+          }
+        }
+
+        const posY = (fiada - 1) * (spec.height + mortar) + spec.height / 2;
+
+        const newBlock = {
+          id: "gblk_" + Date.now() + "_" + Math.floor(Math.random()*1000),
+          family: game3d.activeFamily,
+          fiada: fiada,
+          dir: dir,
+          type: pieceType,
+          len: len,
+          width: spec.width,
+          height: spec.height,
+          x: posX,
+          y: posY,
+          z: posZ
+        };
+
+        game3d.blocks.push(newBlock);
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+      }
+
+      function game3dUndo() {
+        if (game3d.blocks.length === 0) return;
+        game3d.blocks.pop();
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+      }
+
+      function game3dClearCurrentFiada() {
+        game3d.blocks = game3d.blocks.filter(b => b.fiada !== game3d.activeFiada);
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+      }
+
+      function game3dClearAll() {
+        game3d.blocks = [];
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+      }
+
+      function rebuildGame3DMeshes() {
+        if (!game3d.meshGroup || typeof THREE === "undefined") return;
+
+        // Limpa meshes anteriores
+        while (game3d.meshGroup.children.length > 0) {
+          const obj = game3d.meshGroup.children[0];
+          game3d.meshGroup.remove(obj);
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) {
+            if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+            else obj.material.dispose();
+          }
+        }
+
+        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
+
+        // Cria cada bloco 3D
+        game3d.blocks.forEach(b => {
+          let geomX = b.dir === "X" ? b.len : b.width;
+          let geomZ = b.dir === "X" ? b.width : b.len;
+          let geomY = b.height;
+
+          const geom = new THREE.BoxGeometry(geomX, geomY, geomZ);
+          
+          // Cor do bloco
+          let matColor = spec.color;
+          if (b.type === "HALF") matColor = 0x10B981;
+          else if (b.type === "COMPENSATOR") matColor = 0xEC4899;
+          else if (b.type === "CORNER_TIE") matColor = 0xF97316;
+
+          const mat = new THREE.MeshLambertMaterial({ color: matColor, roughness: 0.8 });
+          const mesh = new THREE.Mesh(geom, mat);
+          mesh.position.set(b.x, b.y, b.z);
+          mesh.userData = { blockId: b.id, fiada: b.fiada };
+
+          // Arestas nítidas arquitetônicas
+          const edges = new THREE.EdgesGeometry(geom);
+          const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x090D16, linewidth: 1.5 }));
+          mesh.add(line);
+
+          // Argamassa embaixo (se fiada > 1)
+          if (b.fiada > 1) {
+            const mortGeom = new THREE.BoxGeometry(geomX, 1, geomZ);
+            const mortMat = new THREE.MeshLambertMaterial({ color: 0xCBD5E1 });
+            const mortMesh = new THREE.Mesh(mortGeom, mortMat);
+            mortMesh.position.set(0, -geomY / 2 - 0.5, 0);
+            mesh.add(mortMesh);
+          }
+
+          game3d.meshGroup.add(mesh);
+        });
+
+        highlightActiveFiadaMeshes();
+      }
+
+      function highlightActiveFiadaMeshes() {
+        if (!game3d.meshGroup) return;
+        game3d.meshGroup.children.forEach(mesh => {
+          const isCurrent = mesh.userData.fiada === game3d.activeFiada;
+          if (mesh.material) {
+            mesh.material.opacity = isCurrent ? 1.0 : 0.85;
+            mesh.material.transparent = !isCurrent;
+          }
+        });
+      }
+
+      function game3dPreset(type) {
+        game3d.structureType = type;
+        game3d.blocks = [];
+        const fam = game3d.activeFamily;
+        const isBaiano = (fam === "baiano");
+
+        if (type === "straight") {
+          // Parede reta com traspasse perfeito (120 cm)
+          if (isBaiano) {
+            // Fiada 1 (Ímpar): 19, 19, 19, 19, 19, 19 (6 blocos = 120cm)
+            game3d.activeFiada = 1; game3d.activeDir = "X";
+            for (let i = 0; i < 6; i++) game3dPlacePiece("b_19", 19, "WHOLE");
+            // Fiada 2 (Par): 9, 19, 19, 19, 19, 19, 9 (120cm com amarração 10cm)
+            game3d.activeFiada = 2; game3d.activeDir = "X";
+            game3dPlacePiece("b_9", 9, "HALF");
+            for (let i = 0; i < 5; i++) game3dPlacePiece("b_19", 19, "WHOLE");
+            game3dPlacePiece("b_9", 9, "HALF");
+          } else {
+            // Família 14 (120 cm)
+            game3d.activeFiada = 1; game3d.activeDir = "X";
+            for (let i = 0; i < 3; i++) game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3d.activeFiada = 2; game3d.activeDir = "X";
+            game3dPlacePiece("c14_19", 19, "HALF");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3dPlacePiece("c14_19", 19, "HALF");
+          }
+        } else if (type === "corner_L") {
+          // Canto em L com amarração cruzada a 90°
+          if (isBaiano) {
+            // Fiada 1: Canto parte em X, ramal em Z
+            game3d.activeFiada = 1;
+            game3d.activeDir = "X";
+            game3dPlacePiece("b_19", 19, "WHOLE");
+            game3dPlacePiece("b_19", 19, "WHOLE");
+            game3dPlacePiece("b_19", 19, "WHOLE");
+            game3d.activeDir = "Z";
+            game3dPlacePiece("b_19", 19, "WHOLE");
+            game3dPlacePiece("b_19", 19, "WHOLE");
+
+            // Fiada 2: Canto amarra cruzado!
+            game3d.activeFiada = 2;
+            game3d.activeDir = "Z";
+            game3dPlacePiece("b_9", 9, "HALF");
+            game3dPlacePiece("b_19", 19, "WHOLE");
+            game3dPlacePiece("b_19", 19, "WHOLE");
+            game3d.activeDir = "X";
+            game3dPlacePiece("b_9", 9, "HALF");
+            game3dPlacePiece("b_19", 19, "WHOLE");
+            game3dPlacePiece("b_19", 19, "WHOLE");
+          } else {
+            // Família 14: Bloco de canto 34 cm
+            game3d.activeFiada = 1;
+            game3d.activeDir = "X";
+            game3dPlacePiece("c14_34", 34, "CORNER_TIE");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3d.activeDir = "Z";
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+
+            game3d.activeFiada = 2;
+            game3d.activeDir = "Z";
+            game3dPlacePiece("c14_34", 34, "CORNER_TIE");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3d.activeDir = "X";
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+          }
+        } else if (type === "junction_T") {
+          // Encontro em T
+          game3d.activeFiada = 1;
+          game3d.activeDir = "X";
+          if (isBaiano) {
+            for (let i = 0; i < 5; i++) game3dPlacePiece("b_19", 19, "WHOLE");
+            game3d.activeDir = "Z";
+            game3dPlacePiece("b_19", 19, "WHOLE");
+            game3dPlacePiece("b_19", 19, "WHOLE");
+
+            game3d.activeFiada = 2;
+            game3d.activeDir = "X";
+            game3dPlacePiece("b_9", 9, "HALF");
+            for (let i = 0; i < 4; i++) game3dPlacePiece("b_19", 19, "WHOLE");
+            game3dPlacePiece("b_9", 9, "HALF");
+            game3d.activeDir = "Z";
+            game3dPlacePiece("b_9", 9, "HALF");
+            game3dPlacePiece("b_19", 19, "WHOLE");
+          } else {
+            for (let i = 0; i < 3; i++) game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3d.activeDir = "Z";
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+
+            game3d.activeFiada = 2;
+            game3d.activeDir = "X";
+            game3dPlacePiece("c14_19", 19, "HALF");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+            game3d.activeDir = "Z";
+            game3dPlacePiece("c14_19", 19, "HALF");
+            game3dPlacePiece("c14_39", 39, "WHOLE");
+          }
+        }
+
+        game3dSetFiada(1);
+        game3dSetDir("X");
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+        game3dResetCamera();
+      }
+
+      function updateGame3DUI() {
+        const hudCount = document.getElementById("game3dHudCount");
+        if (hudCount) hudCount.textContent = game3d.blocks.length;
+
+        // Análise da IA
+        const analysis = analyzeGame3DConstruction();
+        const typeEl = document.getElementById("game3dAiType");
+        const f1El = document.getElementById("game3dAiFiada1");
+        const f2El = document.getElementById("game3dAiFiada2");
+        const bondEl = document.getElementById("game3dAiBond");
+        const patName = document.getElementById("game3dPatternName");
+
+        if (typeEl) typeEl.textContent = analysis.typeName;
+        if (f1El) f1El.textContent = analysis.f1Str;
+        if (f2El) f2El.textContent = analysis.f2Str;
+        if (bondEl) {
+          bondEl.textContent = analysis.bondStr;
+          bondEl.className = analysis.bondOk ? "font-bold text-emerald-400" : "font-bold text-amber-400";
+        }
+
+        if (patName && (!patName.value || patName.dataset.auto === "true")) {
+          patName.value = `${analysis.typeName} ${game3d.activeFamily.toUpperCase()} (${analysis.totalSpan}cm)`;
+          patName.dataset.auto = "true";
+        }
+      }
+
+      function analyzeGame3DConstruction() {
+        const f1 = game3d.blocks.filter(b => b.fiada === 1);
+        const f2 = game3d.blocks.filter(b => b.fiada === 2);
+        const hasZ = game3d.blocks.some(b => b.dir === "Z");
+
+        let typeName = "Parede Reta";
+        if (hasZ) {
+          if (game3d.structureType === "corner_L") typeName = "Canto em L (90°)";
+          else if (game3d.structureType === "junction_T") typeName = "Encontro em T";
+          else typeName = "Estrutura Angular (L/T)";
+        }
+
+        const f1X = f1.filter(b => b.dir === "X");
+        const f2X = f2.filter(b => b.dir === "X");
+
+        const sumF1 = f1X.reduce((acc, b) => acc + b.len, 0) + f1X.length; // +1cm mortar
+        const sumF2 = f2X.reduce((acc, b) => acc + b.len, 0) + f2X.length;
+
+        const f1Str = f1X.length > 0 ? `${f1X.map(b => b.len).join("+")} (+massa = ${sumF1}cm)` : "Vazio";
+        const f2Str = f2X.length > 0 ? `${f2X.map(b => b.len).join("+")} (+massa = ${sumF2}cm)` : "Vazio";
+
+        let bondOk = true;
+        let bondStr = "Aguardando 2ª fiada";
+
+        if (f1X.length > 0 && f2X.length > 0) {
+          // Checa traspasse entre f1 e f2
+          const joints1 = [];
+          let cur1 = 0;
+          f1X.forEach((b, i) => {
+            cur1 += b.len + 1;
+            if (i < f1X.length - 1) joints1.push(cur1);
+          });
+
+          const joints2 = [];
+          let cur2 = 0;
+          f2X.forEach((b, i) => {
+            cur2 += b.len + 1;
+            if (i < f2X.length - 1) joints2.push(cur2);
+          });
+
+          let minDiff = Infinity;
+          joints1.forEach(j1 => {
+            joints2.forEach(j2 => {
+              minDiff = Math.min(minDiff, Math.abs(j1 - j2));
+            });
+          });
+
+          if (minDiff === 0) {
+            bondOk = false;
+            bondStr = "⚠️ Junta Aprumada (Sem traspasse)";
+          } else if (minDiff >= 9) {
+            bondOk = true;
+            bondStr = `✅ Traspasse Perfeito (${Math.round(minDiff)} cm)!`;
+          } else {
+            bondOk = true;
+            bondStr = `⚡ Traspasse Moderado (${Math.round(minDiff)} cm)`;
+          }
+        }
+
+        return {
+          typeName: typeName,
+          totalSpan: Math.max(sumF1, sumF2),
+          f1Str: f1Str,
+          f2Str: f2Str,
+          f1Pieces: f1X.map(b => b.len),
+          f2Pieces: f2X.map(b => b.len),
+          bondOk: bondOk,
+          bondStr: bondStr
+        };
+      }
+
+      function game3dAiAutocompleteNextFiada() {
+        const targetFiada = game3d.activeFiada === 1 ? 2 : (game3d.activeFiada === 2 ? 3 : game3d.activeFiada + 1);
+        const sourceFiada = targetFiada - 1;
+        const srcBlocks = game3d.blocks.filter(b => b.fiada === sourceFiada);
+
+        if (srcBlocks.length === 0) {
+          alert("Por favor, construa a fiada anterior primeiro para a IA aprender e sugerir a amarração!");
+          return;
+        }
+
+        // Limpa a fiada alvo
+        game3d.blocks = game3d.blocks.filter(b => b.fiada !== targetFiada);
+        game3d.activeFiada = targetFiada;
+
+        const isBaiano = (game3d.activeFamily === "baiano");
+        const srcX = srcBlocks.filter(b => b.dir === "X");
+        const srcZ = srcBlocks.filter(b => b.dir === "Z");
+
+        // Regra de IA: Inverte a cabeça da fiada para garantir traspasse de 50%
+        if (srcX.length > 0) {
+          game3d.activeDir = "X";
+          const firstLen = srcX[0].len;
+          if (isBaiano) {
+            if (firstLen === 19) {
+              game3dPlacePiece("b_9", 9, "HALF");
+              for (let i = 0; i < srcX.length - 1; i++) game3dPlacePiece("b_19", 19, "WHOLE");
+              game3dPlacePiece("b_9", 9, "HALF");
+            } else {
+              for (let i = 0; i < srcX.length; i++) game3dPlacePiece("b_19", 19, "WHOLE");
+            }
+          } else {
+            if (firstLen === 39) {
+              game3dPlacePiece("c14_19", 19, "HALF");
+              for (let i = 0; i < srcX.length - 1; i++) game3dPlacePiece("c14_39", 39, "WHOLE");
+              game3dPlacePiece("c14_19", 19, "HALF");
+            } else {
+              for (let i = 0; i < srcX.length; i++) game3dPlacePiece("c14_39", 39, "WHOLE");
+            }
+          }
+        }
+
+        if (srcZ.length > 0) {
+          game3d.activeDir = "Z";
+          if (isBaiano) {
+            game3dPlacePiece("b_9", 9, "HALF");
+            for (let i = 0; i < srcZ.length; i++) game3dPlacePiece("b_19", 19, "WHOLE");
+          } else {
+            game3dPlacePiece("c14_19", 19, "HALF");
+            for (let i = 0; i < srcZ.length; i++) game3dPlacePiece("c14_39", 39, "WHOLE");
+          }
+        }
+
+        game3dSetFiada(targetFiada);
+        updateGame3DUI();
+        showLearningToast(`✨ IA: Fiada ${targetFiada} amarrada e completada com sucesso!`);
+      }
+
+      function game3dTeachAiPattern() {
+        if (game3d.blocks.length === 0) {
+          alert("Construa ou selecione uma parede/canto no jogo 3D antes de ensinar a IA!");
+          return;
+        }
+
+        const analysis = analyzeGame3DConstruction();
+        const patNameInput = document.getElementById("game3dPatternName");
+        const patternName = (patNameInput ? patNameInput.value : "").trim() || `${analysis.typeName} ${game3d.activeFamily.toUpperCase()}`;
+
+        const famKey = (game3d.activeFamily === "baiano" || game3d.activeFamily === 9 || game3d.activeFamily === "9") ? "baiano" : game3d.activeFamily;
+
+        const roundSpan = Math.round(analysis.totalSpan);
+        if (roundSpan <= 0) {
+          alert("Não foi possível calcular o vão da estrutura. Coloque peças na parede.");
+          return;
+        }
+
+        // Registra o padrão de fiada par e ímpar
+        const patternDataOdd = {
+          span: roundSpan,
+          family: famKey,
+          parity: "1",
+          name: patternName + " (Fiada Ímpar)",
+          pieces: analysis.f1Pieces.length > 0 ? analysis.f1Pieces : [19],
+          nominalSum: analysis.f1Pieces.reduce((a,b)=>a+b, 0),
+          totalWithMortar: roundSpan,
+          origin: "jogo_3d",
+          learnedAt: new Date().toLocaleTimeString('pt-BR')
+        };
+
+        const patternDataEven = {
+          span: roundSpan,
+          family: famKey,
+          parity: "0",
+          name: patternName + " (Fiada Par)",
+          pieces: analysis.f2Pieces.length > 0 ? analysis.f2Pieces : [19],
+          nominalSum: analysis.f2Pieces.reduce((a,b)=>a+b, 0),
+          totalWithMortar: roundSpan,
+          origin: "jogo_3d",
+          learnedAt: new Date().toLocaleTimeString('pt-BR')
+        };
+
+        userLearnedPatterns[`${famKey}_${roundSpan}_1`] = patternDataOdd;
+        userLearnedPatterns[`${famKey}_${roundSpan}_0`] = patternDataEven;
+        userLearnedPatterns[`${famKey}_${roundSpan}`] = patternDataOdd;
+        userLearnedPatterns[`${famKey}_${roundSpan}_term_term_1`] = patternDataOdd;
+        userLearnedPatterns[`${famKey}_${roundSpan}_term_term_0`] = patternDataEven;
+
+        saveUserLearnedPatterns();
+        renderLearnedPatternsList();
+
+        // Feedback de comemoração
+        showLearningToast(`🎉 PADRÃO APRENDIDO COM SUCESSO! A IA memorizou "${patternName}" na Família ${famKey.toUpperCase()} com amarração de ${analysis.bondStr}!`);
+      }
+
+
       function clearAllLearnedPatterns() {
         const famName = currentLearnedFamilyFilter === "all" ? "todas as famílias" : `família ${currentLearnedFamilyFilter}`;
         if (!confirm(`Tem certeza que deseja apagar todos os vãos da memória da IA para ${famName}?`)) return;
@@ -10174,7 +11149,7 @@
       }
 
       function renderLearnedPatternsList() {
-        const container = document.getElementById("learnedPatternsGrid");
+        const container = document.getElementById("learnedPatternsGrid") || document.getElementById("learnedPatternsList");
         if (!container) return;
         container.innerHTML = "";
 
