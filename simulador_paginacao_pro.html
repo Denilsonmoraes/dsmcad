@@ -2485,7 +2485,7 @@
     <!-- Mostra todas as modulações memorizadas automaticamente pela IA            -->
     <!-- e permite repaginar qualquer parede ou a obra inteira com 1 clique!       -->
     <!-- ========================================================================= -->
-        <div id="learnedPatternsModal" class="hidden absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 select-none">
+            <div id="learnedPatternsModal" class="hidden absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 select-none">
       <div class="bg-slate-900 border-2 border-indigo-500 rounded-2xl w-full max-w-2xl text-white shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
         <!-- Cabeçalho -->
         <div class="p-3 border-b border-slate-700 bg-slate-950 flex items-center justify-between">
@@ -2493,7 +2493,7 @@
             <span class="text-2xl">🧠</span>
             <div>
               <div class="text-sm font-extrabold text-indigo-300">PAGINADOR INTELIGENTE • IA DE VÃOS & MODULAÇÃO</div>
-              <div class="text-xs text-slate-400">Cadastre e edite os vãos exatos da sua obra. A IA memoriza e repete nas paredes!</div>
+              <div class="text-xs text-slate-400">Separação estrita por família de bloco • Soma modular com +1 cm de argamassa por peça</div>
             </div>
           </div>
           <button onclick="closeLearnedPatternsModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center">✕</button>
@@ -2507,32 +2507,71 @@
               <button onclick="openVaoEditor(null)" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow flex items-center gap-1.5 active:scale-95 transition">
                 <span>➕</span> Cadastrar Novo Vão na IA
               </button>
-              <button onclick="clearAllLearnedPatterns()" class="px-2.5 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-700 text-rose-300 text-xs font-bold" title="Apagar todos os vãos errados da memória">
-                🗑️ Limpar Vãos Errados
+              <button onclick="clearAllLearnedPatterns()" class="px-2.5 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-700 text-rose-300 text-xs font-bold" title="Apagar todos os vãos da família selecionada">
+                🗑️ Limpar Vãos
               </button>
             </div>
             <button onclick="resetLearnedPatternsToDefault()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-semibold" title="Restaurar padrões de fábrica">
-              🔄 Restaurar Padrões
+              🔄 Restaurar Padrões Baiano
+            </button>
+          </div>
+
+          <!-- Filtro de Famílias (Abas) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 border-b border-slate-800 text-xs">
+            <span class="text-[11px] font-bold text-slate-400 mr-1 shrink-0">Filtrar Família:</span>
+            <button id="lpTab_all" onclick="setLearnedFamilyFilter('all')" class="px-2.5 py-1 rounded-lg font-black bg-indigo-600 text-white shadow shrink-0">
+              Todas
+            </button>
+            <button id="lpTab_baiano" onclick="setLearnedFamilyFilter('baiano')" class="px-2.5 py-1 rounded-lg font-bold bg-slate-800 text-orange-300 hover:bg-slate-700 shrink-0">
+              🧱 Baiano 9×14×19
+            </button>
+            <button id="lpTab_14" onclick="setLearnedFamilyFilter('14')" class="px-2.5 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">
+              Família 14 cm
+            </button>
+            <button id="lpTab_115" onclick="setLearnedFamilyFilter('11.5')" class="px-2.5 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">
+              Família 11.5 cm
+            </button>
+            <button id="lpTab_19" onclick="setLearnedFamilyFilter('19')" class="px-2.5 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">
+              Família 19 cm
             </button>
           </div>
 
           <!-- Formulário Inline de Edição de Vão (Ocultável) -->
-          <div id="vaoEditorCard" class="hidden p-3 rounded-xl bg-slate-950/90 border-2 border-indigo-400 flex flex-col gap-2.5 shadow-xl">
+          <div id="vaoEditorCard" class="hidden p-3 rounded-xl bg-slate-950/95 border-2 border-indigo-400 flex flex-col gap-2.5 shadow-xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
-              <span id="vaoEditorTitle" class="text-xs font-black text-indigo-300">✏️ EDITAR VÃO INTELIGENTE</span>
+              <div class="flex items-center gap-2">
+                <span id="vaoEditorTitle" class="text-xs font-black text-indigo-300">✏️ EDITAR VÃO INTELIGENTE</span>
+                <span id="vaoEditorFamilyPill" class="text-[10px] font-black px-1.5 py-0.2 rounded bg-orange-600/40 text-orange-300 border border-orange-500/60">Baiano 9×14×19</span>
+              </div>
               <button onclick="closeVaoEditor()" class="text-slate-400 hover:text-white text-xs font-bold">✕ Fechar</button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <!-- Família de Bloco -->
               <div>
-                <label class="text-[11px] font-bold text-slate-400 block mb-0.5">Comprimento do Vão (cm):</label>
+                <label class="text-[11px] font-bold text-amber-300 block mb-0.5">Família de Bloco:</label>
+                <select id="lpEditFamily" onchange="onVaoEditorFamilyChange()"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white outline-none focus:border-indigo-400">
+                  <option value="baiano">🧱 Tijolo Baiano 9×14×19 cm</option>
+                  <option value="14">Blocos Concreto Família 14 cm</option>
+                  <option value="11.5">Blocos Concreto Família 11.5 cm</option>
+                  <option value="19">Blocos Concreto Família 19 cm</option>
+                  <option value="9">Blocos Concreto Família 9 cm</option>
+                </select>
+              </div>
+
+              <!-- Comprimento do Vão -->
+              <div>
+                <label class="text-[11px] font-bold text-slate-400 block mb-0.5">Vão Total com Argamassa (cm):</label>
                 <input id="lpEditSpan" type="number" min="10" max="2000" step="1"
                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white outline-none focus:border-indigo-400"
-                  placeholder="Ex: 185, 225, 120, 80" oninput="updateVaoEditorValidation()" />
+                  placeholder="Ex: 100, 120, 180, 200" oninput="updateVaoEditorValidation()" />
               </div>
+
+              <!-- Aplicação da Fiada -->
               <div>
                 <label class="text-[11px] font-bold text-slate-400 block mb-0.5">Aplicação da Fiada:</label>
-                <select id="lpEditParity" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white outline-none focus:border-indigo-400">
+                <select id="lpEditParity" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white outline-none focus:border-indigo-400">
                   <option value="any">Qualquer Fiada (Par e Ímpar)</option>
                   <option value="0">Fiada Par (Fiadas 2, 4, 6...)</option>
                   <option value="1">Fiada Ímpar (Fiadas 1, 3, 5...)</option>
@@ -2540,59 +2579,42 @@
               </div>
             </div>
 
+            <!-- Campo de Peças e Validação com +1 cm de Argamassa -->
             <div>
               <div class="flex items-center justify-between mb-0.5">
-                <label class="text-[11px] font-bold text-slate-400">Sequência de Blocos (cm separados por vírgula):</label>
-                <span id="lpEditValidationBadge" class="text-[10px] font-bold text-amber-400">Soma: 0 cm</span>
+                <label class="text-[11px] font-bold text-slate-300">Sequência de Blocos da Família:</label>
+                <span id="lpEditValidationBadge" class="text-[10px] font-bold text-amber-400 font-mono">Soma: 0 cm</span>
               </div>
               <input id="lpEditPieces" type="text"
                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-emerald-300 outline-none focus:border-indigo-400"
-                placeholder="Ex: 19, 19, 19, 9 ou 39, 39, 19" oninput="updateVaoEditorValidation()" />
+                placeholder="Ex: 19, 19, 19, 9, 4" oninput="updateVaoEditorValidation()" />
             </div>
 
-            <!-- Botões Rápidos de Inserção de Blocos -->
-            <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-800">
-              <span class="text-[10px] font-bold text-slate-400">Inserir Bloco:</span>
-              <button type="button" onclick="addPieceToVaoEditor(19)" class="px-2 py-0.5 rounded bg-orange-600 hover:bg-orange-500 text-white font-bold text-[11px] shadow">
-                +19 cm (Baiano)
-              </button>
-              <button type="button" onclick="addPieceToVaoEditor(9)" class="px-2 py-0.5 rounded bg-sky-600 hover:bg-sky-500 text-white font-bold text-[11px] shadow">
-                +9 cm (Meio Baiano)
-              </button>
-              <button type="button" onclick="addPieceToVaoEditor(39)" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-white font-bold text-[11px]">
-                +39 cm (Concreto)
-              </button>
-              <button type="button" onclick="addPieceToVaoEditor(14)" class="px-2 py-0.5 rounded bg-amber-700 hover:bg-amber-600 text-white font-bold text-[11px]">
-                +14 cm
-              </button>
-              <button type="button" onclick="addPieceToVaoEditor(29)" class="px-2 py-0.5 rounded bg-cyan-700 hover:bg-cyan-600 text-white font-bold text-[11px]">
-                +29 cm
-              </button>
-              <button type="button" onclick="addPieceToVaoEditor(34)" class="px-2 py-0.5 rounded bg-purple-700 hover:bg-purple-600 text-white font-bold text-[11px]">
-                +34 cm
-              </button>
-              <button type="button" onclick="removeLastPieceFromVaoEditor()" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-rose-300 font-bold text-[11px] border border-slate-700">
-                ⌫ Desfazer
-              </button>
-              <button type="button" onclick="clearPiecesFromVaoEditor()" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold text-[11px] border border-slate-700">
-                ✕ Limpar
-              </button>
+            <!-- Paleta Dinâmica de Blocos (Restrita à Família Selecionada!) -->
+            <div class="flex flex-col gap-1 pt-1 border-t border-slate-800">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-extrabold text-indigo-300">Peças da Família (clique para inserir):</span>
+                <span class="text-[10px] text-emerald-400 font-bold">+1 cm de massa somado por bloco</span>
+              </div>
+              <div id="lpFamilyPaletteButtons" class="flex flex-wrap items-center gap-1.5">
+                <!-- Gerado dinamicamente para mostrar SOMENTE os blocos da família ativa (incluindo 4cm!) -->
+              </div>
             </div>
 
             <!-- Botões Salvar -->
-            <div class="flex items-center justify-end gap-2 pt-1">
+            <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/80">
               <button type="button" onclick="closeVaoEditor()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">
                 Cancelar
               </button>
               <button type="button" onclick="saveVaoEditor()" class="px-4 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-black shadow-lg active:scale-95 transition">
-                💾 Salvar e Memorizar no Sistema
+                💾 Salvar e Memorizar na Família
               </button>
             </div>
           </div>
 
           <div class="text-xs font-bold text-slate-300 flex items-center justify-between">
-            <span>Padrões de Vãos Memorizados na IA:</span>
-            <span id="lpTotalCountBadge" class="text-[11px] text-indigo-400">0 cadastrados</span>
+            <span id="lpListHeading">Vãos Memorizados na IA:</span>
+            <span id="lpTotalCountBadge" class="text-[11px] text-indigo-400 font-bold">0 cadastrados</span>
           </div>
 
           <div id="learnedPatternsGrid" class="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
@@ -2786,7 +2808,8 @@
       ],
             9: [
         { id: "9_19", len: 19, height: 14, type: "WHOLE", name: "Tijolo Baiano 6 Furos 9×14×19 cm", active: true },
-        { id: "9_9",  len: 9,  height: 14, type: "HALF",  name: "Meio Tijolo Baiano 6 Furos 9×14×9 cm", active: true }
+        { id: "9_9",  len: 9,  height: 14, type: "HALF",  name: "Meio Tijolo Baiano 6 Furos 9×14×9 cm", active: true },
+        { id: "9_4",  len: 4,  height: 14, type: "COMPENSATOR", name: "Compensador Baiano 9×14×4 cm", active: true }
       ],
       19: [
         { id: "19_54", len: 54, height: 19, type: "T_JUNCTION", name: "Compensador T 54×19×19 cm", active: true },
@@ -2798,7 +2821,8 @@
       ],
       "baiano": [
         { id: "b_19", len: 19, height: 14, type: "WHOLE", name: "Tijolo Baiano 6 Furos Inteiro (9×14×19 cm)", active: true },
-        { id: "b_9", len: 9, height: 14, type: "HALF", name: "Meio Tijolo Baiano 6 Furos (9×14×9 cm)", active: true }
+        { id: "b_9", len: 9, height: 14, type: "HALF", name: "Meio Tijolo Baiano 6 Furos (9×14×9 cm)", active: true },
+        { id: "b_4", len: 4, height: 14, type: "COMPENSATOR", name: "Compensador Baiano (9×14×4 cm)", active: true }
       ]
     };
 
@@ -3857,12 +3881,24 @@
       // Se o usuário já ensinou a modular este vão ou contexto, o algoritmo aplica
       // a preferência do usuário de forma 100% autônoma!
       // =========================================================================
-      const key1 = `${roundM}_${leftKind}_${rightKind}_${parity}`;
-      const key2 = `${roundM}_${parity}`;
-      const key3 = `${roundM}_${leftKind}_${rightKind}`;
-      const key4 = String(roundM);
+      const fam = (cat && cat.familyKey) ? cat.familyKey : (isBaiano ? "baiano" : "14");
+      // Prioridade máxima: Padrão cadastrado estritamente para a FAMÍLIA da parede!
+      const kf1 = `${fam}_${roundM}_${leftKind}_${rightKind}_${parity}`;
+      const kf2 = `${fam}_${roundM}_${parity}`;
+      const kf3 = `${fam}_${roundM}_${leftKind}_${rightKind}`;
+      const kf4 = `${fam}_${roundM}`;
+      const k1 = `${roundM}_${leftKind}_${rightKind}_${parity}`;
+      const k2 = `${roundM}_${parity}`;
+      const k3 = `${roundM}_${leftKind}_${rightKind}`;
+      const k4 = String(roundM);
 
-      const learnedSeq = (userLearnedPatterns && (userLearnedPatterns[key1] || userLearnedPatterns[key2] || userLearnedPatterns[key3] || userLearnedPatterns[key4])) || null;
+      const foundEntry = (userLearnedPatterns && (
+        userLearnedPatterns[kf1] || userLearnedPatterns[kf2] || userLearnedPatterns[kf3] || userLearnedPatterns[kf4] ||
+        userLearnedPatterns[k1] || userLearnedPatterns[k2] || userLearnedPatterns[k3] || userLearnedPatterns[k4]
+      )) || null;
+
+      const learnedSeq = (foundEntry && Array.isArray(foundEntry)) ? foundEntry
+        : ((foundEntry && foundEntry.pieces) ? foundEntry.pieces : null);
       if (learnedSeq && learnedSeq.length > 0) {
         let curX = a;
         const pcs = learnedSeq.map(len => {
@@ -9796,9 +9832,64 @@
     }
 
 
-      let editingVaoKey = null;
+            let editingVaoKey = null;
+      let currentLearnedFamilyFilter = "all";
+
+      // Paletas de peças autorizadas por família (incluindo o compensador de 4cm!)
+      const familyPiecesDefinition = {
+        "baiano": [
+          { len: 19, label: "+19 cm (Tijolo Baiano Inteiro)", color: "bg-orange-600 hover:bg-orange-500 text-white font-black" },
+          { len: 9,  label: "+9 cm (Meio Tijolo Baiano)",    color: "bg-sky-600 hover:bg-sky-500 text-white font-black" },
+          { len: 4,  label: "+4 cm (Compensador Baiano)",   color: "bg-emerald-600 hover:bg-emerald-500 text-white font-black" }
+        ],
+        "9": [
+          { len: 19, label: "+19 cm (Baiano 9×14×19)",      color: "bg-orange-600 hover:bg-orange-500 text-white font-black" },
+          { len: 9,  label: "+9 cm (Meio Baiano)",          color: "bg-sky-600 hover:bg-sky-500 text-white font-black" },
+          { len: 4,  label: "+4 cm (Compensador 4cm)",      color: "bg-emerald-600 hover:bg-emerald-500 text-white font-black" }
+        ],
+        "14": [
+          { len: 39, label: "+39 cm (Bloco Inteiro 14)",    color: "bg-slate-700 hover:bg-slate-600 text-white font-bold" },
+          { len: 34, label: "+34 cm (Canto L)",             color: "bg-purple-700 hover:bg-purple-600 text-white font-bold" },
+          { len: 29, label: "+29 cm (Modular)",             color: "bg-cyan-700 hover:bg-cyan-600 text-white font-bold" },
+          { len: 19, label: "+19 cm (Meio Bloco)",          color: "bg-sky-700 hover:bg-sky-600 text-white font-bold" },
+          { len: 14, label: "+14 cm (Compensador)",         color: "bg-amber-700 hover:bg-amber-600 text-white font-bold" },
+          { len: 9,  label: "+9 cm (Compensador 9)",        color: "bg-indigo-700 hover:bg-indigo-600 text-white font-bold" },
+          { len: 4,  label: "+4 cm (Compensador 4cm)",      color: "bg-emerald-600 hover:bg-emerald-500 text-white font-black" }
+        ],
+        "11.5": [
+          { len: 39,   label: "+39 cm (Bloco Inteiro 11.5)",  color: "bg-slate-700 hover:bg-slate-600 text-white font-bold" },
+          { len: 31.5, label: "+31.5 cm (Canto L)",           color: "bg-purple-700 hover:bg-purple-600 text-white font-bold" },
+          { len: 19,   label: "+19 cm (Meio Bloco)",          color: "bg-sky-700 hover:bg-sky-600 text-white font-bold" },
+          { len: 11.5, label: "+11.5 cm (Quina L)",           color: "bg-cyan-700 hover:bg-cyan-600 text-white font-bold" },
+          { len: 9,    label: "+9 cm (Compensador 9)",        color: "bg-indigo-700 hover:bg-indigo-600 text-white font-bold" },
+          { len: 4,    label: "+4 cm (Compensador 4cm)",      color: "bg-emerald-600 hover:bg-emerald-500 text-white font-black" }
+        ],
+        "19": [
+          { len: 39, label: "+39 cm (Bloco Inteiro 19)",    color: "bg-slate-700 hover:bg-slate-600 text-white font-bold" },
+          { len: 19, label: "+19 cm (Meio Bloco 19)",       color: "bg-sky-700 hover:bg-sky-600 text-white font-bold" },
+          { len: 14, label: "+14 cm (Compensador 14)",      color: "bg-amber-700 hover:bg-amber-600 text-white font-bold" },
+          { len: 9,  label: "+9 cm (Compensador 9)",        color: "bg-indigo-700 hover:bg-indigo-600 text-white font-bold" },
+          { len: 4,  label: "+4 cm (Compensador 4cm)",      color: "bg-emerald-600 hover:bg-emerald-500 text-white font-black" }
+        ]
+      };
+
+      function setLearnedFamilyFilter(fam) {
+        currentLearnedFamilyFilter = fam;
+        ["all", "baiano", "14", "11.5", "19"].forEach(f => {
+          const btn = document.getElementById("lpTab_" + f.replace(".", ""));
+          if (!btn) return;
+          if (f === fam) {
+            btn.className = "px-2.5 py-1 rounded-lg font-black bg-indigo-600 text-white shadow shrink-0";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0";
+          }
+        });
+        renderLearnedPatternsList();
+      }
 
       function openLearnedPatternsModal() {
+        const curFam = (typeof activeThicknessCm !== 'undefined') ? getFamilyKey(activeThicknessCm) : "baiano";
+        currentLearnedFamilyFilter = curFam;
         renderLearnedPatternsList();
         closeVaoEditor();
         const m = document.getElementById("learnedPatternsModal");
@@ -9811,6 +9902,55 @@
         if (m) m.classList.add("hidden");
       }
 
+      function onVaoEditorFamilyChange() {
+        const famSel = document.getElementById("lpEditFamily");
+        const pill = document.getElementById("vaoEditorFamilyPill");
+        const fam = famSel ? famSel.value : "baiano";
+        if (pill) {
+          const names = {
+            "baiano": "🧱 Baiano 9×14×19",
+            "14": "Bloco Concreto 14",
+            "11.5": "Bloco Concreto 11.5",
+            "19": "Bloco Concreto 19",
+            "9": "Baiano 9×14×19"
+          };
+          pill.textContent = names[fam] || fam;
+        }
+        renderVaoEditorFamilyPalette(fam);
+        updateVaoEditorValidation();
+      }
+
+      function renderVaoEditorFamilyPalette(fam) {
+        const container = document.getElementById("lpFamilyPaletteButtons");
+        if (!container) return;
+        container.innerHTML = "";
+        const list = familyPiecesDefinition[fam] || familyPiecesDefinition["baiano"];
+
+        list.forEach(item => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `px-2 py-0.5 rounded text-[11px] shadow ${item.color} active:scale-95 transition`;
+          btn.textContent = item.label;
+          btn.onclick = () => addPieceToVaoEditor(item.len);
+          container.appendChild(btn);
+        });
+
+        // Botões de Desfazer e Limpar
+        const undoBtn = document.createElement("button");
+        undoBtn.type = "button";
+        undoBtn.className = "px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-rose-300 font-bold text-[11px] border border-slate-700 ml-1";
+        undoBtn.textContent = "⌫ Desfazer";
+        undoBtn.onclick = removeLastPieceFromVaoEditor;
+        container.appendChild(undoBtn);
+
+        const clearBtn = document.createElement("button");
+        clearBtn.type = "button";
+        clearBtn.className = "px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold text-[11px] border border-slate-700";
+        clearBtn.textContent = "✕ Limpar";
+        clearBtn.onclick = clearPiecesFromVaoEditor;
+        container.appendChild(clearBtn);
+      }
+
       function openVaoEditor(key = null) {
         editingVaoKey = key;
         const card = document.getElementById("vaoEditorCard");
@@ -9818,17 +9958,44 @@
         const spanInp = document.getElementById("lpEditSpan");
         const paritySel = document.getElementById("lpEditParity");
         const piecesInp = document.getElementById("lpEditPieces");
+        const famSel = document.getElementById("lpEditFamily");
 
         if (!card || !spanInp || !piecesInp) return;
 
+        let activeFam = (typeof activeThicknessCm !== 'undefined') ? getFamilyKey(activeThicknessCm) : "baiano";
+
         if (key && userLearnedPatterns[key]) {
           title.textContent = `✏️ EDITAR VÃO: ${key}`;
-          const seq = userLearnedPatterns[key];
+          const val = userLearnedPatterns[key];
+          const seq = Array.isArray(val) ? val : (val.pieces || []);
           piecesInp.value = seq.join(", ");
 
+          // Determinar família do padrão existente
+          if (typeof val === 'object' && val.family) {
+            activeFam = val.family;
+          } else if (key.startsWith("baiano_") || key.startsWith("9_")) {
+            activeFam = "baiano";
+          } else if (key.startsWith("14_")) {
+            activeFam = "14";
+          } else if (key.startsWith("11.5_") || key.startsWith("115_")) {
+            activeFam = "11.5";
+          } else if (key.startsWith("19_")) {
+            activeFam = "19";
+          } else if (seq.every(l => l === 19 || l === 9 || l === 4)) {
+            activeFam = "baiano";
+          }
+
+          if (famSel) famSel.value = activeFam;
+
+          // Extrair vão e paridade
           const parts = key.split("_");
-          const span = parseFloat(parts[0]) || 0;
-          spanInp.value = span || seq.reduce((acc, l) => acc + l, 0);
+          let rawSpan = parseFloat(parts[parts.length - 2]) || parseFloat(parts[0]) || 0;
+          if (rawSpan <= 0) {
+            // Calcular soma nominal + 1cm de argamassa por peça!
+            const sumP = seq.reduce((acc, l) => acc + l, 0);
+            rawSpan = sumP + seq.length; // +1cm de argamassa por peça!
+          }
+          spanInp.value = rawSpan;
 
           if (key.endsWith("_0")) paritySel.value = "0";
           else if (key.endsWith("_1")) paritySel.value = "1";
@@ -9838,8 +10005,10 @@
           spanInp.value = "";
           piecesInp.value = "";
           paritySel.value = "any";
+          if (famSel) famSel.value = (currentLearnedFamilyFilter !== "all") ? currentLearnedFamilyFilter : activeFam;
         }
 
+        onVaoEditorFamilyChange();
         card.classList.remove("hidden");
         updateVaoEditorValidation();
         card.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -9881,6 +10050,7 @@
         }
       }
 
+      // Cálculo rigoroso da argamassa: cada bloco no vão leva +1 cm de argamassa
       function updateVaoEditorValidation() {
         const spanInp = document.getElementById("lpEditSpan");
         const piecesInp = document.getElementById("lpEditPieces");
@@ -9892,24 +10062,24 @@
         const arr = cur ? cur.split(",").map(s => parseFloat(s.trim())).filter(n => !isNaN(n)) : [];
 
         const sumPieces = arr.reduce((acc, n) => acc + n, 0);
-        const J = 1.0;
-        const totalWithJoints = arr.length > 1 ? (sumPieces + (arr.length - 1) * J) : sumPieces;
+        const mortarCount = arr.length; // +1 cm de argamassa por peça!
+        const totalWithMortar = sumPieces + mortarCount;
 
         if (targetSpan > 0) {
-          const diff = Math.round(targetSpan - sumPieces);
+          const diff = Math.round(targetSpan - totalWithMortar);
           if (diff === 0) {
-            badge.className = "text-[10px] font-bold text-emerald-400";
-            badge.textContent = `Soma: ${sumPieces} cm (com juntas: ${totalWithJoints.toFixed(0)}cm) • ✓ Encaixe Perfeito!`;
+            badge.className = "text-[10px] font-bold text-emerald-400 font-mono";
+            badge.textContent = `Blocos: ${sumPieces}cm + Argamassa: ${mortarCount}cm = ${totalWithMortar}cm • ✓ ENCAIXE PERFEITO!`;
           } else if (diff > 0) {
-            badge.className = "text-[10px] font-bold text-amber-400";
-            badge.textContent = `Soma: ${sumPieces} cm • Faltam ${diff} cm para ${targetSpan} cm`;
+            badge.className = "text-[10px] font-bold text-amber-400 font-mono";
+            badge.textContent = `Total c/ argamassa (+1cm): ${totalWithMortar}cm • Faltam ${diff}cm para ${targetSpan}cm`;
           } else {
-            badge.className = "text-[10px] font-bold text-rose-400";
-            badge.textContent = `Soma: ${sumPieces} cm • Ultrapassou ${Math.abs(diff)} cm de ${targetSpan} cm`;
+            badge.className = "text-[10px] font-bold text-rose-400 font-mono";
+            badge.textContent = `Total c/ argamassa (+1cm): ${totalWithMortar}cm • Ultrapassou ${Math.abs(diff)}cm de ${targetSpan}cm`;
           }
         } else {
-          badge.className = "text-[10px] font-bold text-slate-400";
-          badge.textContent = `Soma: ${sumPieces} cm (${arr.length} peças)`;
+          badge.className = "text-[10px] font-bold text-slate-400 font-mono";
+          badge.textContent = `Blocos: ${sumPieces}cm + ${mortarCount}cm argamassa = ${totalWithMortar}cm (${arr.length} peças)`;
         }
       }
 
@@ -9917,10 +10087,11 @@
         const spanInp = document.getElementById("lpEditSpan");
         const paritySel = document.getElementById("lpEditParity");
         const piecesInp = document.getElementById("lpEditPieces");
+        const famSel = document.getElementById("lpEditFamily");
 
         const span = parseFloat(spanInp.value);
         if (!span || span <= 0) {
-          alert("Por favor, digite o comprimento do vão em centímetros (ex: 185).");
+          alert("Por favor, digite o vão total em centímetros (ex: 100, 120, 180).");
           return;
         }
 
@@ -9931,88 +10102,169 @@
           return;
         }
 
+        const family = famSel ? famSel.value : "baiano";
+
+        // Validação da família: certificar que não misturou peças de outra família!
+        const allowed = (familyPiecesDefinition[family] || []).map(p => p.len);
+        const forbidden = arr.filter(l => !allowed.includes(l));
+        if (forbidden.length > 0) {
+          alert(`Atenção: A peça de ${forbidden[0]}cm não pertence à família ${family}! Use apenas blocos da mesma família.`);
+          return;
+        }
+
         if (editingVaoKey) {
           delete userLearnedPatterns[editingVaoKey];
         }
 
         const roundSpan = Math.round(span);
-        const parity = paritySel.value;
+        const parity = paritySel.value; // 'any', '0', '1'
+        const sumPieces = arr.reduce((acc, n) => acc + n, 0);
+        const totalWithMortar = sumPieces + arr.length;
+
+        // Chave indexada por família para isolamento total
+        const famPrefix = (family === "baiano" || family === 9 || family === "9") ? "baiano" : family;
+
+        const patternData = {
+          span: roundSpan,
+          family: famPrefix,
+          parity: parity,
+          pieces: [...arr],
+          nominalSum: sumPieces,
+          totalWithMortar: totalWithMortar
+        };
 
         if (parity === "0") {
-          userLearnedPatterns[`${roundSpan}_0`] = [...arr];
-          userLearnedPatterns[`${roundSpan}_term_term_0`] = [...arr];
+          userLearnedPatterns[`${famPrefix}_${roundSpan}_0`] = patternData;
+          userLearnedPatterns[`${famPrefix}_${roundSpan}_term_term_0`] = patternData;
         } else if (parity === "1") {
-          userLearnedPatterns[`${roundSpan}_1`] = [...arr];
-          userLearnedPatterns[`${roundSpan}_term_term_1`] = [...arr];
+          userLearnedPatterns[`${famPrefix}_${roundSpan}_1`] = patternData;
+          userLearnedPatterns[`${famPrefix}_${roundSpan}_term_term_1`] = patternData;
         } else {
-          userLearnedPatterns[`${roundSpan}`] = [...arr];
-          userLearnedPatterns[`${roundSpan}_0`] = [...arr];
-          userLearnedPatterns[`${roundSpan}_1`] = [...arr];
-          userLearnedPatterns[`${roundSpan}_term_term`] = [...arr];
-          userLearnedPatterns[`${roundSpan}_term_term_0`] = [...arr];
-          userLearnedPatterns[`${roundSpan}_term_term_1`] = [...arr];
+          userLearnedPatterns[`${famPrefix}_${roundSpan}`] = patternData;
+          userLearnedPatterns[`${famPrefix}_${roundSpan}_0`] = patternData;
+          userLearnedPatterns[`${famPrefix}_${roundSpan}_1`] = patternData;
+          userLearnedPatterns[`${famPrefix}_${roundSpan}_term_term`] = patternData;
+          userLearnedPatterns[`${famPrefix}_${roundSpan}_term_term_0`] = patternData;
+          userLearnedPatterns[`${famPrefix}_${roundSpan}_term_term_1`] = patternData;
         }
 
         saveUserLearnedPatterns();
         closeVaoEditor();
         renderLearnedPatternsList();
-        showLearningToast(`🧠 Vão de ${roundSpan} cm memorizado com sucesso no sistema!`);
+        showLearningToast(`🧠 Vão de ${roundSpan} cm memorizado na Família ${famPrefix.toUpperCase()} com +1cm de argamassa!`);
       }
 
       function clearAllLearnedPatterns() {
-        if (!confirm("Tem certeza que deseja apagar todos os vãos da memória da IA para cadastrar os corretos?")) return;
-        userLearnedPatterns = {};
-        try {
-          localStorage.setItem("dsmcad_user_learned_patterns_v2", JSON.stringify({}));
-          localStorage.setItem("dsmcad_patterns_customized", "true");
-        } catch(e) {}
+        const famName = currentLearnedFamilyFilter === "all" ? "todas as famílias" : `família ${currentLearnedFamilyFilter}`;
+        if (!confirm(`Tem certeza que deseja apagar todos os vãos da memória da IA para ${famName}?`)) return;
+
+        if (currentLearnedFamilyFilter === "all") {
+          userLearnedPatterns = {};
+        } else {
+          const prefix = currentLearnedFamilyFilter + "_";
+          Object.keys(userLearnedPatterns).forEach(k => {
+            if (k.startsWith(prefix)) delete userLearnedPatterns[k];
+          });
+        }
+
+        saveUserLearnedPatterns();
         renderLearnedPatternsList();
         updateLearnedPatternsCounterUI();
-        showLearningToast("🗑️ Todos os vãos antigos foram apagados. Cadastre os seus vãos corretos!");
+        showLearningToast("🗑️ Vãos apagados da memória da IA!");
       }
 
       function renderLearnedPatternsList() {
         const container = document.getElementById("learnedPatternsGrid");
         if (!container) return;
         container.innerHTML = "";
-        const keys = Object.keys(userLearnedPatterns || {});
+
+        const allKeys = Object.keys(userLearnedPatterns || {});
+
+        // Filtrar por família
+        let filteredKeys = allKeys;
+        if (currentLearnedFamilyFilter !== "all") {
+          const filter = currentLearnedFamilyFilter;
+          filteredKeys = allKeys.filter(k => {
+            const val = userLearnedPatterns[k];
+            if (typeof val === 'object' && val.family) {
+              return val.family === filter;
+            }
+            if (filter === "baiano") {
+              return k.startsWith("baiano_") || k.startsWith("9_") || (Array.isArray(val) && val.every(l => l === 19 || l === 9 || l === 4));
+            }
+            return k.startsWith(filter + "_");
+          });
+        }
+
+        // Remover duplicatas de chaves equivalentes (_term_term_0 vs _0)
+        const displayedSet = new Set();
+        const uniqueKeys = [];
+        filteredKeys.forEach(k => {
+          const val = userLearnedPatterns[k];
+          const seq = Array.isArray(val) ? val : (val.pieces || []);
+          const seqStr = seq.join("-") + "_" + (k.endsWith("_1") ? "1" : (k.endsWith("_0") ? "0" : "any"));
+          if (!displayedSet.has(seqStr)) {
+            displayedSet.add(seqStr);
+            uniqueKeys.push(k);
+          }
+        });
 
         const countBadge = document.getElementById("lpTotalCountBadge");
-        if (countBadge) countBadge.textContent = `${keys.length} memorizados`;
+        if (countBadge) countBadge.textContent = `${uniqueKeys.length} memorizados`;
 
-        if (keys.length === 0) {
-          container.innerHTML = '<div class="text-xs text-slate-400 p-4 text-center italic bg-slate-950 rounded-xl border border-slate-800">Nenhum vão cadastrado ainda. Clique em "➕ Cadastrar Novo Vão na IA" acima para cadastrar os vãos corretos da sua obra!</div>';
+        if (uniqueKeys.length === 0) {
+          container.innerHTML = '<div class="text-xs text-slate-400 p-4 text-center italic bg-slate-950 rounded-xl border border-slate-800">Nenhum vão cadastrado nesta família ainda. Clique em "➕ Cadastrar Novo Vão na IA" acima para cadastrar os vãos corretos da sua obra!</div>';
           return;
         }
 
-        keys.forEach(k => {
-          const seq = userLearnedPatterns[k];
+        uniqueKeys.forEach(k => {
+          const val = userLearnedPatterns[k];
+          const seq = Array.isArray(val) ? val : (val.pieces || []);
           if (!Array.isArray(seq)) return;
+
           const sumBlocks = seq.reduce((acc, l) => acc + l, 0);
-          const J = 1.0;
-          const spanWithJoints = seq.length > 1 ? (sumBlocks + (seq.length - 1) * J) : sumBlocks;
+          const mortarCm = seq.length; // +1 cm por peça
+          const totalWithMortar = sumBlocks + mortarCm;
+
+          // Família
+          let famLabel = "🧱 Baiano 9×14×19";
+          let famBadgeClass = "bg-orange-600/30 text-orange-300 border-orange-500/60";
+          if (typeof val === 'object' && val.family) {
+            if (val.family === "14") { famLabel = "Família 14"; famBadgeClass = "bg-slate-700/50 text-slate-200 border-slate-600"; }
+            else if (val.family === "11.5") { famLabel = "Família 11.5"; famBadgeClass = "bg-cyan-800/40 text-cyan-200 border-cyan-600"; }
+            else if (val.family === "19") { famLabel = "Família 19"; famBadgeClass = "bg-purple-800/40 text-purple-200 border-purple-600"; }
+          } else if (k.startsWith("14_")) {
+            famLabel = "Família 14"; famBadgeClass = "bg-slate-700/50 text-slate-200 border-slate-600";
+          } else if (k.startsWith("11.5_") || k.startsWith("115_")) {
+            famLabel = "Família 11.5"; famBadgeClass = "bg-cyan-800/40 text-cyan-200 border-cyan-600";
+          } else if (k.startsWith("19_")) {
+            famLabel = "Família 19"; famBadgeClass = "bg-purple-800/40 text-purple-200 border-purple-600";
+          }
+
           const card = document.createElement("div");
           card.className = "p-2.5 rounded-xl bg-slate-950 border border-indigo-900/60 flex flex-col gap-1.5 shadow hover:border-indigo-500 transition";
           
           const piecesBadges = seq.map(len => {
             const color = (len === 19) ? "bg-orange-600 text-white font-black"
               : (len === 9) ? "bg-sky-600 text-white font-black"
-              : (len === 39) ? "bg-slate-700 text-white"
-              : (len === 34) ? "bg-purple-600 text-white"
-              : (len === 29) ? "bg-cyan-700 text-white"
-              : (len === 14) ? "bg-amber-700 text-white"
-              : "bg-slate-800 text-amber-300";
-            return `<span class="px-1.5 py-0.5 rounded text-[10px] ${color}">${len}cm</span>`;
+              : (len === 4) ? "bg-emerald-600 text-white font-black"
+              : (len === 39) ? "bg-slate-700 text-white font-bold"
+              : (len === 34) ? "bg-purple-600 text-white font-bold"
+              : (len === 29) ? "bg-cyan-700 text-white font-bold"
+              : (len === 14) ? "bg-amber-700 text-white font-bold"
+              : "bg-slate-800 text-amber-300 font-bold";
+            return `<span class="px-1.5 py-0.5 rounded text-[10px] ${color}">${len}cm (+1massa)</span>`;
           }).join(" ");
 
           const parityLabel = k.endsWith("_1") ? "Fiada Ímpar" : (k.endsWith("_0") ? "Fiada Par" : "Qualquer Fiada");
 
           card.innerHTML = `
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs font-black text-indigo-300">Vão ${sumBlocks} cm</span>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded border ${famBadgeClass}">${famLabel}</span>
+                <span class="text-xs font-black text-indigo-300">Vão ${totalWithMortar} cm</span>
                 <span class="text-[10px] text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">(${parityLabel})</span>
-                <span class="text-[10px] text-slate-500">c/ juntas: ${spanWithJoints.toFixed(0)}cm</span>
+                <span class="text-[10px] text-emerald-400 font-bold font-mono">(${sumBlocks}cm blocos + ${mortarCm}cm massa)</span>
               </div>
               <div class="flex items-center gap-1">
                 <button onclick="openVaoEditor('${k}')" class="text-sky-300 hover:text-white text-xs px-2 py-0.5 rounded bg-sky-950/80 hover:bg-sky-900 font-bold border border-sky-800 transition">
@@ -10038,7 +10290,7 @@
       }
 
       function resetLearnedPatternsToDefault() {
-        if (!confirm("Restaurar os padrões originais de fábrica?")) return;
+        if (!confirm("Restaurar os padrões de Tijolo Baiano 9×14×19 cm com argamassa de 1cm?")) return;
         localStorage.removeItem("dsmcad_user_learned_patterns_v2");
         localStorage.removeItem("dsmcad_patterns_customized");
         userLearnedPatterns = {};
