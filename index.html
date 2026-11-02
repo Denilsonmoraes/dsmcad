@@ -2645,7 +2645,7 @@
                   <span class="text-sm">➡️</span>
                   <span class="text-[10px] font-extrabold leading-tight">Eixo Princ.</span>
                 </button>
-                <button onclick="game3dSetDir('Z')" id="gDirBtn_Z" class="p-2 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex flex-col items-center justify-center text-center border border-amber-500/30 transition active:scale-95" title="Canto em L virando a 90°">
+                <button onclick="game3dCreateLCorner()" id="gDirBtn_Z" class="p-2 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex flex-col items-center justify-center text-center border border-amber-500/30 transition active:scale-95" title="Canto em L virando a 90°">
                   <span class="text-sm">⬆️</span>
                   <span class="text-[10px] font-extrabold leading-tight">Canto 90° (L)</span>
                 </button>
@@ -2688,34 +2688,58 @@
               </div>
             </div>
 
-            <!-- 4. VÃOS DE PORTAS E JANELAS (QUALQUER TAMANHO LIVRE) -->
+            <!-- 4. VÃOS DE PORTAS E JANELAS (CONFIGURAÇÃO COMPLETA IGUAL À DE VIGAS) -->
             <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-black text-slate-300">4. Vãos de Portas & Janelas:</span>
-                <span class="text-[10px] text-amber-400 font-bold">Qualquer Tamanho</span>
+                <span class="text-[10px] text-amber-400 font-bold">Bloqueio Automático de Blocos</span>
               </div>
-              <div class="grid grid-cols-2 gap-1.5 text-xs">
-                <button onclick="game3dInsertOpening('DOOR', 80)" class="p-1.5 rounded-lg bg-slate-800 hover:bg-amber-600 text-slate-200 hover:text-white font-bold flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700">
-                  <span>🚪</span> Porta 80 cm
-                </button>
-                <button onclick="game3dInsertOpening('DOOR', 90)" class="p-1.5 rounded-lg bg-slate-800 hover:bg-amber-600 text-slate-200 hover:text-white font-bold flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700">
-                  <span>🚪</span> Porta 90 cm
-                </button>
-                <button onclick="game3dInsertOpening('WINDOW', 120)" class="p-1.5 rounded-lg bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white font-bold flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700">
-                  <span>🪟</span> Janela 120 cm
-                </button>
-                <button onclick="game3dInsertOpening('WINDOW', 150)" class="p-1.5 rounded-lg bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white font-bold flex items-center justify-center gap-1 transition active:scale-95 border border-slate-700">
-                  <span>🪟</span> Janela 150 cm
-                </button>
+
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="flex flex-col gap-0.5">
+                  <label class="text-[10px] text-slate-400 font-bold">Tipo de Vão:</label>
+                  <select id="game3dOpeningType" onchange="onGame3DOpeningTypeChange()" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    <option value="DOOR">🚪 Porta</option>
+                    <option value="WINDOW" selected>🪟 Janela</option>
+                  </select>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <label class="text-[10px] text-slate-400 font-bold">Largura do Vão (cm):</label>
+                  <input id="game3dOpeningWidth" type="number" step="5" min="40" max="400" value="120" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none" />
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <label class="text-[10px] text-slate-400 font-bold">Fiada Inicial (Peitoril/Base):</label>
+                  <select id="game3dOpeningStartFiada" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    <!-- Preenchido dinamicamente de 1 a 15 -->
+                  </select>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <label class="text-[10px] text-slate-400 font-bold">Fiada Final (Topo/Verga):</label>
+                  <select id="game3dOpeningEndFiada" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                    <!-- Preenchido dinamicamente de 1 a 15 -->
+                  </select>
+                </div>
               </div>
+
+              <!-- Atalhos Rápidos de Vão -->
+              <div class="grid grid-cols-4 gap-1 text-[11px] pt-0.5">
+                <button onclick="game3dQuickSetOpening('DOOR', 80, 1, 11)" class="p-1 rounded bg-slate-800 hover:bg-amber-600 text-slate-200 hover:text-white font-bold transition text-center border border-slate-700">Porta 80</button>
+                <button onclick="game3dQuickSetOpening('DOOR', 90, 1, 11)" class="p-1 rounded bg-slate-800 hover:bg-amber-600 text-slate-200 hover:text-white font-bold transition text-center border border-slate-700">Porta 90</button>
+                <button onclick="game3dQuickSetOpening('WINDOW', 120, 5, 11)" class="p-1 rounded bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white font-bold transition text-center border border-slate-700">Janela 120</button>
+                <button onclick="game3dQuickSetOpening('WINDOW', 150, 5, 11)" class="p-1 rounded bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white font-bold transition text-center border border-slate-700">Janela 150</button>
+              </div>
+
               <div class="flex items-center gap-1.5 pt-1">
-                <button onclick="game3dPromptCustomOpening()" class="w-full py-1.5 rounded-lg bg-amber-600/80 hover:bg-amber-500 text-white text-xs font-black shadow flex items-center justify-center gap-1 transition active:scale-95 border border-amber-400/50">
-                  <span>📐</span> Deixar Vão Livre Personalizado (cm)...
+                <button onclick="game3dInsertConfiguredOpening()" class="flex-1 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white text-xs font-black shadow flex items-center justify-center gap-1 transition active:scale-95 border border-amber-400/50">
+                  <span>🏗️</span> Inserir Vão na Parede
+                </button>
+                <button onclick="game3dClearOpenings()" class="px-2.5 py-2 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-800 text-rose-300 text-xs font-bold transition" title="Remover todos os vãos">
+                  🗑️
                 </button>
               </div>
             </div>
 
-            <!-- 5. VIGAS DE CONCRETO ARMADO (QUALQUER TAMANHO, ESPESSURA E ALTURA) -->
+            <!-- 5. VIGAS DE CONCRETO ARMADO<!-- 5. VIGAS DE CONCRETO ARMADO (QUALQUER TAMANHO, ESPESSURA E ALTURA) -->
             <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-black text-slate-300">5. Viga de Concreto Armado:</span>
@@ -10510,10 +10534,10 @@
           pieces: [
             { id: "c14_54", len: 54, name: "Amarrador T 54 (3 Furos)", label: "54 cm (+1massa = 55cm)", type: "T_JUNCTION", color: "bg-sky-600" },
             { id: "c14_39", len: 39, name: "Bloco Inteiro 39", label: "39 cm (+1massa = 40cm)", type: "WHOLE", color: "bg-slate-600" },
+            { id: "c14_can_39", len: 39, name: "Canaleta 39 (U Estrutural)", label: "39 cm (+1massa = 40cm)", type: "CANALETA", color: "bg-blue-600" },
+            { id: "c14_can_19", len: 19, name: "Meia Canaleta 19 (U)", label: "19 cm (+1massa = 20cm)", type: "MEIA_CANALETA", color: "bg-indigo-600" },
             { id: "c14_34", len: 34, name: "Canto em L 34",    label: "34 cm (+1massa = 35cm)", type: "CORNER_TIE", color: "bg-orange-600" },
-            { id: "c14_29", len: 29, name: "Modular 29",       label: "29 cm (+1massa = 30cm)", type: "MODULAR", color: "bg-cyan-700" },
             { id: "c14_19", len: 19, name: "Meio Bloco 19",    label: "19 cm (+1massa = 20cm)", type: "HALF", color: "bg-emerald-700" },
-            { id: "c14_14", len: 14, name: "Compensador 14",   label: "14 cm (+1massa = 15cm)", type: "COMPENSATOR", color: "bg-amber-700" },
             { id: "c14_9",  len: 9,  name: "Compensador 9",    label: "9 cm (+1massa = 10cm)",  type: "COMPENSATOR", color: "bg-purple-700" },
             { id: "c14_4",  len: 4,  name: "Compensador 4",    label: "4 cm (+1massa = 5cm)",   type: "COMPENSATOR", color: "bg-rose-700" }
           ]
@@ -10596,9 +10620,11 @@
             game3d.controls = new THREE.OrbitControls(game3d.camera, game3d.renderer.domElement);
             game3d.controls.enableDamping = true;
             game3d.controls.dampingFactor = 0.08;
+            game3d.controls.zoomSpeed = 2.8; // ZOOM SUPER RÁPIDO E ÁGIL!
+            game3d.controls.minDistance = 2; // Permite zoom macro a 2cm do bloco!
+            game3d.controls.maxDistance = 35000;
             game3d.controls.target.set(60, 30, 20);
             game3d.controls.maxPolarAngle = Math.PI / 2 + 0.05;
-            game3d.controls.maxDistance = 25000;
           }
 
           // Escuta de Cliques no Canvas para Seleção de Blocos e Amarração Automática
@@ -10672,6 +10698,7 @@
         }
 
         renderGame3DWallsToolbar();
+        populateOpeningFiadasSelect();
         populateBeamFiadasSelect();
         renderGame3DFiadasToolbar();
         renderGame3DPalette();
@@ -10689,6 +10716,47 @@
         game3d.camera.updateProjectionMatrix();
         game3d.renderer.setSize(w, h);
       }
+
+      
+      // Zoom rápido via botões do HUD
+      function game3dQuickZoom(factor) {
+        if (!game3d.camera || !game3d.controls) return;
+        const offset = new THREE.Vector3().subVectors(game3d.camera.position, game3d.controls.target);
+        offset.multiplyScalar(1 / factor);
+        if (offset.length() < 2) offset.setLength(2);
+        game3d.camera.position.addVectors(game3d.controls.target, offset);
+        game3d.controls.update();
+      }
+
+      // Atalhos de teclado para super jogabilidade
+      window.addEventListener("keydown", (e) => {
+        if (!game3d.initialized) return;
+        const modal = document.getElementById("learnedPatternsModal");
+        if (!modal || modal.classList.contains("hidden")) return;
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+
+        if (e.key === "+" || e.key === "=") {
+          game3dQuickZoom(1.3);
+        } else if (e.key === "-" || e.key === "_") {
+          game3dQuickZoom(0.75);
+        } else if (e.key === "f" || e.key === "F") {
+          game3dResetCamera();
+        } else if (e.key === "z" || e.key === "Z") {
+          if (e.ctrlKey || !e.shiftKey) game3dUndo();
+        } else if (e.key === "1") {
+          // Atalho: Bloco Inteiro 39
+          game3dPlacePiece('c14_39', 39, 'WHOLE');
+        } else if (e.key === "2") {
+          // Atalho: Canaleta 39
+          game3dPlacePiece('c14_can_39', 39, 'CANALETA');
+        } else if (e.key === "3") {
+          // Atalho: Canto em L 34
+          game3dPlacePiece('c14_34', 34, 'CORNER_TIE');
+        } else if (e.key === "4") {
+          // Atalho: Meio Bloco 19
+          game3dPlacePiece('c14_19', 19, 'HALF');
+        }
+      });
 
       function game3dSetCamera(view) {
         if (!game3d.camera || !game3d.controls) return;
@@ -10835,78 +10903,132 @@
 
       
       // ============================================================================
-      // VÃOS DE PORTAS E JANELAS (DEIXAR QUALQUER TAMANHO DE VÃO LIVRE)
+      // VÃOS DE PORTAS E JANELAS (CONFIGURAÇÃO COMPLETA IGUAL À DE VIGAS)
       // ============================================================================
-      function game3dInsertOpening(type, defaultSpan) {
-        let curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
-        const span = defaultSpan || 80;
-        const fiada = game3d.activeFiada;
-        const wallW = (game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"]).width;
+      function populateOpeningFiadasSelect() {
+        const selStart = document.getElementById("game3dOpeningStartFiada");
+        const selEnd = document.getElementById("game3dOpeningEndFiada");
+        if (!selStart || !selEnd) return;
 
-        // Pega a posição atual da parede nesta fiada
-        const wallBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === fiada);
-        let startCoord = 0;
-        if (curWall.dir === "X") {
-          startCoord = wallBlocks.length > 0 ? Math.max(...wallBlocks.map(b => b.x + b.len/2)) : curWall.originX;
+        let htmlStart = "", htmlEnd = "";
+        for (let i = 1; i <= 15; i++) {
+          htmlStart += `<option value="${i}" ${i === 5 ? 'selected' : ''}>${i}ª Fiada (${(i-1)*20}cm)</option>`;
+          htmlEnd += `<option value="${i}" ${i === 11 ? 'selected' : ''}>${i}ª Fiada (${i*20}cm)</option>`;
+        }
+        selStart.innerHTML = htmlStart;
+        selEnd.innerHTML = htmlEnd;
+      }
+
+      function onGame3DOpeningTypeChange() {
+        const typeSel = document.getElementById("game3dOpeningType");
+        const wInp = document.getElementById("game3dOpeningWidth");
+        const selStart = document.getElementById("game3dOpeningStartFiada");
+        const selEnd = document.getElementById("game3dOpeningEndFiada");
+        if (!typeSel || !wInp || !selStart || !selEnd) return;
+
+        if (typeSel.value === "DOOR") {
+          wInp.value = "80";
+          selStart.value = "1"; // Porta começa do chão (1ª fiada)
+          selEnd.value = "11";   // Até 2.20m (11ª fiada)
         } else {
-          startCoord = wallBlocks.length > 0 ? Math.max(...wallBlocks.map(b => b.z + b.len/2)) : curWall.originZ;
+          wInp.value = "120";
+          selStart.value = "5"; // Janela começa no peitoril (5ª fiada, 1.00m)
+          selEnd.value = "11";  // Até 2.20m (11ª fiada)
+        }
+      }
+
+      function game3dQuickSetOpening(type, span, startF, endF) {
+        const typeSel = document.getElementById("game3dOpeningType");
+        const wInp = document.getElementById("game3dOpeningWidth");
+        const selStart = document.getElementById("game3dOpeningStartFiada");
+        const selEnd = document.getElementById("game3dOpeningEndFiada");
+        if (typeSel) typeSel.value = type;
+        if (wInp) wInp.value = span;
+        if (selStart) selStart.value = startF;
+        if (selEnd) selEnd.value = endF;
+        game3dInsertConfiguredOpening();
+      }
+
+      function game3dInsertConfiguredOpening() {
+        let curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
+        const typeSel = document.getElementById("game3dOpeningType");
+        const wInp = document.getElementById("game3dOpeningWidth");
+        const selStart = document.getElementById("game3dOpeningStartFiada");
+        const selEnd = document.getElementById("game3dOpeningEndFiada");
+
+        const type = typeSel ? typeSel.value : "WINDOW";
+        const span = wInp ? parseFloat(wInp.value) : 120;
+        let startF = selStart ? parseInt(selStart.value) : (type === "DOOR" ? 1 : 5);
+        let endF = selEnd ? parseInt(selEnd.value) : 11;
+
+        if (startF > endF) {
+          const tmp = startF;
+          startF = endF;
+          endF = tmp;
         }
 
-        const openingObj = {
+        if (!span || span < 20) {
+          alert("Por favor, digite uma largura válida para o vão (mínimo 20 cm).");
+          return;
+        }
+
+        const wallW = (game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"]).width;
+
+        // Posição inicial do vão na parede: começa no final dos blocos já assentados da fiada atual (ou início da parede)
+        const wallBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === game3d.activeFiada);
+        let startPos = 0;
+        if (curWall.dir === "X") {
+          startPos = wallBlocks.length > 0 ? Math.max(...wallBlocks.map(b => b.x + b.len / 2)) : curWall.originX;
+        } else {
+          startPos = wallBlocks.length > 0 ? Math.max(...wallBlocks.map(b => b.z + b.len / 2)) : curWall.originZ;
+        }
+
+        const newOpening = {
           id: "open_" + Date.now(),
           wallId: curWall.id,
-          fiada: fiada,
+          wallName: curWall.name,
+          dir: curWall.dir,
           type: type, // 'DOOR' ou 'WINDOW'
           span: span,
-          startPos: startCoord,
-          endPos: startCoord + span,
-          dir: curWall.dir,
+          startFiada: startF,
+          endFiada: endF,
+          startPos: startPos,
+          endPos: startPos + span,
           wallW: wallW,
-          y: (fiada - 1) * 20
+          yBottom: (startF - 1) * 20,
+          yTop: endF * 20,
+          height: (endF - startF + 1) * 20
         };
 
-        game3d.openings.push(openingObj);
-
-        // Bloco espaçador do vão arquitetônico para avançar a parede
-        const dummySpacer = {
-          id: "spacer_" + Date.now(),
-          wallId: curWall.id,
-          wallName: curWall.name,
-          family: game3d.activeFamily,
-          fiada: fiada,
-          dir: curWall.dir,
-          type: "OPENING_SPACER",
-          len: span,
-          width: wallW,
-          height: 19,
-          x: curWall.dir === "X" ? (startCoord + span / 2) : curWall.originX,
-          y: (fiada - 1) * 20 + 9.5,
-          z: curWall.dir === "X" ? (curWall.originZ + wallW / 2) : (startCoord + span / 2),
-          isOpening: true,
-          openingType: type
-        };
-
-        game3d.blocks.push(dummySpacer);
+        game3d.openings.push(newOpening);
         rebuildGame3DMeshes();
         updateGame3DUI();
-        showLearningToast(`🚪 Vão de ${type === 'DOOR' ? 'Porta' : 'Janela'} de ${span}cm inserido na ${curWall.name}!`);
+        showLearningToast(`🚪 Vão de ${type === 'DOOR' ? 'Porta' : 'Janela'} (${span}×${newOpening.height}cm) criado da ${startF}ª à ${endF}ª fiada!`);
+      }
+
+      function game3dClearOpenings() {
+        game3d.openings = [];
+        // Remove também blocos marcados como abertura
+        game3d.blocks = game3d.blocks.filter(b => !b.isOpening);
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+        showLearningToast("Vãos de portas e janelas removidos.");
+      }
+
+      // Função legada para compatibilidade
+      function game3dInsertOpening(type, defaultSpan) {
+        game3dQuickSetOpening(type, defaultSpan, type === "DOOR" ? 1 : 5, 11);
       }
 
       function game3dPromptCustomOpening() {
-        const spanStr = prompt("Digite o tamanho do vão livre em centímetros (ex: 70, 80, 100, 120, 150, 200):", "120");
+        const spanStr = prompt("Largura do vão em cm (ex: 80, 90, 120, 150):", "120");
         if (!spanStr) return;
         const span = parseFloat(spanStr);
-        if (!span || span <= 0) {
-          alert("Medida inválida.");
-          return;
-        }
-        const isDoor = confirm("Este vão é uma PORTA?\n\nClique [OK] para PORTA\nClique [Cancelar] para JANELA");
-        game3dInsertOpening(isDoor ? "DOOR" : "WINDOW", span);
+        if (!span || span <= 0) return;
+        const isDoor = confirm("Este vão é uma PORTA?\n\n[OK] = Porta (sai do chão)\n[Cancelar] = Janela (peitoril na 5ª fiada)");
+        game3dQuickSetOpening(isDoor ? "DOOR" : "WINDOW", span, isDoor ? 1 : 5, 11);
       }
 
-      // ============================================================================
-      // VIGAS DE CONCRETO ARMADO (QUALQUER TAMANHO, ESPESSURA E ALTURA EM QUALQUER FIADA)
-      // ============================================================================
       function populateBeamFiadasSelect() {
         const sel = document.getElementById("game3dBeamFiada");
         if (!sel) return;
@@ -10982,6 +11104,59 @@
         showLearningToast("Vigas removidas com sucesso.");
       }
 
+
+      
+      // Cria um Canto em L formando 90° dinamicamente a partir do final da parede atual
+      function game3dCreateLCorner() {
+        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
+        const wallW = spec.width;
+        const mortar = 1;
+
+        let curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
+        const curBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === game3d.activeFiada);
+
+        const nextChar = String.fromCharCode(65 + game3d.walls.length);
+        const newWallId = "wall_L_" + Date.now();
+        const newWallName = `Parede ${nextChar} (Canto em L 90°)`;
+
+        const newDir = (curWall.dir === "X") ? "Z" : "X";
+        let originX = 0, originZ = 0;
+
+        if (curWall.dir === "X") {
+          // Parede atual corre em X -> Canto vira 90° e corre em Z
+          let endX = curWall.originX;
+          if (curBlocks.length > 0) {
+            endX = Math.max(...curBlocks.map(b => b.x + b.len / 2));
+          }
+          // A quina externa em X fica em endX. A linha central em X da nova parede fica em endX - wallW/2
+          originX = endX - wallW / 2;
+          originZ = curWall.originZ;
+        } else {
+          // Parede atual corre em Z -> Canto vira 90° e corre em X
+          let endZ = curWall.originZ;
+          if (curBlocks.length > 0) {
+            endZ = Math.max(...curBlocks.map(b => b.z + b.len / 2));
+          }
+          originX = curWall.originX;
+          originZ = endZ - wallW / 2;
+        }
+
+        const newWall = {
+          id: newWallId,
+          name: newWallName,
+          dir: newDir,
+          originX: originX,
+          originZ: originZ,
+          parentWallId: curWall.id,
+          isLCorner: true
+        };
+
+        game3d.walls.push(newWall);
+        game3dSetActiveWall(newWallId);
+        updateDirButtonsUI("Z");
+        renderGame3DWallsToolbar();
+        showLearningToast(`📐 ${newWallName} iniciada a 90°! Escolha o bloco de canto.`);
+      }
 
       function game3dCreateTBranch(refBlock) {
         const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
@@ -11313,15 +11488,17 @@ function renderGame3DFiadasToolbar() {
                 posZ = parentZ + len / 2;
               }
             } else {
-              // Ramal T corre em X (parede pai em Z - funciona em ambos os eixos X e Y!)
+              // Ramal T corre em X (parede pai corre em Z)
               posZ = curWall.originZ;
               const parentX = parentWall ? parentWall.originX : 0;
+              // A face externa da parede em Z fica em (parentX - wallW / 2).
+              // A face interna (onde sai o ramal T) fica em (parentX + wallW / 2).
               if (comesFrom54) {
-                // Sai do meio do 54 deixando 20cm de cada lado (encosta com argamassa)
-                posX = parentX + wallW + mortar + len / 2;
+                // Sai do meio do 54 encostando na face interna com 1cm de argamassa (SEM GAP!)
+                posX = (parentX + wallW / 2) + mortar + len / 2;
               } else {
-                // NÃO vem depois de 54: PASSA 14cm ficando certinho na face de fora da parede principal!
-                posX = parentX + len / 2;
+                // NÃO vem de 54: passa 14cm ficando certinho na face de fora externa da parede Z!
+                posX = (parentX - wallW / 2) + len / 2;
               }
             }
           } else if (wallDir === "X") {
@@ -11399,6 +11576,37 @@ function renderGame3DFiadasToolbar() {
         }
 
         // Posicionamento vertical com camada de argamassa desde a 1ª fiada saindo da grade!
+        
+        // =====================================================================
+        // BLOQUEIO FÍSICO RIGOROSO: O BLOCO NÃO PODE ENTRAR NA JANELA NEM NA PORTA!
+        // "o bloco não poder entrar na janela e nem na porta o sistema dá um aviso"
+        // =====================================================================
+        const relevantOpenings = (game3d.openings || []).filter(op =>
+          op.wallId === curWall.id &&
+          fiada >= op.startFiada &&
+          fiada <= op.endFiada
+        );
+
+        for (const op of relevantOpenings) {
+          const blkStart = (wallDir === "X") ? (posX - len / 2) : (posZ - len / 2);
+          const blkEnd = (wallDir === "X") ? (posX + len / 2) : (posZ + len / 2);
+
+          // Verifica se há sobreposição entre o bloco e o vão
+          const overlaps = !(blkEnd <= (op.startPos + 0.1) || blkStart >= (op.endPos - 0.1));
+          if (overlaps) {
+            // Emite aviso claro ao usuário!
+            const opName = (op.type === "DOOR" ? "PORTA" : "JANELA");
+            showLearningToast(`⚠️ AVISO: Bloco bloqueado! Não é permitido assentar blocos dentro do vão da ${opName} (${op.span}cm). O vão foi pulado!`);
+
+            // Pula o bloco para depois do vão automaticamente
+            if (wallDir === "X") {
+              posX = op.endPos + mortar + len / 2;
+            } else {
+              posZ = op.endPos + mortar + len / 2;
+            }
+          }
+        }
+
         const posY = (fiada - 1) * (spec.height + mortar) + mortar + spec.height / 2;
 
         const newBlock = {
@@ -11465,6 +11673,43 @@ function renderGame3DFiadasToolbar() {
       // ============================================================================
       // GERADOR DE GEOMETRIAS REALISTAS DE BLOCOS COM ALVÉOLOS E FUROS REAIS (ABNT)
       // ============================================================================
+      
+      // Cria bloco canaleta com calha em U real para passagem de vigas e ferragens
+      function createHollowCanaletaGeom(len, width, height) {
+        const wallThick = 2.8;
+        const bottomThick = 3.0;
+
+        // Shape externo em U no plano X-Y, extrudado ao longo de Z
+        const shape = new THREE.Shape();
+        const halfW = width / 2;
+        const halfH = height / 2;
+        const halfL = len / 2;
+
+        // Desenha seção transversal em U no plano Y-Z (largura x altura)
+        // e extruda no comprimento X
+        const uShape = new THREE.Shape();
+        uShape.moveTo(-halfW, -halfH);
+        uShape.lineTo(halfW, -halfH);
+        uShape.lineTo(halfW, halfH);
+        uShape.lineTo(halfW - wallThick, halfH);
+        uShape.lineTo(halfW - wallThick, -halfH + bottomThick);
+        uShape.lineTo(-halfW + wallThick, -halfH + bottomThick);
+        uShape.lineTo(-halfW + wallThick, halfH);
+        uShape.lineTo(-halfW, halfH);
+        uShape.closePath();
+
+        const extrudeSettings = {
+          depth: len,
+          bevelEnabled: false
+        };
+
+        const geom = new THREE.ExtrudeGeometry(uShape, extrudeSettings);
+        geom.center();
+        // Gira para alinhar ao longo do eixo X
+        geom.rotateY(Math.PI / 2);
+        return geom;
+      }
+
       function createHollowConcreteGeom(len, width, height, type) {
         const shape = new THREE.Shape();
         const hw = width / 2;
@@ -11686,7 +11931,11 @@ function renderGame3DFiadasToolbar() {
           } else {
             // Concreto: paredes de 3cm, alvéolos verticais
             if (b.len >= 12) {
+              if (b.type === "CANALETA" || b.type === "MEIA_CANALETA") {
+              geom = createHollowCanaletaGeom(b.len, b.width, b.height);
+            } else {
               geom = createHollowConcreteGeom(b.len, b.width, b.height, b.type);
+            }
             } else {
               geom = new THREE.BoxGeometry(b.len, b.height, b.width);
             }
@@ -11800,6 +12049,43 @@ function renderGame3DFiadasToolbar() {
               game3d.meshGroup.add(vMortMesh);
             }
           }
+        });
+
+        // Renderiza Requadros Arquitetônicos de Portas e Janelas Completos
+        (game3d.openings || []).forEach(op => {
+          const parentWall = game3d.walls.find(w => w.id === op.wallId) || game3d.walls[0];
+          const wDir = op.dir || parentWall.dir || "X";
+          const opHeight = (op.endFiada - op.startFiada + 1) * 20;
+          const opY = (op.startFiada - 1) * 20 + opHeight / 2;
+          const centerPos = (op.startPos + op.endPos) / 2;
+
+          let opX = (wDir === "X") ? centerPos : parentWall.originX;
+          let opZ = (wDir === "X") ? (parentWall.originZ + op.wallW / 2) : centerPos;
+
+          const geomX = (wDir === "X") ? op.span : op.wallW;
+          const geomZ = (wDir === "X") ? op.wallW : op.span;
+          const geomY = opHeight;
+
+          const openGeom = new THREE.BoxGeometry(geomX, geomY, geomZ);
+          const isDoor = (op.type === "DOOR");
+
+          const openMat = new THREE.MeshBasicMaterial({
+            color: isDoor ? 0xF59E0B : 0x0EA5E9,
+            transparent: true,
+            opacity: 0.28,
+            depthWrite: false
+          });
+
+          const openMesh = new THREE.Mesh(openGeom, openMat);
+          openMesh.position.set(opX, opY, opZ);
+
+          const edges = new THREE.EdgesGeometry(openGeom);
+          const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
+            color: isDoor ? 0xD97706 : 0x0284C7,
+            linewidth: 2.5
+          }));
+          openMesh.add(line);
+          game3d.meshGroup.add(openMesh);
         });
 
         // Renderiza Vigas de Concreto Armado (Estrutural)
