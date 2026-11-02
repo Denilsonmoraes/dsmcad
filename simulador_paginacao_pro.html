@@ -2604,22 +2604,41 @@
                 <span id="game3dFiadaBadge" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-indigo-600/40 text-indigo-300">Fiada 1</span>
               </div>
 
-              <!-- Seletor de Fiadas -->
-              <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-                <button onclick="game3dSetFiada(1)" id="gFiadaBtn_1" class="px-2.5 py-1 rounded-lg font-black bg-indigo-600 text-white shadow shrink-0">1ª Fiada (Ímpar)</button>
-                <button onclick="game3dSetFiada(2)" id="gFiadaBtn_2" class="px-2.5 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">2ª Fiada (Par)</button>
-                <button onclick="game3dSetFiada(3)" id="gFiadaBtn_3" class="px-2 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">3ª Fiada</button>
-                <button onclick="game3dSetFiada(4)" id="gFiadaBtn_4" class="px-2 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">4ª Fiada</button>
+              <!-- Seletor de Fiadas (1 até a 15ª Fiada) -->
+              <div class="flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                <span>Fiadas (1ª até a 15ª):</span>
+                <div class="flex items-center gap-1">
+                  <button onclick="game3dStepFiada(-1)" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition" title="Fiada Anterior">◀ Ant</button>
+                  <button onclick="game3dStepFiada(1)" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition" title="Próxima Fiada">Seg ▶</button>
+                </div>
+              </div>
+              <div id="game3dFiadasScroll" class="flex items-center gap-1 overflow-x-auto pb-1 text-xs scrollbar-thin">
+                <!-- Inserido dinamicamente de 1 a 15 via renderGame3DFiadasToolbar() -->
               </div>
 
-              <!-- Direção do Bloco (Parede Principal vs 90° Canto L ou T) -->
-              <div class="grid grid-cols-2 gap-1.5 text-xs">
-                <button onclick="game3dSetDir('X')" id="gDirBtn_X" class="p-2 rounded-lg font-black bg-indigo-600 text-white shadow flex items-center justify-center gap-1">
-                  <span>➡️</span> Eixo Principal (Parede)
+              <!-- Direção do Bloco: Eixo Principal, Canto a 90° ou Saída em 'T' -->
+              <div class="grid grid-cols-3 gap-1 text-xs">
+                <button onclick="game3dSetDir('X')" id="gDirBtn_X" class="p-2 rounded-lg font-black bg-indigo-600 text-white shadow flex flex-col items-center justify-center text-center transition active:scale-95" title="Parede no eixo principal longitudinal (X)">
+                  <span class="text-sm">➡️</span>
+                  <span class="text-[10px] font-extrabold leading-tight">Eixo Princ.</span>
                 </button>
-                <button onclick="game3dSetDir('Z')" id="gDirBtn_Z" class="p-2 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex items-center justify-center gap-1 border border-amber-500/30">
-                  <span>⬆️</span> A 90° (Canto L / Ramal T)
+                <button onclick="game3dSetDir('Z')" id="gDirBtn_Z" class="p-2 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex flex-col items-center justify-center text-center border border-amber-500/30 transition active:scale-95" title="Canto em L virando a 90°">
+                  <span class="text-sm">⬆️</span>
+                  <span class="text-[10px] font-extrabold leading-tight">Canto 90° (L)</span>
                 </button>
+                <button onclick="game3dSetDir('T')" id="gDirBtn_T" class="p-2 rounded-lg font-bold bg-slate-800 text-sky-300 hover:bg-slate-700 flex flex-col items-center justify-center text-center border border-sky-500/30 transition active:scale-95" title="Saída em T saindo do centro de 14cm do Bloco 54">
+                  <span class="text-sm">🔀</span>
+                  <span class="text-[10px] font-extrabold leading-tight">Saída em 'T'</span>
+                </button>
+              </div>
+
+              <!-- Banner de Bloco Clicado para Amarração Direta -->
+              <div id="game3dSnapBondBanner" class="hidden p-2 rounded-lg bg-sky-950/90 border border-sky-400 text-xs flex items-center justify-between shadow-lg">
+                <div class="flex items-center gap-1.5 text-sky-200">
+                  <span class="animate-bounce">🎯</span>
+                  <span id="game3dSnapBondText" class="text-[11px] font-bold">Bloco selecionado para amarração!</span>
+                </div>
+                <button onclick="game3dClearSnapBond()" class="text-slate-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded bg-slate-800">✕</button>
               </div>
             </div>
 
@@ -10470,7 +10489,7 @@
           game3d.scene = new THREE.Scene();
           game3d.scene.background = new THREE.Color(0x060B15);
 
-          game3d.camera = new THREE.PerspectiveCamera(45, w / h, 1, 5000);
+          game3d.camera = new THREE.PerspectiveCamera(45, w / h, 1, 40000);
           game3d.camera.position.set(120, 160, 260);
 
           game3d.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
@@ -10483,7 +10502,22 @@
             game3d.controls.dampingFactor = 0.08;
             game3d.controls.target.set(60, 30, 20);
             game3d.controls.maxPolarAngle = Math.PI / 2 + 0.05;
+            game3d.controls.maxDistance = 25000;
           }
+
+          // Escuta de Cliques no Canvas para Seleção de Blocos e Amarração Automática
+          let ptrDownPos = { x: 0, y: 0, t: 0 };
+          canvas.addEventListener("pointerdown", (e) => {
+            ptrDownPos = { x: e.clientX, y: e.clientY, t: Date.now() };
+          });
+
+          canvas.addEventListener("pointerup", (e) => {
+            const dist = Math.hypot(e.clientX - ptrDownPos.x, e.clientY - ptrDownPos.y);
+            const dt = Date.now() - ptrDownPos.t;
+            if (dist < 6 && dt < 450) {
+              onGame3DCanvasClick(e);
+            }
+          });
 
           // Iluminação suave e nítida
           const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 0.7);
@@ -10497,13 +10531,19 @@
           dirLight2.position.set(-150, 150, -100);
           game3d.scene.add(dirLight2);
 
-          // Grade do chão (Grid de Assentamento)
-          const gridHelper = new THREE.GridHelper(300, 30, 0x3b82f6, 0x1e293b);
-          gridHelper.position.set(50, -0.1, 50);
-          game3d.scene.add(gridHelper);
+          // Grade do Chão Ampliada para 26m x 26m (2600 cm) para Projetos de Casas de 20m x 20m
+          // Grade modular fina de 20 em 20 cm
+          const gridMinor = new THREE.GridHelper(2600, 130, 0x1e3a8a, 0x0f172a);
+          gridMinor.position.set(1000, -0.15, 1000);
+          game3d.scene.add(gridMinor);
 
-          // Eixos Guia
-          const axes = new THREE.AxesHelper(40);
+          // Grade principal de metro em metro (100 em 100 cm) com linhas visíveis
+          const gridMajor = new THREE.GridHelper(2600, 26, 0x0284c7, 0x1e293b);
+          gridMajor.position.set(1000, -0.1, 1000);
+          game3d.scene.add(gridMajor);
+
+          // Eixos Guia de 5 metros (500 cm)
+          const axes = new THREE.AxesHelper(500);
           axes.position.set(0, 0.1, 0);
           game3d.scene.add(axes);
 
@@ -10535,6 +10575,7 @@
           rebuildGame3DMeshes();
         }
 
+        renderGame3DFiadasToolbar();
         renderGame3DPalette();
         updateGame3DUI();
       }
@@ -10614,36 +10655,138 @@
         game3dPreset(game3d.structureType);
       }
 
-      function game3dSetFiada(f) {
-        game3d.activeFiada = f;
-        for (let i = 1; i <= 4; i++) {
-          const btn = document.getElementById("gFiadaBtn_" + i);
-          if (btn) {
-            if (i === f) {
-              btn.className = "px-2.5 py-1 rounded-lg font-black bg-indigo-600 text-white shadow shrink-0";
-            } else {
-              btn.className = "px-2 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0";
-            }
-          }
+      function renderGame3DFiadasToolbar() {
+        const c = document.getElementById("game3dFiadasScroll");
+        if (!c) return;
+        let html = "";
+        for (let i = 1; i <= 15; i++) {
+          const isActive = (i === game3d.activeFiada);
+          const isOdd = (i % 2 === 1);
+          const cls = isActive 
+            ? "px-2.5 py-1 rounded-lg font-black bg-indigo-600 text-white shadow shrink-0 border border-indigo-400"
+            : "px-2.5 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white shrink-0";
+          html += `<button onclick="game3dSetFiada(${i})" id="gFiadaBtn_${i}" class="${cls}">${i}ª ${isOdd ? '(Ímp)' : '(Par)'}</button>`;
         }
+        c.innerHTML = html;
+      }
+
+      function game3dSetFiada(f) {
+        if (f < 1) f = 1;
+        if (f > 15) f = 15;
+        game3d.activeFiada = f;
+        renderGame3DFiadasToolbar();
+
+        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
+        const hTotal = (f * (spec.height + 1) - 1);
         const b = document.getElementById("game3dFiadaBadge");
-        if (b) b.textContent = `Fiada ${f} (${f % 2 === 1 ? 'Ímpar' : 'Par'})`;
+        if (b) b.textContent = `${f}ª Fiada (${f % 2 === 1 ? 'Ímpar' : 'Par'}) • H: ${hTotal}cm`;
+
         const hudF = document.getElementById("game3dHudFiada");
-        if (hudF) hudF.textContent = `${f} (${f % 2 === 1 ? 'Ímpar' : 'Par'})`;
+        if (hudF) hudF.textContent = `${f}ª (${f % 2 === 1 ? 'Ímpar' : 'Par'}) • Alt: ${hTotal}cm`;
+
         highlightActiveFiadaMeshes();
+      }
+
+      function game3dStepFiada(delta) {
+        game3dSetFiada(game3d.activeFiada + delta);
       }
 
       function game3dSetDir(d) {
         game3d.activeDir = d;
         const btnX = document.getElementById("gDirBtn_X");
         const btnZ = document.getElementById("gDirBtn_Z");
-        if (d === "X") {
-          btnX.className = "p-2 rounded-lg font-black bg-indigo-600 text-white shadow flex items-center justify-center gap-1";
-          btnZ.className = "p-2 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex items-center justify-center gap-1 border border-amber-500/30";
-        } else {
-          btnX.className = "p-2 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center gap-1";
-          btnZ.className = "p-2 rounded-lg font-black bg-amber-600 text-white shadow flex items-center justify-center gap-1 border border-amber-400";
+        const btnT = document.getElementById("gDirBtn_T");
+
+        if (btnX) btnX.className = (d === "X")
+          ? "p-2 rounded-lg font-black bg-indigo-600 text-white shadow flex flex-col items-center justify-center text-center transition active:scale-95 border border-indigo-400"
+          : "p-2 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 flex flex-col items-center justify-center text-center transition active:scale-95";
+
+        if (btnZ) btnZ.className = (d === "Z")
+          ? "p-2 rounded-lg font-black bg-amber-600 text-white shadow flex flex-col items-center justify-center text-center transition active:scale-95 border border-amber-400"
+          : "p-2 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex flex-col items-center justify-center text-center border border-amber-500/30 transition active:scale-95";
+
+        if (btnT) btnT.className = (d === "T")
+          ? "p-2 rounded-lg font-black bg-sky-600 text-white shadow flex flex-col items-center justify-center text-center transition active:scale-95 border border-sky-400"
+          : "p-2 rounded-lg font-bold bg-slate-800 text-sky-300 hover:bg-slate-700 flex flex-col items-center justify-center text-center border border-sky-500/30 transition active:scale-95";
+
+        if (d === "T") {
+          showLearningToast("🔀 Saída em 'T' ativada! O bloco sairá a 90° centrado no Bloco 54 (deixando 20cm de cada lado).");
         }
+      }
+
+      // ============================================================================
+      // CLIQUE NO BLOCO 3D (RAYCASTER) & AMARRAÇÃO AUTOMÁTICA
+      // ============================================================================
+      function onGame3DCanvasClick(e) {
+        const canvas = document.getElementById("iaGame3dCanvas");
+        if (!canvas || !game3d.camera || !game3d.meshGroup) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const mouse = new THREE.Vector2(
+          ((e.clientX - rect.left) / rect.width) * 2 - 1,
+          -((e.clientY - rect.top) / rect.height) * 2 + 1
+        );
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, game3d.camera);
+        const intersects = raycaster.intersectObjects(game3d.meshGroup.children, true);
+
+        if (intersects.length > 0) {
+          // Acha o objeto raiz que tem blockId
+          let topObj = intersects[0].object;
+          while (topObj && (!topObj.userData || !topObj.userData.blockId) && topObj.parent) {
+            topObj = topObj.parent;
+          }
+
+          if (topObj && topObj.userData && topObj.userData.blockId) {
+            const blockId = topObj.userData.blockId;
+            const targetBlock = game3d.blocks.find(b => b.id === blockId);
+            if (targetBlock) {
+              selectBlockForBonding(targetBlock);
+            }
+          }
+        }
+      }
+
+      function selectBlockForBonding(block) {
+        game3d.snapBondBlock = block;
+        const nextFiada = block.fiada + 1;
+        game3dSetFiada(nextFiada);
+        game3dSetDir(block.dir);
+
+        // Caixa de realce visual no 3D
+        if (game3d.selectionBox) {
+          game3d.scene.remove(game3d.selectionBox);
+        }
+        const geom = new THREE.BoxGeometry(
+          block.dir === "X" ? block.len + 1.2 : block.width + 1.2,
+          block.height + 1.2,
+          block.dir === "X" ? block.width + 1.2 : block.len + 1.2
+        );
+        const mat = new THREE.MeshBasicMaterial({ color: 0x38BDF8, wireframe: true });
+        game3d.selectionBox = new THREE.Mesh(geom, mat);
+        game3d.selectionBox.position.set(block.x, block.y, block.z);
+        game3d.scene.add(game3d.selectionBox);
+
+        // Exibe banner
+        const banner = document.getElementById("game3dSnapBondBanner");
+        const bannerTxt = document.getElementById("game3dSnapBondText");
+        if (banner && bannerTxt) {
+          bannerTxt.textContent = `Bloco ${block.len}cm selecionado! O próximo bloco assentará amarrado na ${nextFiada}ª fiada.`;
+          banner.classList.remove("hidden");
+        }
+
+        showLearningToast(`🎯 Bloco clicado! Fiada ${nextFiada} ativada para assentamento amarrado.`);
+      }
+
+      function game3dClearSnapBond() {
+        game3d.snapBondBlock = null;
+        if (game3d.selectionBox) {
+          game3d.scene.remove(game3d.selectionBox);
+          game3d.selectionBox = null;
+        }
+        const banner = document.getElementById("game3dSnapBondBanner");
+        if (banner) banner.classList.add("hidden");
       }
 
       function renderGame3DPalette() {
@@ -10665,58 +10808,112 @@
       function game3dPlacePiece(pieceId, len, pieceType) {
         const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
         const fiada = game3d.activeFiada;
-        const dir = game3d.activeDir; // 'X' or 'Z'
+        const dir = game3d.activeDir; // 'X', 'Z', or 'T'
         const mortar = 1; // 1 cm mortar joint
         const wallW = spec.width;
         const isCornerL = (game3d.structureType === "corner_L");
 
-        // Regra de Ouro da Amarração de Canto em L:
-        // Fiadas Ímpares (1, 3, 5...): Parede X é dona do canto (começa em X=0). Parede Z começa em Z = wallW + 1cm!
-        // Fiadas Pares (2, 4, 6...): Parede Z é dona do canto e VAI ATÉ A FACE EXTERNA DA PAREDE X (Z=0)! Parede X começa em X = wallW + 1cm!
-        const fiadaBlocks = game3d.blocks.filter(b => b.fiada === fiada && b.dir === dir);
         let posX = 0, posZ = 0;
+        let actualDir = (dir === "T") ? "Z" : dir; // Saída em T corre no eixo Z
 
-        if (dir === "X") {
-          if (fiadaBlocks.length === 0) {
-            if (isCornerL && (fiada % 2 === 0)) {
-              // 2ª Fiada (Par) no Canto em L: o bloco de Z ocupou a ponta externa (0 a wallW).
-              // Portanto o bloco de X morre na face interna do bloco Z: começa em wallW + mortar!
-              posX = wallW + mortar + len / 2;
-            } else {
-              // 1ª Fiada (Ímpar): X começa na face externa da parede Z (X = 0)
-              posX = len / 2;
-            }
-            posZ = wallW / 2;
+        // 1. CASO DE AMARRAÇÃO POR CLIQUE NO BLOCO INFERIOR (snapBondBlock)
+        if (game3d.snapBondBlock && game3d.snapBondBlock.fiada === (fiada - 1)) {
+          const base = game3d.snapBondBlock;
+          actualDir = base.dir;
+          const shiftHalf = (base.len + mortar) / 2; // Traspasse de meio bloco perfeito
+
+          if (actualDir === "X") {
+            // Posiciona amarrando com traspasse de 50% sobre o bloco clicado
+            posX = base.x + shiftHalf - (len / 2) + (mortar / 2);
+            posZ = base.z;
           } else {
-            // Continuação da parede no eixo X
-            let maxEndX = -Infinity;
-            fiadaBlocks.forEach(b => {
-              maxEndX = Math.max(maxEndX, b.x + b.len / 2);
-            });
-            posX = maxEndX + mortar + len / 2;
-            posZ = wallW / 2;
+            posZ = base.z + shiftHalf - (len / 2) + (mortar / 2);
+            posX = base.x;
           }
-        } else {
-          // Direção Z (90 graus - Canto L ou Ramal T)
-          const zBlocks = game3d.blocks.filter(b => b.fiada === fiada && b.dir === "Z");
-          if (zBlocks.length === 0) {
-            if (isCornerL && (fiada % 2 === 0)) {
-              // 2ª Fiada (Par) no Canto em L: O BLOCO TEM QUE PASSAR ATÉ A FACE DE FORA DA FIADA DO EIXO PRINCIPAL (Z = 0)!
-              // Começa em Z = 0 e vai até Z = len!
-              posZ = len / 2;
+
+          game3dClearSnapBond();
+        }
+        // 2. CASO DE SAÍDA EM 'T' (Perpendicular centrada no Bloco 54 ou bloco de referência)
+        else if (dir === "T") {
+          actualDir = "Z";
+          // Procura se o último bloco colocado ou bloco na fiada é um Bloco 54
+          const fBlocks = game3d.blocks.filter(b => b.fiada === fiada);
+          let refBlock = fBlocks.length > 0 ? fBlocks[fBlocks.length - 1] : null;
+
+          // Se houver um bloco 54 na fiada, prioriza ele!
+          const b54 = fBlocks.find(b => b.len >= 50 || b.type === "T_JUNCTION");
+          if (b54) refBlock = b54;
+
+          const tBlocks = game3d.blocks.filter(b => b.fiada === fiada && b.dir === "Z");
+
+          if (tBlocks.length === 0) {
+            if (refBlock && (refBlock.len >= 50 || refBlock.type === "T_JUNCTION")) {
+              // BLOCO 54: Comprimento 54cm. O bloco que vai sair em T sai EXATAMENTE dos 14cm centrais do 54, deixando 20cm para cada lado!
+              // O centro dos 14cm do 54 coincide exatamente com o centro X do Bloco 54 (refBlock.x)!
+              posX = refBlock.x;
+              posZ = refBlock.z + wallW / 2 + mortar + len / 2;
+            } else if (refBlock) {
+              // Qualquer outro bloco: ramifica em T a partir do centro dele
+              posX = refBlock.x;
+              posZ = refBlock.z + wallW / 2 + mortar + len / 2;
             } else {
-              // 1ª Fiada (Ímpar) ou T: Z encosta na face interna da parede X (começa em wallW + mortar)
+              // Sem referência anterior: inicia na coordenada padrão do ramal T
+              posX = wallW / 2 + 40; // 40cm da quina
               posZ = wallW + mortar + len / 2;
             }
-            posX = wallW / 2;
           } else {
-            // Continuação no eixo Z
+            // Continuação da parede do ramal T ao longo do eixo Z
             let maxEndZ = -Infinity;
-            zBlocks.forEach(b => {
+            let refX = tBlocks[0].x;
+            tBlocks.forEach(b => {
               maxEndZ = Math.max(maxEndZ, b.z + b.len / 2);
             });
+            posX = refX;
             posZ = maxEndZ + mortar + len / 2;
-            posX = wallW / 2;
+          }
+        }
+        // 3. CASO NORMAL (EIXO PRINCIPAL X OU CANTO A 90° Z)
+        else {
+          const fiadaBlocks = game3d.blocks.filter(b => b.fiada === fiada && b.dir === actualDir);
+
+          if (actualDir === "X") {
+            if (fiadaBlocks.length === 0) {
+              if (isCornerL && (fiada % 2 === 0)) {
+                // 2ª Fiada (Par) no Canto em L: encosta na face interna do bloco Z
+                posX = wallW + mortar + len / 2;
+              } else {
+                // 1ª Fiada (Ímpar): X começa na face externa da parede Z (X = 0)
+                posX = len / 2;
+              }
+              posZ = wallW / 2;
+            } else {
+              let maxEndX = -Infinity;
+              fiadaBlocks.forEach(b => {
+                maxEndX = Math.max(maxEndX, b.x + b.len / 2);
+              });
+              posX = maxEndX + mortar + len / 2;
+              posZ = wallW / 2;
+            }
+          } else {
+            // actualDir === "Z"
+            const zBlocks = game3d.blocks.filter(b => b.fiada === fiada && b.dir === "Z");
+            if (zBlocks.length === 0) {
+              if (isCornerL && (fiada % 2 === 0)) {
+                // 2ª Fiada (Par) no Canto em L: O BLOCO PASSA ATÉ A FACE DE FORA DA FIADA DO EIXO PRINCIPAL (Z = 0)!
+                posZ = len / 2;
+              } else {
+                // 1ª Fiada (Ímpar): encosta na face interna do bloco de X
+                posZ = wallW + mortar + len / 2;
+              }
+              posX = wallW / 2;
+            } else {
+              let maxEndZ = -Infinity;
+              zBlocks.forEach(b => {
+                maxEndZ = Math.max(maxEndZ, b.z + b.len / 2);
+              });
+              posZ = maxEndZ + mortar + len / 2;
+              posX = wallW / 2;
+            }
           }
         }
 
@@ -10726,7 +10923,7 @@
           id: "gblk_" + Date.now() + "_" + Math.floor(Math.random()*1000),
           family: game3d.activeFamily,
           fiada: fiada,
-          dir: dir,
+          dir: actualDir,
           type: pieceType,
           len: len,
           width: wallW,
