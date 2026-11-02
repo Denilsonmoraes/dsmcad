@@ -3,7 +3,9 @@
 <head>
   <script>window.onerror = function(msg, url, lineNo, colNo, error) { console.error('SIM_ERROR: ' + msg + ' at ' + lineNo + ':' + colNo); return false; };</script>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>Simulador Interativo — Paginação Pro (Compositor Modular de Vãos & Amarração)</title>
   <script src="lib/tailwindcss.min.js"></script>
   <!-- THREE.JS & ORBITCONTROLS NATIVOS EMBUTIDOS (100% OFFLINE, ZERO FALHAS, Z-BUFFER REAL) -->
@@ -2521,7 +2523,11 @@
           <div class="flex-1 h-full relative bg-slate-950 flex flex-col overflow-hidden">
             <!-- Barra Superior de Ferramentas do 3D -->
             <div class="absolute top-2 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
-              <!-- Presets Rápidos do Jogo -->
+              <!-- Botão de Alternar Painel em Dispositivos Móveis / VR -->
+                <button onclick="game3dToggleSidePanel()" class="lg:hidden pointer-events-auto px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition active:scale-95 border border-indigo-400">
+                  <span id="game3dToggleIcon">📋</span> <span id="game3dToggleLabel">Ferramentas</span>
+                </button>
+                <!-- Presets Rápidos do Jogo -->
               <div class="pointer-events-auto flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-lg text-xs">
                 <span class="text-[11px] font-bold text-slate-400 px-2">Começar do Zero:</span>
                 <button onclick="game3dPreset('straight')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white font-bold transition flex items-center gap-1">
@@ -2573,7 +2579,7 @@
           </div>
 
           <!-- Painel Lateral: Controles do Jogo & Ensinamento da IA -->
-          <div class="w-full lg:w-[410px] bg-slate-900/95 border-l border-slate-800 p-3.5 flex flex-col gap-3 overflow-y-auto shrink-0 shadow-2xl">
+          <div id="game3dSideControlPanel" class="w-full lg:w-[410px] max-h-[50vh] lg:max-h-full bg-slate-900/95 border-t lg:border-t-0 lg:border-l border-slate-800 p-3.5 flex flex-col gap-3 overflow-y-auto shrink-0 shadow-2xl transition-all duration-300 z-20">
             
             <!-- Seletor de Família -->
             <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-1.5">
@@ -10996,32 +11002,60 @@
         const newWallName = `Parede ${nextChar} (Saída T)`;
 
         const parentWall = game3d.walls.find(w => w.id === (refBlock ? refBlock.wallId : game3d.activeWallId)) || game3d.walls[0];
-        const parentZ = parentWall ? parentWall.originZ : 0;
+        const parentDir = parentWall ? parentWall.dir : "X";
+        // SAÍDA EM T FUNCIONA EM TODAS AS PAREDES (X e Y/Z):
+        // Se a parede pai corre em X, o ramal sai em Z. Se a parede pai corre em Z, o ramal sai em X!
+        const newDir = (parentDir === "X") ? "Z" : "X";
 
-        let originX = 0;
+        let originX = 0, originZ = 0;
         let comesFrom54 = false;
 
-        if (refBlock) {
-          if (refBlock.len >= 50 || refBlock.type === "T_JUNCTION") {
-            // BLOCO 54: O bloco que vai sair em T sai EXATAMENTE dos 14cm centrais do 54 deixando rigorosamente 20cm de cada lado!
-            comesFrom54 = true;
-            originX = refBlock.x;
+        if (parentDir === "X") {
+          // Parede pai corre no Eixo X -> Ramal T sai no Eixo Z
+          originZ = parentWall.originZ;
+
+          if (refBlock) {
+            if (refBlock.len >= 50 || refBlock.type === "T_JUNCTION") {
+              // 1. PRIMEIRO CASO: Bloco 54
+              // Sai EXATAMENTE do meio do 54, deixando 20cm de cada lado!
+              comesFrom54 = true;
+              originX = refBlock.x;
+            } else {
+              // 2. SEGUNDO CASO: Bloco 39 (módulo 40cm com argamassa)
+              // "tem que ficar na frente do 39 que soma 40 ai ele entra ai + 14"
+              comesFrom54 = false;
+              originX = (refBlock.x + refBlock.len / 2) + mortar + (wallW / 2);
+            }
           } else {
-            // BLOCO 39 (ou qualquer outro que não seja 54):
-            comesFrom54 = false;
-            originX = refBlock.x;
+            originX = wallW / 2 + 40;
           }
         } else {
-          originX = wallW / 2 + 40;
+          // Parede pai corre no Eixo Z (Y) -> Ramal T sai no Eixo X (funciona perfeitamente em X e Y!)
+          originX = parentWall.originX;
+
+          if (refBlock) {
+            if (refBlock.len >= 50 || refBlock.type === "T_JUNCTION") {
+              // Bloco 54 na parede em Z: sai exatamente do centro do 54
+              comesFrom54 = true;
+              originZ = refBlock.z;
+            } else {
+              // Bloco 39 na parede em Z: fica na frente do 39 que soma 40
+              comesFrom54 = false;
+              originZ = (refBlock.z + refBlock.len / 2) + mortar + (wallW / 2);
+            }
+          } else {
+            originZ = wallW / 2 + 40;
+          }
         }
 
         const newWall = {
           id: newWallId,
           name: newWallName,
-          dir: "Z", // Sempre corre a 90°
+          dir: newDir, // Ortogonal à parede pai
           originX: originX,
-          originZ: parentZ, // Face de fora da parede principal
+          originZ: originZ,
           parentWallId: parentWall ? parentWall.id : "wall_A",
+          parentDir: parentDir,
           isTBranch: true,
           comesFrom54Initial: comesFrom54,
           refBlockId: refBlock ? refBlock.id : null
@@ -11031,10 +11065,10 @@
         game3dSetActiveWall(newWallId);
         updateDirButtonsUI("T");
         renderGame3DWallsToolbar();
-        showLearningToast(`🔀 ${newWallName} criada em X=${originX}cm!`);
+        showLearningToast(`🔀 ${newWallName} criada em direção a 90° (${newDir})!`);
       }
 
-            function renderGame3DFiadasToolbar() {
+function renderGame3DFiadasToolbar() {
         const c = document.getElementById("game3dFiadasScroll");
         if (!c) return;
         let h = "";
@@ -11240,10 +11274,59 @@
           game3dClearSnapBond();
         } else if (wallBlocksOnFiada.length === 0) {
           // PRIMEIRO BLOCO DESTA FIADA NA PAREDE:
-          if (wallDir === "X") {
-            posZ = curWall.originZ + wallW / 2; // Linha de centro laser reta fixa
+          if (curWall.isTBranch) {
+            // ===============================================================
+            // REGRA DA SAÍDA EM T (SOLICITADA PELO USUÁRIO PARA TODOS OS EIXOS X E Y):
+            // "o primeiro em verde ta ok mais o segundo ele tem que ficar na frente
+            // do 39 que soma 40 ai ele entra ai + 14, ai vem outro 39 que é 40cm que
+            // pegando 20cm do primeiro mais os 14cm do bloco que ta entrando mais
+            // os 20cm dos 40cm somando 54cm que vem na segunda fiada"
+            // ===============================================================
+            const parentWall = game3d.walls.find(w => w.id === curWall.parentWallId) || game3d.walls[0];
+            const pDir = parentWall ? parentWall.dir : "X";
 
-            // Verifica se há bloco perpendicular de canto a 90° já assentado nesta mesma fiada
+            // Procura se há um bloco 54 na parede principal nesta fiada na junção T
+            const blockOnMain = game3d.blocks.find(b =>
+              b.wallId === curWall.parentWallId &&
+              b.fiada === fiada &&
+              (pDir === "X" ? Math.abs(b.x - curWall.originX) < 25 : Math.abs(b.z - curWall.originZ) < 25) &&
+              (b.len >= 50 || b.type === "T_JUNCTION")
+            );
+
+            let comesFrom54 = false;
+            if (blockOnMain) {
+              comesFrom54 = true;
+            } else if (curWall.comesFrom54Initial) {
+              // Alterna perfeitamente entre fiadas (ímpar encosta no 54, par passa 14cm)
+              comesFrom54 = (fiada % 2 === 1);
+            }
+
+            if (wallDir === "Z") {
+              // Ramal T corre em Z (parede pai em X)
+              posX = curWall.originX;
+              const parentZ = parentWall ? parentWall.originZ : 0;
+              if (comesFrom54) {
+                // Sai do meio do 54 deixando 20cm de cada lado (encosta com argamassa)
+                posZ = parentZ + wallW + mortar + len / 2;
+              } else {
+                // NÃO vem depois de 54: PASSA 14cm ficando certinho na face de fora da parede principal!
+                posZ = parentZ + len / 2;
+              }
+            } else {
+              // Ramal T corre em X (parede pai em Z - funciona em ambos os eixos X e Y!)
+              posZ = curWall.originZ;
+              const parentX = parentWall ? parentWall.originX : 0;
+              if (comesFrom54) {
+                // Sai do meio do 54 deixando 20cm de cada lado (encosta com argamassa)
+                posX = parentX + wallW + mortar + len / 2;
+              } else {
+                // NÃO vem depois de 54: PASSA 14cm ficando certinho na face de fora da parede principal!
+                posX = parentX + len / 2;
+              }
+            }
+          } else if (wallDir === "X") {
+            // Parede normal no Eixo X
+            posZ = curWall.originZ + wallW / 2;
             const perpCorner = game3d.blocks.find(b =>
               b.fiada === fiada &&
               b.dir === "Z" &&
@@ -11252,72 +11335,45 @@
             );
 
             if (perpCorner) {
-              // Encosta perfeitamente na face interna do bloco de canto a 90°
               posX = curWall.originX + wallW + mortar + len / 2;
             } else {
-              // Começa na frente do bloco / face de fora da parede!
               posX = curWall.originX + len / 2;
             }
           } else {
-            // Parede no Eixo Z
-            posX = curWall.originX; // Linha de centro laser reta fixa
+            // Parede normal no Eixo Z
+            posX = curWall.originX;
+            const perpCorner = game3d.blocks.find(b =>
+              b.fiada === fiada &&
+              b.dir === "X" &&
+              Math.abs(b.z - (curWall.originZ + wallW / 2)) < (wallW + 2) &&
+              Math.abs(b.x - curWall.originX) < 50
+            );
 
-            if (curWall.isTBranch) {
-              // ===============================================================
-              // REGRA DA SAÍDA EM T (SOLICITADA PELO USUÁRIO):
-              // "ele tem que passar 14cm, mas apenas se ele NÃO vier depois de um 54,
-              // caso contrário ele passa 14 ficando certinho na face de fora.
-              // Mas se vier depois de um 54, aí tem que sair do meio do 54 deixando 20cm para cada lado!"
-              // ===============================================================
-              const parentWall = game3d.walls.find(w => w.id === curWall.parentWallId) || game3d.walls[0];
-              const parentZ = parentWall ? parentWall.originZ : 0;
-
-              // Procura se há um bloco 54 na parede principal nesta fiada nesta posição X
-              const blockOnMain = game3d.blocks.find(b =>
-                b.wallId === curWall.parentWallId &&
-                b.fiada === fiada &&
-                Math.abs(b.x - curWall.originX) < 25 &&
-                (b.len >= 50 || b.type === "T_JUNCTION")
-              );
-
-              let comesFrom54 = false;
-              if (blockOnMain) {
-                comesFrom54 = true;
-              } else if (curWall.comesFrom54Initial) {
-                // Se o T nasceu num 54 na fiada 1, as fiadas ímpares têm 54 e as pares passam 14cm amarrando!
-                comesFrom54 = (fiada % 2 === 1);
-              }
-
-              if (comesFrom54) {
-                // VIER DEPOIS DE UM 54: Sai do meio do 54 deixando 20cm para cada lado (encosta com argamassa 1cm)
-                posZ = parentZ + wallW + mortar + len / 2;
-              } else {
-                // NÃO VIER DEPOIS DE UM 54: PASSA 14cm ficando certinho na face de fora da parede principal!
-                posZ = parentZ + len / 2;
-              }
+            if (perpCorner) {
+              posZ = curWall.originZ + wallW + mortar + len / 2;
             } else {
-              // Canto a 90° convencional
-              const perpCorner = game3d.blocks.find(b =>
-                b.fiada === fiada &&
-                b.dir === "X" &&
-                Math.abs(b.z - (curWall.originZ + wallW / 2)) < (wallW + 2) &&
-                Math.abs(b.x - curWall.originX) < 50
-              );
-
-              if (perpCorner) {
-                posZ = curWall.originZ + wallW + mortar + len / 2;
-              } else {
-                posZ = curWall.originZ + len / 2;
-              }
+              posZ = curWall.originZ + len / 2;
             }
           }
         } else {
           // CONTINUAÇÃO DA PAREDE NA MESMA FIADA
           if (wallDir === "X") {
             let maxEndX = -Infinity;
+            // 1. Blocos da própria parede
             wallBlocksOnFiada.forEach(b => {
               maxEndX = Math.max(maxEndX, b.x + b.len / 2);
             });
+
+            // 2. Verifica se há ramal T perpendicular cruzando esta fiada logo à frente
+            game3d.blocks.filter(b => b.fiada === fiada && b.dir === "Z").forEach(tb => {
+              if (Math.abs(tb.z - (curWall.originZ + wallW / 2)) < wallW) {
+                const tRightEdge = tb.x + wallW / 2;
+                if (tRightEdge > maxEndX && (maxEndX === -Infinity || (tRightEdge - maxEndX) < 60)) {
+                  maxEndX = tRightEdge;
+                }
+              }
+            });
+
             posX = maxEndX + mortar + len / 2;
             posZ = curWall.originZ + wallW / 2; // GARANTE ALINHAMENTO LASER RETO
           } else {
@@ -11326,13 +11382,23 @@
             wallBlocksOnFiada.forEach(b => {
               maxEndZ = Math.max(maxEndZ, b.z + b.len / 2);
             });
+
+            // Verifica se há ramal T perpendicular cruzando esta fiada logo à frente
+            game3d.blocks.filter(b => b.fiada === fiada && b.dir === "X").forEach(tb => {
+              if (Math.abs(tb.x - (curWall.originX)) < wallW) {
+                const tFrontEdge = tb.z + wallW / 2;
+                if (tFrontEdge > maxEndZ && (maxEndZ === -Infinity || (tFrontEdge - maxEndZ) < 60)) {
+                  maxEndZ = tFrontEdge;
+                }
+              }
+            });
+
             posZ = maxEndZ + mortar + len / 2;
             posX = curWall.originX; // GARANTE ALINHAMENTO LASER RETO
           }
         }
 
         // Posicionamento vertical com camada de argamassa desde a 1ª fiada saindo da grade!
-        // Altura modular: cada fiada tem 20cm (1cm argamassa + 19cm bloco)
         const posY = (fiada - 1) * (spec.height + mortar) + mortar + spec.height / 2;
 
         const newBlock = {
@@ -11356,6 +11422,25 @@
         game3d.blocks.push(newBlock);
         rebuildGame3DMeshes();
         updateGame3DUI();
+      }
+
+
+      // Alterna o painel lateral de ferramentas em telas pequenas (celular/tablet/VR)
+      function game3dToggleSidePanel() {
+        const p = document.getElementById("game3dSideControlPanel");
+        const icon = document.getElementById("game3dToggleIcon");
+        const lbl = document.getElementById("game3dToggleLabel");
+        if (!p) return;
+        if (p.classList.contains("hidden")) {
+          p.classList.remove("hidden");
+          if (icon) icon.textContent = "👁️";
+          if (lbl) lbl.textContent = "Ocultar";
+        } else {
+          p.classList.add("hidden");
+          if (icon) icon.textContent = "📋";
+          if (lbl) lbl.textContent = "Ferramentas";
+        }
+        if (typeof onWindowResize === "function") onWindowResize();
       }
 
       function game3dUndo() {
