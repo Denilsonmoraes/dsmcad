@@ -10995,21 +10995,24 @@
         const newWallId = "wall_T_" + Date.now();
         const newWallName = `Parede ${nextChar} (Saída T)`;
 
-        let originX = 0, originZ = 0;
+        const parentWall = game3d.walls.find(w => w.id === (refBlock ? refBlock.wallId : game3d.activeWallId)) || game3d.walls[0];
+        const parentZ = parentWall ? parentWall.originZ : 0;
+
+        let originX = 0;
+        let comesFrom54 = false;
 
         if (refBlock) {
           if (refBlock.len >= 50 || refBlock.type === "T_JUNCTION") {
             // BLOCO 54: O bloco que vai sair em T sai EXATAMENTE dos 14cm centrais do 54 deixando rigorosamente 20cm de cada lado!
+            comesFrom54 = true;
             originX = refBlock.x;
-            originZ = refBlock.z + wallW / 2 + mortar;
           } else {
-            // BLOCO 39: Começa NA FRENTE DO BLOCO saindo da face do 39 com 1cm de argamassa!
-            originX = refBlock.x + (refBlock.len / 2) - (wallW / 2);
-            originZ = refBlock.z + wallW / 2 + mortar;
+            // BLOCO 39 (ou qualquer outro que não seja 54):
+            comesFrom54 = false;
+            originX = refBlock.x;
           }
         } else {
           originX = wallW / 2 + 40;
-          originZ = wallW + mortar;
         }
 
         const newWall = {
@@ -11017,32 +11020,33 @@
           name: newWallName,
           dir: "Z", // Sempre corre a 90°
           originX: originX,
-          originZ: originZ,
-          parentWallId: game3d.activeWallId,
-          refBlockId: refBlock ? refBlock.id : null,
-          isTBranch: true
+          originZ: parentZ, // Face de fora da parede principal
+          parentWallId: parentWall ? parentWall.id : "wall_A",
+          isTBranch: true,
+          comesFrom54Initial: comesFrom54,
+          refBlockId: refBlock ? refBlock.id : null
         };
 
         game3d.walls.push(newWall);
         game3dSetActiveWall(newWallId);
-        showLearningToast(`🔀 ${newWallName} criada! Agora cada fiada assentada subirá exatamente em cima desta saída em T.`);
-        return newWall;
+        updateDirButtonsUI("T");
+        renderGame3DWallsToolbar();
+        showLearningToast(`🔀 ${newWallName} criada em X=${originX}cm!`);
       }
 
-
-      function renderGame3DFiadasToolbar() {
+            function renderGame3DFiadasToolbar() {
         const c = document.getElementById("game3dFiadasScroll");
         if (!c) return;
-        let html = "";
+        let h = "";
         for (let i = 1; i <= 15; i++) {
           const isActive = (i === game3d.activeFiada);
           const isOdd = (i % 2 === 1);
-          const cls = isActive 
+          const cls = isActive
             ? "px-2.5 py-1 rounded-lg font-black bg-indigo-600 text-white shadow shrink-0 border border-indigo-400"
             : "px-2.5 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white shrink-0";
-          html += `<button onclick="game3dSetFiada(${i})" id="gFiadaBtn_${i}" class="${cls}">${i}ª ${isOdd ? '(Ímp)' : '(Par)'}</button>`;
+          h += `<button onclick="game3dSetFiada(${i})" id="gFiadaBtn_${i}" class="${cls}">${i}ª ${isOdd ? '(Ímp)' : '(Par)'}</button>`;
         }
-        c.innerHTML = html;
+        c.innerHTML = h;
       }
 
       function game3dSetFiada(f) {
@@ -11220,11 +11224,9 @@
           const ref = game3d.snapBondBlock;
           if (wallDir === "X") {
             posZ = curWall.originZ + wallW / 2;
-            // Se for o início do canto, alinha com a frente do bloco de baixo
             if (wallBlocksOnFiada.length === 0) {
               posX = ref.x - (ref.len / 2) + (len / 2);
             } else {
-              // Amarra sobre o centro do bloco selecionado
               posX = ref.x;
             }
           } else {
@@ -11238,7 +11240,6 @@
           game3dClearSnapBond();
         } else if (wallBlocksOnFiada.length === 0) {
           // PRIMEIRO BLOCO DESTA FIADA NA PAREDE:
-          // DEVE COMEÇAR RIGOROSAMENTE NA FRENTE DO BLOCO / DA PAREDE (SEM PULAR 20CM NO AR!)
           if (wallDir === "X") {
             posZ = curWall.originZ + wallW / 2; // Linha de centro laser reta fixa
 
@@ -11261,20 +11262,53 @@
             // Parede no Eixo Z
             posX = curWall.originX; // Linha de centro laser reta fixa
 
-            // Verifica se há bloco perpendicular em X já assentado nesta mesma fiada
-            const perpCorner = game3d.blocks.find(b =>
-              b.fiada === fiada &&
-              b.dir === "X" &&
-              Math.abs(b.z - (curWall.originZ + wallW / 2)) < (wallW + 2) &&
-              Math.abs(b.x - curWall.originX) < 50
-            );
+            if (curWall.isTBranch) {
+              // ===============================================================
+              // REGRA DA SAÍDA EM T (SOLICITADA PELO USUÁRIO):
+              // "ele tem que passar 14cm, mas apenas se ele NÃO vier depois de um 54,
+              // caso contrário ele passa 14 ficando certinho na face de fora.
+              // Mas se vier depois de um 54, aí tem que sair do meio do 54 deixando 20cm para cada lado!"
+              // ===============================================================
+              const parentWall = game3d.walls.find(w => w.id === curWall.parentWallId) || game3d.walls[0];
+              const parentZ = parentWall ? parentWall.originZ : 0;
 
-            if (perpCorner) {
-              // Encosta perfeitamente na face interna do bloco em X
-              posZ = curWall.originZ + wallW + mortar + len / 2;
+              // Procura se há um bloco 54 na parede principal nesta fiada nesta posição X
+              const blockOnMain = game3d.blocks.find(b =>
+                b.wallId === curWall.parentWallId &&
+                b.fiada === fiada &&
+                Math.abs(b.x - curWall.originX) < 25 &&
+                (b.len >= 50 || b.type === "T_JUNCTION")
+              );
+
+              let comesFrom54 = false;
+              if (blockOnMain) {
+                comesFrom54 = true;
+              } else if (curWall.comesFrom54Initial) {
+                // Se o T nasceu num 54 na fiada 1, as fiadas ímpares têm 54 e as pares passam 14cm amarrando!
+                comesFrom54 = (fiada % 2 === 1);
+              }
+
+              if (comesFrom54) {
+                // VIER DEPOIS DE UM 54: Sai do meio do 54 deixando 20cm para cada lado (encosta com argamassa 1cm)
+                posZ = parentZ + wallW + mortar + len / 2;
+              } else {
+                // NÃO VIER DEPOIS DE UM 54: PASSA 14cm ficando certinho na face de fora da parede principal!
+                posZ = parentZ + len / 2;
+              }
             } else {
-              // Começa na frente do bloco / face de fora da parede!
-              posZ = curWall.originZ + len / 2;
+              // Canto a 90° convencional
+              const perpCorner = game3d.blocks.find(b =>
+                b.fiada === fiada &&
+                b.dir === "X" &&
+                Math.abs(b.z - (curWall.originZ + wallW / 2)) < (wallW + 2) &&
+                Math.abs(b.x - curWall.originX) < 50
+              );
+
+              if (perpCorner) {
+                posZ = curWall.originZ + wallW + mortar + len / 2;
+              } else {
+                posZ = curWall.originZ + len / 2;
+              }
             }
           }
         } else {
@@ -11297,7 +11331,9 @@
           }
         }
 
-        const posY = (fiada - 1) * (spec.height + mortar) + spec.height / 2;
+        // Posicionamento vertical com camada de argamassa desde a 1ª fiada saindo da grade!
+        // Altura modular: cada fiada tem 20cm (1cm argamassa + 19cm bloco)
+        const posY = (fiada - 1) * (spec.height + mortar) + mortar + spec.height / 2;
 
         const newBlock = {
           id: "gblk_" + Date.now() + "_" + Math.floor(Math.random()*1000),
@@ -11543,6 +11579,15 @@
 
         const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
         const isBaiano = (game3d.activeFamily === "baiano");
+        const mortar = 1; // 1cm de argamassa
+
+        // Material da Argamassa Cimentícia Realista
+        const mortarMaterial = new THREE.MeshStandardMaterial({
+          color: 0xCBD5E1, // Cinza cimento claro suave
+          roughness: 0.95,
+          metalness: 0.05
+        });
+        const mortarLineMaterial = new THREE.LineBasicMaterial({ color: 0x94A3B8, linewidth: 1.0 });
 
         // Cria cada bloco 3D com ALVÉOLOS REAIS VAZADOS
         game3d.blocks.forEach(b => {
@@ -11614,18 +11659,62 @@
           const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x0F172A, linewidth: 1.5 }));
           mesh.add(line);
 
-          // Argamassa embaixo (se fiada > 1)
-          if (b.fiada > 1) {
-            let mDimX = b.dir === "X" ? b.len : b.width;
-            let mDimZ = b.dir === "X" ? b.width : b.len;
-            const mortGeom = new THREE.BoxGeometry(mDimX, 1, mDimZ);
-            const mortMat = new THREE.MeshLambertMaterial({ color: 0xCBD5E1 });
-            const mortMesh = new THREE.Mesh(mortGeom, mortMat);
-            mortMesh.position.set(0, -b.height / 2 - 0.5, 0);
-            mesh.add(mortMesh);
-          }
-
           game3d.meshGroup.add(mesh);
+
+          // ===================================================================
+          // 1. ARGAMASSA HORIZONTAL DE ASSENTAMENTO (DESDE A 1ª FIADA NA GRADE)
+          // ===================================================================
+          const mDimX = b.dir === "X" ? (b.len + 0.2) : b.width;
+          const mDimZ = b.dir === "X" ? b.width : (b.len + 0.2);
+          const mDimY = mortar; // 1cm de espessura de argamassa
+
+          const mortGeom = new THREE.BoxGeometry(mDimX, mDimY, mDimZ);
+          const mortMesh = new THREE.Mesh(mortGeom, mortarMaterial);
+          // Fica exatamente abaixo do bloco:
+          // Como o bloco tem centro em b.y e altura b.height, sua base fica em b.y - b.height/2
+          mortMesh.position.set(b.x, b.y - b.height / 2 - mortar / 2, b.z);
+
+          const mortEdges = new THREE.EdgesGeometry(mortGeom);
+          const mortLine = new THREE.LineSegments(mortEdges, mortarLineMaterial);
+          mortMesh.add(mortLine);
+          game3d.meshGroup.add(mortMesh);
+
+          // ===================================================================
+          // 2. ARGAMASSA VERTICAL (JUNTAS DE 1CM ENTRE BLOCOS ADJACENTES)
+          // ===================================================================
+          if (b.dir === "X") {
+            // Procura se há um bloco imediatamente à direita na mesma fiada e parede
+            const nextBlk = game3d.blocks.find(nb =>
+              nb.wallId === b.wallId &&
+              nb.fiada === b.fiada &&
+              !nb.isOpening &&
+              Math.abs((nb.x - nb.len / 2) - (b.x + b.len / 2 + mortar)) < 1.5
+            );
+            if (nextBlk) {
+              const vMortGeom = new THREE.BoxGeometry(mortar, b.height, b.width);
+              const vMortMesh = new THREE.Mesh(vMortGeom, mortarMaterial);
+              vMortMesh.position.set(b.x + b.len / 2 + mortar / 2, b.y, b.z);
+              const vEdges = new THREE.EdgesGeometry(vMortGeom);
+              vMortMesh.add(new THREE.LineSegments(vEdges, mortarLineMaterial));
+              game3d.meshGroup.add(vMortMesh);
+            }
+          } else {
+            // Procura se há um bloco imediatamente à frente no eixo Z na mesma fiada e parede
+            const nextBlk = game3d.blocks.find(nb =>
+              nb.wallId === b.wallId &&
+              nb.fiada === b.fiada &&
+              !nb.isOpening &&
+              Math.abs((nb.z - nb.len / 2) - (b.z + b.len / 2 + mortar)) < 1.5
+            );
+            if (nextBlk) {
+              const vMortGeom = new THREE.BoxGeometry(b.width, b.height, mortar);
+              const vMortMesh = new THREE.Mesh(vMortGeom, mortarMaterial);
+              vMortMesh.position.set(b.x, b.y, b.z + b.len / 2 + mortar / 2);
+              const vEdges = new THREE.EdgesGeometry(vMortGeom);
+              vMortMesh.add(new THREE.LineSegments(vEdges, mortarLineMaterial));
+              game3d.meshGroup.add(vMortMesh);
+            }
+          }
         });
 
         // Renderiza Vigas de Concreto Armado (Estrutural)
