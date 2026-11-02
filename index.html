@@ -11006,245 +11006,6 @@
       // FUNÇÕES DEDICADAS PARA CANTOS EM L
       // ============================================================================
       function game3dComecarCantoEmL() {
-        let curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
-        const curBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === game3d.activeFiada);
-        if (curBlocks.length > 0) {
-          game3dTerminarEmL();
-        } else {
-          if (game3d.activeDir === "X") {
-            game3dSetDir("Z");
-          } else {
-            game3dSetDir("X");
-          }
-          showLearningToast("📐 Início de Canto em L selecionado! Escolha o bloco (ex: Canto em L 34).");
-        }
-      }
-
-      function game3dTerminarEmL() {
-        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
-        const wallW = spec.width;
-        const mortar = 1;
-
-        let curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
-        const curBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === game3d.activeFiada);
-
-        const nextChar = String.fromCharCode(65 + game3d.walls.length);
-        const newWallId = "wall_L_" + Date.now();
-        const newWallName = `Parede ${nextChar} (Canto em L 90°)`;
-
-        const newDir = (curWall.dir === "X") ? "Z" : "X";
-        let originX = 0, originZ = 0;
-
-        if (curWall.dir === "X") {
-          let endX = curWall.originX;
-          if (curBlocks.length > 0) {
-            endX = Math.max(...curBlocks.map(b => b.x + b.len / 2));
-          }
-          // Face exterior alinhada perfeitamente no final da parede X
-          originX = endX - wallW;
-          originZ = curWall.originZ;
-        } else {
-          let endZ = curWall.originZ;
-          if (curBlocks.length > 0) {
-            endZ = Math.max(...curBlocks.map(b => b.z + b.len / 2));
-          }
-          // Face exterior alinhada perfeitamente no final da parede Z
-          originZ = endZ - wallW;
-          originX = curWall.originX;
-        }
-
-        const newWall = {
-          id: newWallId,
-          name: newWallName,
-          dir: newDir,
-          originX: originX,
-          originZ: originZ,
-          parentWallId: curWall.id,
-          isLCorner: true
-        };
-
-        game3d.walls.push(newWall);
-        game3dSetActiveWall(newWallId);
-        updateDirButtonsUI(newDir);
-        renderGame3DWallsToolbar();
-        showLearningToast(`📐 ${newWallName} iniciada! Coloque o bloco do canto.`);
-      }
-
-      function game3dCreateNewWallModal() {
-        const nextChar = String.fromCharCode(65 + game3d.walls.length);
-        const name = prompt("Nome da nova parede:", `Parede ${nextChar}`);
-        if (!name) return;
-        const dir = confirm(`A ${name} corre no Eixo Principal (X) ou a 90° (Z)?\n\nClique [OK] para Eixo X (Horizontal)\nClique [Cancelar] para Eixo Z (90°)`) ? "X" : "Z";
-
-        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"];
-        const newWall = {
-          id: "wall_" + Date.now(),
-          name: name,
-          dir: dir,
-          originX: dir === "X" ? 0 : 50,
-          originZ: dir === "X" ? 0 : 50,
-          parentWallId: null
-        };
-        game3d.walls.push(newWall);
-        game3dSetActiveWall(newWall.id);
-        showLearningToast(`🧱 ${name} criada com sucesso!`);
-      }
-
-      
-      // ============================================================================
-      // VÃOS DE PORTAS E JANELAS (DEIXAR QUALQUER TAMANHO DE VÃO LIVRE)
-      // ============================================================================
-      function game3dInsertOpening(type, defaultSpan) {
-        let curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
-        const span = defaultSpan || 80;
-        const fiada = game3d.activeFiada;
-        const wallW = (game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["baiano"]).width;
-
-        // Pega a posição atual da parede nesta fiada
-        const wallBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === fiada);
-        let startCoord = 0;
-        if (curWall.dir === "X") {
-          startCoord = wallBlocks.length > 0 ? Math.max(...wallBlocks.map(b => b.x + b.len/2)) : curWall.originX;
-        } else {
-          startCoord = wallBlocks.length > 0 ? Math.max(...wallBlocks.map(b => b.z + b.len/2)) : curWall.originZ;
-        }
-
-        const openingObj = {
-          id: "open_" + Date.now(),
-          wallId: curWall.id,
-          fiada: fiada,
-          type: type, // 'DOOR' ou 'WINDOW'
-          span: span,
-          startPos: startCoord,
-          endPos: startCoord + span,
-          dir: curWall.dir,
-          wallW: wallW,
-          y: (fiada - 1) * 20
-        };
-
-        game3d.openings.push(openingObj);
-
-        // Bloco espaçador do vão arquitetônico para avançar a parede
-        const dummySpacer = {
-          id: "spacer_" + Date.now(),
-          wallId: curWall.id,
-          wallName: curWall.name,
-          family: game3d.activeFamily,
-          fiada: fiada,
-          dir: curWall.dir,
-          type: "OPENING_SPACER",
-          len: span,
-          width: wallW,
-          height: 19,
-          x: curWall.dir === "X" ? (startCoord + span / 2) : curWall.originX,
-          y: (fiada - 1) * 20 + 9.5,
-          z: curWall.dir === "X" ? (curWall.originZ + wallW / 2) : (startCoord + span / 2),
-          isOpening: true,
-          openingType: type
-        };
-
-        game3d.blocks.push(dummySpacer);
-        rebuildGame3DMeshes();
-        updateGame3DUI();
-        showLearningToast(`🚪 Vão de ${type === 'DOOR' ? 'Porta' : 'Janela'} de ${span}cm inserido na ${curWall.name}!`);
-      }
-
-      function game3dPromptCustomOpening() {
-        const spanStr = prompt("Digite o tamanho do vão livre em centímetros (ex: 70, 80, 100, 120, 150, 200):", "120");
-        if (!spanStr) return;
-        const span = parseFloat(spanStr);
-        if (!span || span <= 0) {
-          alert("Medida inválida.");
-          return;
-        }
-        const isDoor = confirm("Este vão é uma PORTA?\n\nClique [OK] para PORTA\nClique [Cancelar] para JANELA");
-        game3dInsertOpening(isDoor ? "DOOR" : "WINDOW", span);
-      }
-
-      // ============================================================================
-      // VIGAS DE CONCRETO ARMADO (QUALQUER TAMANHO, ESPESSURA E ALTURA EM QUALQUER FIADA)
-      // ============================================================================
-      function populateBeamFiadasSelect() {
-        const sel = document.getElementById("game3dBeamFiada");
-        if (!sel) return;
-        let html = "";
-        for (let i = 1; i <= 15; i++) {
-          html += `<option value="${i}" ${i === 11 ? 'selected' : ''}>Acima da ${i}ª Fiada (H: ${i*20}cm)</option>`;
-        }
-        sel.innerHTML = html;
-      }
-
-      function game3dInsertCustomBeam() {
-        let curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
-        const fiadaSel = document.getElementById("game3dBeamFiada");
-        const lenInp = document.getElementById("game3dBeamLen");
-        const widthInp = document.getElementById("game3dBeamWidth");
-        const heightInp = document.getElementById("game3dBeamHeight");
-
-        const fiada = fiadaSel ? parseInt(fiadaSel.value) : 11;
-        const bLen = lenInp ? parseFloat(lenInp.value) : 200;
-        const bWidth = widthInp ? parseFloat(widthInp.value) : 14;
-        const bHeight = heightInp ? parseFloat(heightInp.value) : 30;
-
-        if (!bLen || bLen <= 0 || !bWidth || bWidth <= 0 || !bHeight || bHeight <= 0) {
-          alert("Por favor, preencha as dimensões da viga corretamente.");
-          return;
-        }
-
-        // Posiciona a viga cobrindo a parede ou o centro dos blocos
-        const wallBlocks = game3d.blocks.filter(b => b.wallId === curWall.id);
-        let centerPos = 0;
-        if (curWall.dir === "X") {
-          if (wallBlocks.length > 0) {
-            const minX = Math.min(...wallBlocks.map(b => b.x - b.len/2));
-            const maxX = Math.max(...wallBlocks.map(b => b.x + b.len/2));
-            centerPos = (minX + maxX) / 2;
-          } else {
-            centerPos = curWall.originX + bLen / 2;
-          }
-        } else {
-          if (wallBlocks.length > 0) {
-            const minZ = Math.min(...wallBlocks.map(b => b.z - b.len/2));
-            const maxZ = Math.max(...wallBlocks.map(b => b.z + b.len/2));
-            centerPos = (minZ + maxZ) / 2;
-          } else {
-            centerPos = curWall.originZ + bLen / 2;
-          }
-        }
-
-        const posY = fiada * 20 + bHeight / 2;
-
-        const newBeam = {
-          id: "beam_" + Date.now(),
-          wallId: curWall.id,
-          wallName: curWall.name,
-          fiada: fiada,
-          len: bLen,
-          width: bWidth,
-          height: bHeight,
-          x: curWall.dir === "X" ? centerPos : curWall.originX,
-          y: posY,
-          z: curWall.dir === "X" ? (curWall.originZ + bWidth / 2) : centerPos,
-          dir: curWall.dir
-        };
-
-        game3d.beams.push(newBeam);
-        rebuildGame3DMeshes();
-        showLearningToast(`🏗️ Viga de Concreto ${bWidth}×${bHeight}cm (Comp: ${bLen}cm) inserida acima da ${fiada}ª fiada!`);
-      }
-
-      function game3dClearBeams() {
-        game3d.beams = [];
-        rebuildGame3DMeshes();
-        showLearningToast("Vigas removidas com sucesso.");
-      }
-
-
-      
-      // ============================================================================
-      // FUNÇÕES DEDICADAS PARA CANTOS EM L
-      // ============================================================================
-      function game3dComecarCantoEmL() {
         if (game3d.activeDir === "X") {
           game3dSetDir("Z");
         } else {
@@ -11336,6 +11097,7 @@
         const wallW = spec.width;
         const mortar = 1;
 
+        // Se refBlock não for passado, procura o bloco selecionado ou o último colocado na parede ativa
         if (!refBlock) {
           if (game3d.snapBondBlock) refBlock = game3d.snapBondBlock;
           else {
@@ -11349,54 +11111,45 @@
         const newWallName = `Parede ${nextChar} (Saída T)`;
 
         const parentWall = game3d.walls.find(w => w.id === (refBlock ? refBlock.wallId : game3d.activeWallId)) || game3d.walls[0];
-        const parentDir = parentWall ? parentWall.dir : "X";
-        const newDir = (parentDir === "X") ? "Z" : "X";
+        const parentZ = parentWall ? parentWall.originZ : 0;
 
-        let originX = 0, originZ = 0;
+        let originX = 0;
         let comesFrom54 = false;
 
         if (refBlock) {
-          comesFrom54 = (refBlock.len >= 50 || refBlock.type === "T_JUNCTION");
-          if (parentDir === "X") {
-            // Parede mãe está em X, ramal T sai a 90° correndo em Z
-            originX = refBlock.x - wallW / 2;
-            originZ = parentWall.originZ;
+          if (refBlock.len >= 50 || refBlock.type === "T_JUNCTION") {
+            // BLOCO 54: O bloco que vai sair em T sai EXATAMENTE dos 14cm centrais do 54 deixando rigorosamente 20cm de cada lado!
+            comesFrom54 = true;
+            originX = refBlock.x;
           } else {
-            // Parede mãe está em Z, ramal T sai a 90° correndo em X
-            originX = parentWall.originX;
-            originZ = refBlock.z - wallW / 2;
+            // BLOCO 39 (ou qualquer outro que não seja 54):
+            comesFrom54 = false;
+            originX = refBlock.x;
           }
         } else {
-          if (parentDir === "X") {
-            originX = 40;
-            originZ = parentWall ? parentWall.originZ : 0;
-          } else {
-            originX = parentWall ? parentWall.originX : 0;
-            originZ = 40;
-          }
+          originX = wallW / 2 + 40;
         }
 
         const newWall = {
           id: newWallId,
           name: newWallName,
-          dir: newDir,
+          dir: "Z", // Sempre corre a 90°
           originX: originX,
-          originZ: originZ,
+          originZ: parentZ, // Face de fora da parede principal
           parentWallId: parentWall ? parentWall.id : "wall_A",
           isTBranch: true,
           comesFrom54Initial: comesFrom54,
-          refBlockId: refBlock ? refBlock.id : null,
-          refCoord: (parentDir === "X") ? (refBlock ? refBlock.x : originX + wallW/2) : (refBlock ? refBlock.z : originZ + wallW/2)
+          refBlockId: refBlock ? refBlock.id : null
         };
 
         game3d.walls.push(newWall);
         game3dSetActiveWall(newWallId);
         updateDirButtonsUI("T");
         renderGame3DWallsToolbar();
-        showLearningToast(`🔀 ${newWallName} criada a 90° saindo da Parede ${parentWall ? parentWall.name : ''}!`);
+        showLearningToast(`🔀 ${newWallName} criada em X=${originX}cm!`);
       }
 
-      function renderGame3DFiadasToolbar() {
+            function renderGame3DFiadasToolbar() {
         const c = document.getElementById("game3dFiadasScroll");
         if (!c) return;
         let h = "";
@@ -11609,7 +11362,7 @@
               posX = ref.x;
             }
           } else {
-            posX = curWall.originX + wallW / 2;
+            posX = curWall.originX;
             if (wallBlocksOnFiada.length === 0) {
               posZ = ref.z - (ref.len / 2) + (len / 2);
             } else {
@@ -11622,64 +11375,40 @@
           if (wallDir === "X") {
             posZ = curWall.originZ + wallW / 2; // Linha de centro laser reta fixa
 
-            if (curWall.isTBranch) {
-              // SAÍDA EM T NO EIXO X (RAMAL VEM DE UMA PAREDE EM Z)
-              const parentWall = game3d.walls.find(w => w.id === curWall.parentWallId) || game3d.walls[0];
-              const parentX = parentWall ? parentWall.originX : 0;
-              const parentRefZ = curWall.refCoord !== undefined ? curWall.refCoord : (curWall.originZ + wallW / 2);
+            // Verifica se há bloco perpendicular de canto a 90° já assentado nesta mesma fiada
+            const perpCorner = game3d.blocks.find(b =>
+              b.fiada === fiada &&
+              b.dir === "Z" &&
+              Math.abs(b.x - (curWall.originX + wallW / 2)) < (wallW + 2) &&
+              Math.abs(b.z - curWall.originZ) < 50
+            );
 
-              const blockOnMain = game3d.blocks.find(b =>
-                b.wallId === curWall.parentWallId &&
-                b.fiada === fiada &&
-                Math.abs(b.z - parentRefZ) < 25 &&
-                (b.len >= 50 || b.type === "T_JUNCTION")
-              );
-
-              let comesFrom54 = false;
-              if (blockOnMain) {
-                comesFrom54 = true;
-              } else if (curWall.comesFrom54Initial) {
-                comesFrom54 = (fiada % 2 === 1);
-              }
-
-              if (comesFrom54) {
-                // VIER DEPOIS DE UM 54: Sai da lateral do 54 deixando 20cm para cada lado (encosta com argamassa 1cm)
-                posX = parentX + wallW + mortar + len / 2;
-              } else {
-                // NÃO VIER DEPOIS DE UM 54: PASSA 14cm ficando certinho na face de fora da parede principal!
-                posX = parentX + len / 2;
-              }
+            if (perpCorner) {
+              // Encosta perfeitamente na face interna do bloco de canto a 90°
+              posX = curWall.originX + wallW + mortar + len / 2;
             } else {
-              // Verifica se há bloco perpendicular de canto a 90° já assentado nesta mesma fiada
-              const perpCorner = game3d.blocks.find(b =>
-                b.fiada === fiada &&
-                b.dir === "Z" &&
-                Math.abs(b.x - (curWall.originX + wallW / 2)) < (wallW + 2) &&
-                Math.abs(b.z - curWall.originZ) < 50
-              );
-
-              if (perpCorner) {
-                // Encosta perfeitamente na face interna do bloco de canto a 90°
-                posX = curWall.originX + wallW + mortar + len / 2;
-              } else {
-                // Começa na frente do bloco / face de fora da parede!
-                posX = curWall.originX + len / 2;
-              }
+              // Começa na frente do bloco / face de fora da parede!
+              posX = curWall.originX + len / 2;
             }
           } else {
             // Parede no Eixo Z
-            posX = curWall.originX + wallW / 2; // Linha de centro laser reta fixa
+            posX = curWall.originX; // Linha de centro laser reta fixa
 
             if (curWall.isTBranch) {
-              // SAÍDA EM T NO EIXO Z (RAMAL VEM DE UMA PAREDE EM X)
+              // ===============================================================
+              // REGRA DA SAÍDA EM T (SOLICITADA PELO USUÁRIO):
+              // "ele tem que passar 14cm, mas apenas se ele NÃO vier depois de um 54,
+              // caso contrário ele passa 14 ficando certinho na face de fora.
+              // Mas se vier depois de um 54, aí tem que sair do meio do 54 deixando 20cm para cada lado!"
+              // ===============================================================
               const parentWall = game3d.walls.find(w => w.id === curWall.parentWallId) || game3d.walls[0];
               const parentZ = parentWall ? parentWall.originZ : 0;
-              const parentRefX = curWall.refCoord !== undefined ? curWall.refCoord : (curWall.originX + wallW / 2);
 
+              // Procura se há um bloco 54 na parede principal nesta fiada nesta posição X
               const blockOnMain = game3d.blocks.find(b =>
                 b.wallId === curWall.parentWallId &&
                 b.fiada === fiada &&
-                Math.abs(b.x - parentRefX) < 25 &&
+                Math.abs(b.x - curWall.originX) < 25 &&
                 (b.len >= 50 || b.type === "T_JUNCTION")
               );
 
@@ -11687,6 +11416,7 @@
               if (blockOnMain) {
                 comesFrom54 = true;
               } else if (curWall.comesFrom54Initial) {
+                // Se o T nasceu num 54 na fiada 1, as fiadas ímpares têm 54 e as pares passam 14cm amarrando!
                 comesFrom54 = (fiada % 2 === 1);
               }
 
@@ -11729,7 +11459,7 @@
               maxEndZ = Math.max(maxEndZ, b.z + b.len / 2);
             });
             posZ = maxEndZ + mortar + len / 2;
-            posX = curWall.originX + wallW / 2; // GARANTE ALINHAMENTO LASER RETO
+            posX = curWall.originX; // GARANTE ALINHAMENTO LASER RETO
           }
         }
 
