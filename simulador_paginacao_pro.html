@@ -1100,7 +1100,15 @@
       stroke: #FACC15 !important;
       stroke-width: 2.2px !important;
     }
-  </style>
+  
+      /* Oculta barras de rolagem brancas para melhor aproveitamento de tela */
+      .no-scrollbar::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+      .no-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+      .slim-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+      .slim-scroll::-webkit-scrollbar-track { background: transparent; }
+      .slim-scroll::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.4); border-radius: 9999px; }
+
+    </style>
   <script src="lib/android_bridge.js"></script>
 </head>
 <body class="bg-slate-900 text-[var(--foreground)] antialiased m-0 p-0 w-screen h-screen overflow-hidden">
@@ -2488,218 +2496,200 @@
     <!-- ========================================================================= -->
                 <div id="learnedPatternsModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col w-screen h-screen select-none"><div id="iaModalCard" class="bg-slate-900 w-full h-full text-white flex flex-col overflow-hidden">
         
-        <!-- Cabeçalho Expandido com Tabs (Compacto no Celular, Completo no Desktop) -->
-        <div class="px-2.5 py-1.5 md:px-4 md:py-3 border-b border-slate-700 bg-slate-950 flex flex-wrap items-center justify-between gap-1.5 md:gap-3 shrink-0">
-          <div class="flex items-center gap-2 md:gap-3">
-            <span class="text-xl md:text-3xl animate-pulse">🧠</span>
-            <div>
-              <div class="text-xs md:text-sm font-extrabold text-indigo-300 tracking-wide flex items-center gap-1.5">
-                <span>IA DSMCAD 3D</span>
-                <span class="px-1.5 py-0.5 rounded-full text-[9px] md:text-[10px] font-black bg-indigo-600/60 border border-indigo-400 text-indigo-200">PRO v2.0</span>
-              </div>
-              <div class="hidden md:block text-xs text-slate-400">Aprende cantos em L, encontros em T, vãos e modulações diretamente com você em 3D</div>
+        <!-- Cabeçalho Único Ultra-Compacto com Projetos Integrados no Topo (Aproveitamento Máximo de Tela) -->
+        <div class="px-2 py-1 border-b border-slate-800 bg-slate-950 flex items-center justify-between gap-1.5 shrink-0">
+          <!-- Logo Compacto -->
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="text-base">🧠</span>
+            <span class="text-[11px] md:text-xs font-black text-indigo-300 tracking-tight whitespace-nowrap">IA 3D</span>
+          </div>
+
+          <!-- Barra de Projetos Integrada no Topo (Sem barra branca, sem ocupar a tela 3D) -->
+          <div class="flex items-center gap-1 overflow-x-auto whitespace-nowrap no-scrollbar py-0.5 flex-1 mx-1">
+            <span class="text-[10px] font-extrabold text-slate-400 px-1 hidden lg:inline">Projetos:</span>
+            <button onclick="game3dPreset('straight')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white text-[10px] font-bold transition flex items-center gap-1 shrink-0" title="Exemplo de Parede Reta">
+              <span>🧱</span> Parede Reta
+            </button>
+            <button onclick="game3dPreset('corner_L')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-orange-600 text-slate-200 hover:text-white text-[10px] font-bold transition flex items-center gap-1 shrink-0" title="Exemplo de Canto em L">
+              <span>📐</span> Canto em L
+            </button>
+            <button onclick="game3dPreset('junction_T')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white text-[10px] font-bold transition flex items-center gap-1 shrink-0" title="Exemplo de Encontro em T">
+              <span>🔀</span> Encontro em T
+            </button>
+            <div class="h-3 w-px bg-slate-800 mx-0.5 shrink-0"></div>
+            <button onclick="game3dLoadHousePlanta(false)" id="btnHouseBlueprint" class="px-2 py-0.5 rounded bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] font-black border border-indigo-400/50 transition flex items-center gap-1 shrink-0" title="Carrega Paredes A..H para construir bloco a bloco">
+              <span>📐</span> Planta Casa A..H
+            </button>
+            <button onclick="game3dLoadHousePlanta(true)" id="btnHouseFullBuild" class="px-2 py-0.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-black border border-emerald-400/50 transition flex items-center gap-1 shrink-0" title="Constrói Casa Completa A..H (1..14 + Canaleta + Telhado)">
+              <span>🏠</span> Casa Completa A..H
+            </button>
+            <button onclick="game3dBuild14WallsFullTest()" id="btnHouse14Walls" class="px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black border border-amber-400/50 transition flex items-center gap-1 shrink-0" title="Constrói 14 Paredes (1..14 c/ Canaleta)">
+              <span>🏘️</span> 14 Paredes
+            </button>
+            <button onclick="game3dClearAll()" class="px-1.5 py-0.5 rounded bg-rose-950/90 hover:bg-rose-900 text-rose-300 text-[10px] font-bold border border-rose-800/80 transition shrink-0" title="Limpar todos os blocos">
+              🧹 Limpar
+            </button>
+          </div>
+
+          <!-- Seletor de Abas + Fechar -->
+          <div class="flex items-center gap-1 shrink-0">
+            <div class="flex items-center gap-0.5 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
+              <button id="iaTabBtn_game3d" onclick="switchIaTab('game3d')" class="px-2 py-0.5 rounded text-[10px] font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow flex items-center gap-1 transition">
+                <span>🎮</span> <span>Jogo 3D</span>
+              </button>
+              <button id="iaTabBtn_vaos" onclick="switchIaTab('vaos')" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 hover:text-white flex items-center gap-1 transition">
+                <span>📋</span> <span>Vãos IA</span>
+              </button>
             </div>
+            <button onclick="closeLearnedPatternsModal()" class="w-6 h-6 rounded-full bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white text-xs font-bold flex items-center justify-center transition">✕</button>
           </div>
-
-          <!-- Seletor de Modos / Abas da IA -->
-          <div class="flex items-center gap-1 md:gap-2 bg-slate-900 p-0.5 md:p-1 rounded-xl border border-slate-800">
-            <button id="iaTabBtn_game3d" onclick="switchIaTab('game3d')" class="px-2.5 py-1 md:px-3.5 md:py-1.5 rounded-lg text-[11px] md:text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow flex items-center gap-1.5 transition active:scale-95">
-              <span>🎮</span> <span>Jogo 3D</span>
-              <span class="hidden sm:inline px-1.5 py-0.2 rounded bg-amber-900/80 text-[10px] text-amber-200 border border-amber-400/50">NOVO</span>
-            </button>
-            <button id="iaTabBtn_vaos" onclick="switchIaTab('vaos')" class="px-2.5 py-1 md:px-3.5 md:py-1.5 rounded-lg text-[11px] md:text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1 transition">
-              <span>📋</span> <span>Vãos IA</span>
-            </button>
-          </div>
-
-          <button onclick="closeLearnedPatternsModal()" class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition">✕</button>
         </div>
 
         <!-- ABA 1: JOGO 3D CONSTRUIR DO ZERO & ENSINAR IA (Empilhado no Celular / Lado a Lado no PC) -->
         <div id="iaTabContent_game3d" class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
           
-          <!-- Viewport 3D Interativo (44% da altura no Celular, 100% no Desktop) -->
-          <div class="w-full h-[43vh] min-h-[220px] md:h-full md:flex-1 relative bg-slate-950 flex flex-col overflow-hidden shrink-0">
-            <!-- Barra Superior de Ferramentas do 3D (Rolável horizontalmente no celular) -->
-            <div class="absolute top-1.5 left-1.5 right-1.5 md:top-2 md:left-2 md:right-2 z-10 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-1 pointer-events-none">
-              <!-- Presets Rápidos do Jogo & Casa Completa -->
-              <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/95 backdrop-blur-md p-1 md:p-1.5 rounded-xl border border-slate-700/80 shadow-lg text-[11px] md:text-xs overflow-x-auto whitespace-nowrap scrollbar-thin">
-                <span class="text-[10px] font-extrabold text-slate-400 px-1.5">Projetos:</span>
-                <button onclick="game3dPreset('straight')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white font-bold transition flex items-center gap-1" title="Exemplo de Parede Reta">
-                  <span>🧱</span> Parede Reta
-                </button>
-                <button onclick="game3dPreset('corner_L')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-orange-600 text-slate-200 hover:text-white font-bold transition flex items-center gap-1" title="Exemplo de Canto em L">
-                  <span>📐</span> Canto em L
-                </button>
-                <button onclick="game3dPreset('junction_T')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white font-bold transition flex items-center gap-1" title="Exemplo de Encontro em T">
-                  <span>🔀</span> Encontro em T
-                </button>
-                <div class="h-4 w-px bg-slate-700 mx-0.5"></div>
-                <button onclick="game3dLoadHousePlanta(false)" id="btnHouseBlueprint" class="px-2.5 py-1 rounded-lg bg-indigo-700 hover:bg-indigo-600 text-white font-black border border-indigo-400/60 shadow transition flex items-center gap-1" title="Carrega o gabarito das Paredes A, B, C, D, E, F, G, H (e até 14) no chão com Portas e Janelas para você construir bloco por bloco">
-                  <span>📐</span> Planta Casa A..H (Bloco a Bloco)
-                </button>
-                <button onclick="game3dLoadHousePlanta(true)" id="btnHouseFullBuild" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black border border-emerald-400/60 shadow transition flex items-center gap-1" title="Constrói a Casa Completa (Paredes A..H, Fiadas 1 a 14 com Canaleta na 14ª fiada, Portas, Janelas e Caída de Telhado com Blocos Chanfrados)">
-                  <span>🏠</span> Casa Completa A..H (1..14 + Canaleta + Telhado)
-                </button>
-                <button onclick="game3dBuild14WallsFullTest()" id="btnHouse14Walls" class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-black border border-amber-400/60 shadow transition flex items-center gap-1" title="Gera e testa da Parede 1 à Parede 14 até a 14ª Fiada com Canaleta na última fiada, Portas, Janelas e Oitão Chanfrado">
-                  <span>🏘️</span> Casa 14 Paredes (1..14 c/ Canaleta)
-                </button>
-                <button onclick="game3dUndo()" id="btnTopUndoBlock" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black border border-amber-300 shadow transition flex items-center gap-1 active:scale-95" title="Desfazer último bloco colocado (Atalho rápido no topo)">
-                  ↩️ Desfazer Bloco
-                </button>
-                <button onclick="game3dClearCurrentFiada()" id="btnTopClearFiada" class="px-2 py-1 rounded-lg bg-rose-900/90 hover:bg-rose-800 text-rose-200 font-bold border border-rose-700 transition" title="Limpar apenas a fiada atual">
-                  🗑️ Fiada
-                </button>
-                <button onclick="game3dClearAll()" class="px-2 py-1 rounded-lg bg-rose-950/90 hover:bg-rose-900 text-rose-300 font-bold border border-rose-800 transition" title="Limpar todos os blocos">
-                  🧹 Limpar
-                </button>
+          <!-- Viewport 3D Interativo (Limpo, sem barras no rodapé, com controle discreto no canto superior esquerdo) -->
+          <div class="w-full h-[44vh] min-h-[220px] md:h-full md:flex-1 relative bg-slate-950 flex flex-col overflow-hidden shrink-0">
+            
+            <!-- Barra Superior Esquerda Pequena e Discreta: Zoom + Pra Trás / Pra Frente + Vistas + Indicador do Marcador de Parede -->
+            <div class="absolute top-2 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-1.5 pointer-events-none">
+              <div class="flex flex-col gap-1 items-start">
+                <!-- Linha 1: Zoom e Câmera Discretos -->
+                <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/85 backdrop-blur-md px-1.5 py-1 rounded-lg border border-slate-700/70 shadow text-[11px]">
+                  <button onclick="game3dQuickZoom(1.6)" class="px-1.5 py-0.5 rounded bg-emerald-800/80 hover:bg-emerald-700 text-white font-black" title="Aproximar Zoom">🔍+</button>
+                  <button onclick="game3dQuickZoom(0.62)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-black" title="Afastar Zoom">🔍-</button>
+                  <div class="h-3 w-px bg-slate-700 mx-0.5"></div>
+                  <button onclick="game3dSetCamera('iso')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Isométrica 3D">🎥 3D</button>
+                  <button onclick="game3dSetCamera('top')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Superior (Planta)">📐 Topo</button>
+                  <button onclick="game3dSetCamera('front')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Frontal">🧱 Frente</button>
+                  <button onclick="game3dResetCamera()" class="px-1.5 py-0.5 rounded bg-indigo-700 hover:bg-indigo-600 text-white font-bold" title="Centralizar Obra">🎯 Focar</button>
+                </div>
+
+                <!-- Linha 2 (Onde o usuário marcou em verde): Botão Pequeno e Discreto de PRA TRÁS e PRA FRENTE -->
+                <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/80 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-slate-700/60 shadow text-[10px]">
+                  <button onclick="game3dStepBack()" id="btnTopUndoBlock" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-extrabold transition flex items-center gap-1 active:scale-95" title="Pra Trás (Desfazer último bloco colocado)">
+                    <span>◀</span> <span>Trás</span>
+                  </button>
+                  <button onclick="game3dStepForward()" id="btnTopRedoBlock" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 font-extrabold transition flex items-center gap-1 active:scale-95" title="Pra Frente (Refazer / Avançar bloco)">
+                    <span>Frente</span> <span>▶</span>
+                  </button>
+                  <div class="h-3 w-px bg-slate-700 mx-0.5"></div>
+                  <button onclick="game3dClearCurrentFiada()" id="btnTopClearFiada" class="px-1.5 py-0.5 rounded bg-slate-800/90 hover:bg-rose-800 text-rose-300 text-[9px] font-bold transition" title="Limpar apenas a fiada atual">
+                    🗑️ Fiada
+                  </button>
+                </div>
               </div>
 
-              <!-- Câmera e Vistas + Zoom Rápido -->
-              <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/95 backdrop-blur-md p-1.5 rounded-xl border border-slate-700/80 shadow-lg text-xs">
-                <button onclick="game3dQuickZoom(1.6)" class="px-2 py-1 rounded-lg bg-emerald-800/80 hover:bg-emerald-700 text-white font-black" title="Aproximar Zoom Rápido">🔍+</button>
-                <button onclick="game3dQuickZoom(0.62)" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-black" title="Afastar Zoom Rápido">🔍-</button>
-                <button onclick="game3dSetCamera('iso')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Isométrica 3D">🎥 3D</button>
-                <button onclick="game3dSetCamera('top')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Superior (Planta)">📐 Topo</button>
-                <button onclick="game3dSetCamera('front')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Frontal (Elevação)">🧱 Frente</button>
-                <button onclick="game3dResetCamera()" class="px-2 py-1 rounded-lg bg-indigo-700 hover:bg-indigo-600 text-white font-bold" title="Centralizar e Focar na Obra">🎯 Focar</button>
+              <!-- Badge Discreto do Marcador de Parede Ativa (Aparece ao selecionar parede e SOME ao colocar bloco!) -->
+              <div id="game3dWallMarkerBadge" class="pointer-events-auto bg-amber-500/20 backdrop-blur-md border border-amber-400/70 text-amber-200 px-2.5 py-1 rounded-lg text-[10px] font-black shadow-lg flex items-center gap-1.5 transition-opacity duration-200">
+                <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                <span id="game3dWallMarkerText">📍 Demarcador Ativo: Parede 1 • A (some ao assentar bloco)</span>
               </div>
             </div>
 
             <!-- Banner Flutuante de Alerta de Colisão em Porta / Janela no Viewport -->
-            <div id="game3dViewportAlert" class="hidden absolute top-16 left-4 right-4 z-20 pointer-events-auto bg-rose-950/95 border-2 border-rose-500 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center justify-between gap-3">
+            <div id="game3dViewportAlert" class="hidden absolute top-16 left-4 right-4 z-20 pointer-events-auto bg-rose-950/95 border-2 border-rose-500 text-white px-3 py-2 rounded-xl shadow-2xl flex items-center justify-between gap-2">
               <div class="flex items-center gap-2 text-xs font-extrabold">
-                <span class="text-lg">🚫</span>
+                <span class="text-base">🚫</span>
                 <span id="game3dViewportAlertText">Aviso: O bloco não pode entrar no vão da Porta ou Janela!</span>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
-                <button onclick="game3dSkipNextOpening()" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow">⏭️ Pular Vão Agora</button>
-                <button onclick="document.getElementById('game3dViewportAlert').classList.add('hidden')" class="px-2 py-1 rounded-lg bg-rose-900 hover:bg-rose-800 text-rose-200 font-bold text-xs">✕</button>
+                <button onclick="game3dSkipNextOpening()" class="px-2 py-0.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow">⏭️ Pular Vão</button>
+                <button onclick="document.getElementById('game3dViewportAlert').classList.add('hidden')" class="px-1.5 py-0.5 rounded bg-rose-900 hover:bg-rose-800 text-rose-200 font-bold text-xs">✕</button>
               </div>
             </div>
 
-            <!-- Canvas 3D WebGL -->
+            <!-- Canvas 3D WebGL (100% Limpo na parte inferior!) -->
             <canvas id="iaGame3dCanvas" class="w-full h-full block flex-1 cursor-grab active:cursor-grabbing"></canvas>
 
-            <!-- Rodapé Flutuante do Viewport 3D -->
-            <div class="absolute bottom-2 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none text-xs">
-              <div class="pointer-events-auto bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80 shadow-lg flex flex-wrap items-center gap-3">
-                <div class="flex items-center gap-1.5 font-bold text-amber-300">
-                  <span>🧱</span> <span id="game3dHudFam">Bloco Concreto 14</span>
-                </div>
-                <div class="h-3 w-px bg-slate-700"></div>
-                <div class="text-slate-300">
-                  Parede: <span id="game3dHudWall" class="font-extrabold text-emerald-300">Parede A</span>
-                </div>
-                <div class="h-3 w-px bg-slate-700"></div>
-                <div class="text-slate-300">
-                  Fiada Ativa: <span id="game3dHudFiada" class="font-extrabold text-indigo-300">1ª (Ímpar)</span>
-                </div>
-                <div class="h-3 w-px bg-slate-700"></div>
-                <div class="text-slate-300">
-                  Total Blocos: <span id="game3dHudCount" class="font-bold text-white">0</span>
-                </div>
-              </div>
-
-              <div class="pointer-events-auto bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700 text-slate-400 text-[11px] hidden sm:flex items-center gap-2">
-                <span>🖱️ Clique em qualquer parede/bloco p/ selecionar • Arraste p/ girar • Scroll dá zoom rápido</span>
-              </div>
+            <!-- Elementos de status ocultos para manter compatibilidade total com funções JS -->
+            <div class="hidden">
+              <span id="game3dHudFam">Bloco Concreto 14</span>
+              <span id="game3dHudWall">Parede A</span>
+              <span id="game3dHudFiada">1ª (Ímpar)</span>
+              <span id="game3dHudCount">0</span>
             </div>
           </div>
 
-          <!-- Painel de Controles (Embaixo com rolagem no Celular / Fixo à Direita no PC) -->
-          <div class="w-full flex-1 md:flex-none md:h-full md:w-[390px] lg:w-[425px] bg-slate-900/95 border-t md:border-t-0 md:border-l border-slate-800 p-2.5 md:p-3 flex flex-col gap-2 overflow-y-auto shrink-0 shadow-2xl">
+          <!-- Painel Lateral de Controles Ultra-Compacto e Organizado (Tudo acessível sem desperdício de espaço) -->
+          <div class="w-full flex-1 md:flex-none md:h-full md:w-[360px] lg:w-[385px] bg-slate-900/95 border-t md:border-t-0 md:border-l border-slate-800 p-2 flex flex-col gap-1.5 overflow-y-auto slim-scroll shrink-0 shadow-2xl">
             
-            <!-- 1. Seletor de Família -->
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-1.5">
+            <!-- 1. Família da Parede (1 Linha Ultra-Compacta) -->
+            <div class="p-1.5 rounded-lg bg-slate-950 border border-slate-800/90 flex flex-col gap-1">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-slate-300">1. Família da Parede:</span>
-                <span id="game3dFamBadge" class="text-[10px] font-black px-2 py-0.5 rounded bg-orange-600/30 text-orange-300 border border-orange-500/50">Família 14</span>
+                <span class="text-[11px] font-black text-slate-300">1. Família:</span>
+                <span id="game3dFamBadge" class="text-[9px] font-black px-1.5 py-0.2 rounded bg-orange-600/30 text-orange-300 border border-orange-500/40">Família 14</span>
               </div>
-              <div class="grid grid-cols-2 gap-1.5 text-xs font-bold">
-                <button onclick="game3dSetFamily('baiano')" id="gFamBtn_baiano" class="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-left flex items-center gap-1.5">
-                  <span>🧱</span> Baiano 9×14×19
+              <div class="grid grid-cols-4 gap-1 text-[10px] font-bold">
+                <button onclick="game3dSetFamily('baiano')" id="gFamBtn_baiano" class="px-1.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 text-center truncate" title="Tijolo Baiano 9×14×19">
+                  🧱 Baiano
                 </button>
-                <button onclick="game3dSetFamily('14')" id="gFamBtn_14" class="p-1.5 rounded-lg bg-orange-600 text-white shadow text-left flex items-center gap-1.5 font-black">
-                  <span>🏢</span> Concreto 14 cm
+                <button onclick="game3dSetFamily('14')" id="gFamBtn_14" class="px-1.5 py-1 rounded bg-orange-600 text-white shadow text-center font-black truncate" title="Bloco Concreto 14 cm">
+                  🏢 14 cm
                 </button>
-                <button onclick="game3dSetFamily('11.5')" id="gFamBtn_115" class="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-left flex items-center gap-1.5">
-                  <span>🏢</span> Concreto 11.5
+                <button onclick="game3dSetFamily('11.5')" id="gFamBtn_115" class="px-1.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 text-center truncate" title="Bloco Concreto 11.5 cm">
+                  🏢 11.5
                 </button>
-                <button onclick="game3dSetFamily('19')" id="gFamBtn_19" class="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-left flex items-center gap-1.5">
-                  <span>🏢</span> Concreto 19 cm
+                <button onclick="game3dSetFamily('19')" id="gFamBtn_19" class="px-1.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 text-center truncate" title="Bloco Concreto 19 cm">
+                  🏢 19 cm
                 </button>
               </div>
             </div>
 
-            <!-- 2. Gerenciador de Paredes (Paredes Externas A,B,C,D + Internas E,F,G,H + Até Parede 14) -->
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-1.5">
+            <!-- 2. Parede Ativa + Demarcador + Mover Parede Compacto -->
+            <div class="p-1.5 rounded-lg bg-slate-950 border border-slate-800/90 flex flex-col gap-1">
               <div class="flex items-center justify-between gap-1">
-                <div class="flex items-center gap-1.5 min-w-0">
-                  <span class="text-xs font-black text-slate-300 shrink-0">2. Parede Ativa:</span>
-                  <span id="game3dActiveWallBadge" class="text-[10px] font-black px-2 py-0.5 rounded bg-indigo-600/50 text-indigo-200 border border-indigo-400/50 truncate">Parede A (Principal)</span>
+                <div class="flex items-center gap-1 min-w-0">
+                  <span class="text-[11px] font-black text-slate-300 shrink-0">2. Parede:</span>
+                  <span id="game3dActiveWallBadge" class="text-[9px] font-black px-1.5 py-0.2 rounded bg-indigo-600/50 text-indigo-200 border border-indigo-400/50 truncate">Parede A</span>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
-                  <button onclick="game3dImport2DWalls()" class="px-1.5 py-0.5 rounded bg-sky-700 hover:bg-sky-600 text-white text-[10px] font-extrabold shadow" title="Importar todas as paredes da Planta 2D (A, B, C, D, E, F, G, H)">
-                    🔄 Planta 2D
+                  <button onclick="game3dShowActiveWallMarker()" class="px-1.5 py-0.5 rounded bg-amber-600/80 hover:bg-amber-500 text-white text-[9px] font-black shadow" title="Mostrar demarcador da parede ativa no 3D">
+                    📍 Ver Marcador
                   </button>
-                  <button onclick="game3dToggleNewWallForm()" class="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black flex items-center gap-0.5 shadow" title="Criar nova parede em qualquer posição X/Z">
-                    <span>➕</span> Nova Parede
+                  <button onclick="game3dImport2DWalls()" class="px-1.5 py-0.5 rounded bg-sky-700 hover:bg-sky-600 text-white text-[9px] font-extrabold" title="Importar Paredes da Planta 2D">
+                    🔄 2D
+                  </button>
+                  <button onclick="game3dToggleNewWallForm()" class="px-1.5 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-black" title="Criar nova parede">
+                    ➕ Parede
                   </button>
                 </div>
               </div>
 
-              <!-- Lista de Paredes (A, B, C, D, E, F, G, H ... 14) -->
-              <div id="game3dWallsContainer" class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-thin">
-                <!-- Preenchido dinamicamente via renderGame3DWallsToolbar() -->
+              <!-- Lista de Paredes Sem Barra de Rolagem Branca -->
+              <div id="game3dWallsContainer" class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-[10px]">
+                <!-- Preenchido via renderGame3DWallsToolbar() -->
               </div>
 
               <!-- Formulário Inline para Criar Nova Parede Personalizada -->
-              <div id="game3dNewWallForm" class="hidden p-2 rounded-lg bg-slate-900 border border-emerald-500/50 flex flex-col gap-1.5 text-xs">
-                <div class="flex items-center justify-between font-bold text-emerald-300 text-[11px]">
-                  <span>➕ Cadastrar Nova Parede na Planta 3D:</span>
+              <div id="game3dNewWallForm" class="hidden p-1.5 rounded bg-slate-900 border border-emerald-500/50 flex flex-col gap-1 text-[10px]">
+                <div class="flex items-center justify-between font-bold text-emerald-300">
+                  <span>➕ Nova Parede 3D:</span>
                   <button onclick="game3dToggleNewWallForm()" class="text-slate-400 hover:text-white">✕</button>
                 </div>
-                <div class="grid grid-cols-2 gap-1.5">
-                  <div>
-                    <label class="text-[10px] text-slate-400">Nome da Parede:</label>
-                    <input id="nwName" type="text" value="Parede I" class="w-full px-2 py-1 rounded bg-slate-950 border border-slate-700 text-white text-xs font-bold" />
-                  </div>
-                  <div>
-                    <label class="text-[10px] text-slate-400">Direção:</label>
-                    <select id="nwDir" class="w-full px-2 py-1 rounded bg-slate-950 border border-slate-700 text-white text-xs font-bold">
-                      <option value="X">➡️ Eixo X (Horizontal)</option>
-                      <option value="Z">⬆️ Eixo Z (Vertical 90°)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="text-[10px] text-slate-400">Início X (cm):</label>
-                    <input id="nwOriginX" type="number" step="10" value="200" class="w-full px-2 py-1 rounded bg-slate-950 border border-slate-700 text-white text-xs font-bold" />
-                  </div>
-                  <div>
-                    <label class="text-[10px] text-slate-400">Início Z (cm):</label>
-                    <input id="nwOriginZ" type="number" step="10" value="0" class="w-full px-2 py-1 rounded bg-slate-950 border border-slate-700 text-white text-xs font-bold" />
-                  </div>
-                  <div>
-                    <label class="text-[10px] text-slate-400">Comprimento (cm):</label>
-                    <input id="nwLength" type="number" step="20" value="300" class="w-full px-2 py-1 rounded bg-slate-950 border border-slate-700 text-white text-xs font-bold" />
-                  </div>
-                  <div class="flex items-end">
-                    <button onclick="game3dConfirmNewWall()" class="w-full py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow">Criar Parede</button>
-                  </div>
+                <div class="grid grid-cols-3 gap-1">
+                  <input id="nwName" type="text" value="Parede I" placeholder="Nome" class="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-700 text-white font-bold" />
+                  <select id="nwDir" class="px-1 py-0.5 rounded bg-slate-950 border border-slate-700 text-white font-bold">
+                    <option value="X">➡️ Eixo X</option>
+                    <option value="Z">⬆️ Eixo Z</option>
+                  </select>
+                  <input id="nwLength" type="number" step="20" value="300" placeholder="Comp cm" class="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-700 text-white font-bold" />
+                  <input id="nwOriginX" type="number" step="10" value="200" placeholder="X cm" class="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-700 text-white font-bold" />
+                  <input id="nwOriginZ" type="number" step="10" value="0" placeholder="Z cm" class="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-700 text-white font-bold" />
+                  <button onclick="game3dConfirmNewWall()" class="py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow">Criar</button>
                 </div>
               </div>
 
-              <!-- CONTROLE DE MOVER PAREDE / LINHA DE REFERÊNCIA (1, 5, 10, 20 cm) + INVERTER LADO -->
-              <div class="p-2 rounded-lg bg-slate-900/95 border border-sky-500/40 flex flex-col gap-1.5 text-[10px]">
+              <!-- CONTROLE COMPACTO DE MOVER PAREDE / LINHA DE REFERÊNCIA (1, 5, 10, 20 cm) + INVERTER LADO -->
+              <div class="px-1.5 py-1 rounded bg-slate-900/95 border border-sky-500/30 flex flex-col gap-1 text-[9px]">
                 <div class="flex items-center justify-between">
-                  <span class="font-extrabold text-sky-300 flex items-center gap-1">📏 Mover Parede / Linha de Referência:</span>
-                  <button onclick="game3dFlipWallReferenceSide()" id="btnFlipRefSide" class="px-2 py-0.5 rounded bg-sky-600 hover:bg-sky-500 text-white font-black shadow transition active:scale-95" title="Muda a linha de referência para o outro lado (mesmo efeito de clicar 2x em Saída em T ou Canto L)">
+                  <span class="font-extrabold text-sky-300">📏 Mover Parede / Linha Ref.:</span>
+                  <button onclick="game3dFlipWallReferenceSide()" id="btnFlipRefSide" class="px-1.5 py-0.2 rounded bg-sky-600 hover:bg-sky-500 text-white font-black shadow transition active:scale-95" title="Muda a linha de referência para o outro lado">
                     ⇄ Mudar Lado (180°)
                   </button>
                 </div>
-                <div class="flex items-center justify-between gap-1">
-                  <span class="text-slate-400 font-bold shrink-0 w-14">Lateral:</span>
+                <div class="flex items-center gap-1">
+                  <span class="text-slate-400 font-bold w-10 shrink-0">Lateral:</span>
                   <div class="grid grid-cols-8 gap-0.5 flex-1">
                     <button onclick="game3dMoveWall('perp', -20)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-20</button>
                     <button onclick="game3dMoveWall('perp', -10)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-10</button>
@@ -2711,8 +2701,8 @@
                     <button onclick="game3dMoveWall('perp', 20)" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-slate-200 font-bold">+20</button>
                   </div>
                 </div>
-                <div class="flex items-center justify-between gap-1">
-                  <span class="text-slate-400 font-bold shrink-0 w-14">No Eixo:</span>
+                <div class="flex items-center gap-1">
+                  <span class="text-slate-400 font-bold w-10 shrink-0">No Eixo:</span>
                   <div class="grid grid-cols-8 gap-0.5 flex-1">
                     <button onclick="game3dMoveWall('along', -20)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-20</button>
                     <button onclick="game3dMoveWall('along', -10)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-10</button>
@@ -2726,315 +2716,217 @@
                 </div>
               </div>
 
-              <!-- Ações Rápidas da Parede Ativa (Sentido, Completar Fiada, Subir 1..14 c/ Canaleta, Caída de Telhado) -->
-              <div class="grid grid-cols-2 gap-1 pt-0.5 text-[11px]">
-                <button onclick="game3dToggleWallSense()" id="btnWallSense" class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center justify-center gap-1 transition" title="Alterna o sentido de assentamento dos blocos na parede ativa">
-                  <span>🔄</span> <span id="lblWallSense">Sentido: Normal (➡️)</span>
+              <!-- Ações Rápidas da Parede Ativa em 1 Linha de 4 Botões -->
+              <div class="grid grid-cols-4 gap-1 text-[9px]">
+                <button onclick="game3dToggleWallSense()" id="btnWallSense" class="px-1 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold truncate" title="Alternar sentido dos blocos">
+                  🔄 <span id="lblWallSense">Sentido</span>
                 </button>
-                <button onclick="game3dAutoFillCurrentWallFiada()" class="px-2 py-1 rounded-lg bg-indigo-900/70 hover:bg-indigo-800 border border-indigo-500/50 text-indigo-200 font-bold flex items-center justify-center gap-1 transition" title="Preenche automaticamente a fiada atual desta parede respeitando portas, janelas e amarração">
-                  <span>⚡</span> Completar Fiada Atual
+                <button onclick="game3dAutoFillCurrentWallFiada()" class="px-1 py-1 rounded bg-indigo-900/70 hover:bg-indigo-800 border border-indigo-500/50 text-indigo-200 font-bold truncate" title="Completar a fiada atual desta parede">
+                  ⚡ Completar
                 </button>
-                <button onclick="game3dAutoBuildActiveWall14()" class="px-2 py-1 rounded-lg bg-emerald-900/70 hover:bg-emerald-800 border border-emerald-500/50 text-emerald-200 font-bold flex items-center justify-center gap-1 transition" title="Constrói da 1ª à 14ª fiada na parede ativa com Canaleta na 14ª fiada">
-                  <span>🧱</span> Subir 1ª..14ª + Canaleta
+                <button onclick="game3dAutoBuildActiveWall14()" class="px-1 py-1 rounded bg-emerald-900/70 hover:bg-emerald-800 border border-emerald-500/50 text-emerald-200 font-bold truncate" title="Subir 1ª à 14ª fiada com Canaleta">
+                  🧱 1ª..14ª+Can
                 </button>
-                <button onclick="game3dBuildRoofGableOnActiveWall()" class="px-2 py-1 rounded-lg bg-amber-900/70 hover:bg-amber-800 border border-amber-500/50 text-amber-200 font-bold flex items-center justify-center gap-1 transition" title="Adiciona queda de telhado / oitão com blocos chanfrados acima da 14ª fiada nesta parede">
-                  <span>⛺</span> Caída Telhado (Oitão)
+                <button onclick="game3dBuildRoofGableOnActiveWall()" class="px-1 py-1 rounded bg-amber-900/70 hover:bg-amber-800 border border-amber-500/50 text-amber-200 font-bold truncate" title="Caída de Telhado (Oitão Chanfrado)">
+                  ⛺ Telhado
                 </button>
               </div>
             </div>
 
-            <!-- 3. Fiada & Direção de Assentamento -->
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-slate-300">3. Fiada & Direção (1ª..14ª + Telhado):</span>
-                <span id="game3dFiadaBadge" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-indigo-600/40 text-indigo-300">1ª Fiada</span>
-              </div>
-
-              <!-- Seletor de Fiadas (1ª até a 18ª Fiada: 1..14 Parede + 15..18 Oitão/Telhado) -->
-              <div class="flex items-center justify-between text-[11px] text-slate-400 font-bold">
-                <span>Fiadas (1..14 + 14ª Canaleta + Telhado):</span>
-                <div class="flex items-center gap-1">
-                  <button onclick="game3dStepFiada(-1)" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition" title="Fiada Anterior">◀ Ant</button>
-                  <button onclick="game3dStepFiada(1)" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition" title="Próxima Fiada">Seg ▶</button>
+            <!-- 3. Fiada & Direção de Assentamento Compactos -->
+            <div class="p-1.5 rounded-lg bg-slate-950 border border-slate-800/90 flex flex-col gap-1">
+              <div class="flex items-center justify-between gap-1">
+                <div class="flex items-center gap-1 min-w-0">
+                  <span class="text-[11px] font-black text-slate-300 shrink-0">3. Fiada:</span>
+                  <span id="game3dFiadaBadge" class="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-indigo-600/40 text-indigo-300 truncate">1ª Fiada</span>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button onclick="game3dStepFiada(-1)" class="px-1.5 py-0.2 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold" title="Fiada Anterior">◀ Ant</button>
+                  <button onclick="game3dStepFiada(1)" class="px-1.5 py-0.2 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold" title="Próxima Fiada">Seg ▶</button>
                 </div>
               </div>
-              <div id="game3dFiadasScroll" class="flex items-center gap-1 overflow-x-auto pb-1 text-xs scrollbar-thin">
-                <!-- Inserido dinamicamente de 1 a 18 via renderGame3DFiadasToolbar() -->
+
+              <!-- Seletor de Fiadas Sem Barra de Rolagem Branca -->
+              <div id="game3dFiadasScroll" class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-[10px]">
+                <!-- Inserido via renderGame3DFiadasToolbar() -->
               </div>
 
-              <!-- Direção do Bloco: Eixo Principal, Canto a 90° ou Saída em 'T' -->
-              <div class="grid grid-cols-3 gap-1 text-xs">
-                <button onclick="game3dSetDir('X')" id="gDirBtn_X" class="p-1.5 rounded-lg font-black bg-indigo-600 text-white shadow flex flex-col items-center justify-center text-center transition active:scale-95" title="Parede no eixo principal longitudinal (X)">
-                  <span class="text-sm">➡️</span>
-                  <span class="text-[10px] font-extrabold leading-tight">Eixo Princ. (X)</span>
+              <!-- Direção e Cantos em L / T Compactos -->
+              <div class="grid grid-cols-3 gap-1 text-[10px]">
+                <button onclick="game3dSetDir('X')" id="gDirBtn_X" class="py-1 px-1.5 rounded font-black bg-indigo-600 text-white shadow flex items-center justify-center gap-1 transition active:scale-95">
+                  <span>➡️</span> <span>Eixo Princ. (X)</span>
                 </button>
-                <button onclick="game3dSetDir('Z')" id="gDirBtn_Z" class="p-1.5 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex flex-col items-center justify-center text-center border border-amber-500/30 transition active:scale-95" title="Canto em L virando a 90° (Eixo Z)">
-                  <span class="text-sm">⬆️</span>
-                  <span class="text-[10px] font-extrabold leading-tight">Canto 90° (L)</span>
+                <button onclick="game3dSetDir('Z')" id="gDirBtn_Z" class="py-1 px-1.5 rounded font-bold bg-slate-800 text-amber-300 hover:bg-slate-700 flex items-center justify-center gap-1 border border-amber-500/30 transition active:scale-95">
+                  <span>⬆️</span> <span>Canto 90° (L)</span>
                 </button>
-                <button onclick="game3dSetDir('T')" id="gDirBtn_T" class="p-1.5 rounded-lg font-bold bg-slate-800 text-sky-300 hover:bg-slate-700 flex flex-col items-center justify-center text-center border border-sky-500/30 transition active:scale-95" title="Saída em T perpendicular à parede atual">
-                  <span class="text-sm">🔀</span>
-                  <span class="text-[10px] font-extrabold leading-tight">Saída em 'T'</span>
+                <button onclick="game3dSetDir('T')" id="gDirBtn_T" class="py-1 px-1.5 rounded font-bold bg-slate-800 text-sky-300 hover:bg-slate-700 flex items-center justify-center gap-1 border border-sky-500/30 transition active:scale-95" title="1º clique cria Saída em T; 2º clique inverte o lado da linha de referência!">
+                  <span>🔀</span> <span>Saída em 'T'</span>
                 </button>
               </div>
-
-              <!-- Botões Dedicados para Cantos em L (Começar Canto e Terminar em L) -->
-              <div class="grid grid-cols-2 gap-1.5 pt-0.5">
-                <button onclick="game3dComecarCantoEmL()" class="p-1.5 rounded-lg bg-amber-600/90 hover:bg-amber-500 text-white font-extrabold text-xs shadow flex items-center justify-center gap-1 transition active:scale-95 border border-amber-400/50" title="Inicia o canto em L no início da parede">
-                  <span>📐</span>
-                  <span class="text-[11px] leading-tight text-center">Começar Canto em L</span>
+              <div class="grid grid-cols-2 gap-1 text-[10px]">
+                <button onclick="game3dComecarCantoEmL()" class="py-1 px-1.5 rounded bg-amber-600/90 hover:bg-amber-500 text-white font-extrabold shadow flex items-center justify-center gap-1 transition active:scale-95 border border-amber-400/50">
+                  <span>📐</span> <span>Começar Canto em L</span>
                 </button>
-                <button onclick="game3dTerminarEmL()" class="p-1.5 rounded-lg bg-orange-600/90 hover:bg-orange-500 text-white font-extrabold text-xs shadow flex items-center justify-center gap-1 transition active:scale-95 border border-orange-400/50" title="Termina a parede atual virando a 90° para continuar a casa">
-                  <span>📐</span>
-                  <span class="text-[11px] leading-tight text-center">Terminar em L (Virar 90°)</span>
+                <button onclick="game3dTerminarEmL()" class="py-1 px-1.5 rounded bg-orange-600/90 hover:bg-orange-500 text-white font-extrabold shadow flex items-center justify-center gap-1 transition active:scale-95 border border-orange-400/50" title="1º clique vira 90° em L; 2º clique inverte o lado!">
+                  <span>📐</span> <span>Terminar em L (90°)</span>
                 </button>
               </div>
 
               <!-- Banner de Bloco Clicado para Amarração Direta -->
-              <div id="game3dSnapBondBanner" class="hidden p-2 rounded-lg bg-sky-950/90 border border-sky-400 text-xs flex items-center justify-between shadow-lg">
-                <div class="flex items-center gap-1.5 text-sky-200">
-                  <span class="animate-bounce">🎯</span>
-                  <span id="game3dSnapBondText" class="text-[11px] font-bold">Bloco selecionado para amarração!</span>
+              <div id="game3dSnapBondBanner" class="hidden p-1.5 rounded bg-sky-950/90 border border-sky-400 text-[10px] flex items-center justify-between shadow">
+                <div class="flex items-center gap-1 text-sky-200 truncate">
+                  <span>🎯</span>
+                  <span id="game3dSnapBondText" class="font-bold truncate">Bloco selecionado!</span>
                 </div>
-                <button onclick="game3dClearSnapBond()" class="text-slate-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded bg-slate-800">✕</button>
+                <button onclick="game3dClearSnapBond()" class="text-slate-400 hover:text-white font-bold px-1 rounded bg-slate-800">✕</button>
               </div>
             </div>
 
-            <!-- 4. Paleta de Blocos para Assentar no Jogo (54, 39, 34 no topo + Canaletas + Chanfrados) -->
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
+            <!-- 4. Escolha o Bloco (54, 39, 34 bem no alto e visíveis!) + Pra Trás / Pra Frente + Mover Bloco -->
+            <div class="p-1.5 rounded-lg bg-slate-950 border border-slate-800/90 flex flex-col gap-1.5">
               <div class="flex items-center justify-between gap-1">
-                <span class="text-xs font-black text-slate-300">4. Escolha o Bloco:</span>
+                <span class="text-[11px] font-black text-amber-300">4. Escolha o Bloco:</span>
+                <!-- Botões Pequenos e Discretos de Pra Trás e Pra Frente também junto aos blocos -->
                 <div class="flex items-center gap-1">
-                  <button onclick="game3dUndo()" class="px-2 py-0.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-black shadow transition active:scale-95" title="Desfazer último bloco colocado">
-                    ↩️ Desfazer Bloco
+                  <button onclick="game3dStepBack()" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-[9px] font-black transition active:scale-95" title="Pra Trás (Desfazer Bloco)">
+                    ◀ Trás
                   </button>
-                  <button onclick="game3dClearCurrentFiada()" class="px-1.5 py-0.5 rounded bg-rose-900/80 hover:bg-rose-800 text-rose-200 text-[10px] font-bold transition" title="Limpar fiada atual">
+                  <button onclick="game3dStepForward()" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 text-[9px] font-black transition active:scale-95" title="Pra Frente (Refazer / Avançar Bloco)">
+                    Frente ▶
+                  </button>
+                  <button onclick="game3dClearCurrentFiada()" class="px-1.5 py-0.5 rounded bg-rose-950/80 hover:bg-rose-800 text-rose-200 text-[9px] font-bold transition" title="Limpar fiada atual">
                     🗑️ Fiada
                   </button>
                 </div>
               </div>
 
               <!-- MOVER BLOCO (1, 5, 10, 20 cm) + CORREÇÃO AUTOMÁTICA DE AMARRAÇÃO NA FIADA SEGUINTE -->
-              <div class="p-2 rounded-lg bg-slate-900/95 border border-emerald-500/40 flex flex-col gap-1.5 text-[10px]">
+              <div class="px-1.5 py-1 rounded bg-slate-900/95 border border-emerald-500/40 flex flex-col gap-1 text-[9px]">
                 <div class="flex items-center justify-between">
-                  <span class="font-extrabold text-emerald-300">🧱 Mover Bloco (1, 5, 10, 20 cm):</span>
-                  <span id="game3dMoveBlockTargetLbl" class="text-[9px] text-slate-400 font-mono truncate max-w-[155px]">Alvo: Último Bloco</span>
+                  <span class="font-extrabold text-emerald-300">🧱 Mover Bloco (cm):</span>
+                  <span id="game3dMoveBlockTargetLbl" class="text-[9px] text-slate-400 font-mono truncate max-w-[140px]">Alvo: Último Bloco</span>
                 </div>
                 <div class="grid grid-cols-8 gap-0.5">
-                  <button onclick="game3dMoveBlock(-20)" id="btnMoveBlk_m20" class="py-1 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-20</button>
-                  <button onclick="game3dMoveBlock(-10)" id="btnMoveBlk_m10" class="py-1 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-10</button>
-                  <button onclick="game3dMoveBlock(-5)" id="btnMoveBlk_m5" class="py-1 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-5</button>
-                  <button onclick="game3dMoveBlock(-1)" id="btnMoveBlk_m1" class="py-1 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-1</button>
-                  <button onclick="game3dMoveBlock(1)" id="btnMoveBlk_p1" class="py-1 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+1</button>
-                  <button onclick="game3dMoveBlock(5)" id="btnMoveBlk_p5" class="py-1 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+5</button>
-                  <button onclick="game3dMoveBlock(10)" id="btnMoveBlk_p10" class="py-1 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+10</button>
-                  <button onclick="game3dMoveBlock(20)" id="btnMoveBlk_p20" class="py-1 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+20</button>
+                  <button onclick="game3dMoveBlock(-20)" id="btnMoveBlk_m20" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-20</button>
+                  <button onclick="game3dMoveBlock(-10)" id="btnMoveBlk_m10" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-10</button>
+                  <button onclick="game3dMoveBlock(-5)" id="btnMoveBlk_m5" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-5</button>
+                  <button onclick="game3dMoveBlock(-1)" id="btnMoveBlk_m1" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-1</button>
+                  <button onclick="game3dMoveBlock(1)" id="btnMoveBlk_p1" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+1</button>
+                  <button onclick="game3dMoveBlock(5)" id="btnMoveBlk_p5" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+5</button>
+                  <button onclick="game3dMoveBlock(10)" id="btnMoveBlk_p10" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+10</button>
+                  <button onclick="game3dMoveBlock(20)" id="btnMoveBlk_p20" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+20</button>
                 </div>
-                <div class="flex items-center justify-between gap-1 pt-0.5">
-                  <span id="game3dBondStatusHint" class="text-[9px] text-emerald-400 font-bold">✨ Na fiada seguinte o algoritmo corrige a amarração!</span>
-                  <button onclick="game3dTriggerNextFiadaBondCorrection()" id="btnFixNextFiadaBond" class="px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[9px] shrink-0 shadow transition" title="Sobe para a fiada seguinte e corrige automaticamente a amarração sobre os blocos movidos">
+                <div class="flex items-center justify-between gap-1">
+                  <span id="game3dBondStatusHint" class="text-[8.5px] text-emerald-400 font-bold truncate">✨ Corrige amarração na fiada seguinte</span>
+                  <button onclick="game3dTriggerNextFiadaBondCorrection()" id="btnFixNextFiadaBond" class="px-1.5 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[9px] shrink-0 shadow transition">
                     🔧 Corrigir Fiada Seguinte
                   </button>
                 </div>
               </div>
               
-              <!-- Container dinâmico com os botões das peças da família -->
-              <div id="game3dPiecesContainer" class="flex flex-col gap-1.5">
+              <!-- Container dinâmico com os botões das peças da família (54, 39, 34 no topo!) -->
+              <div id="game3dPiecesContainer" class="flex flex-col gap-1">
                 <!-- Inserido dinamicamente via JS -->
               </div>
 
-              <!-- Ajuste opcional de alturas para Bloco Chanfrado (Caída de Telhado) -->
-              <div class="p-2 rounded-lg bg-slate-900/90 border border-amber-500/30 flex flex-col gap-1.5 text-[11px]">
-                <div class="flex items-center justify-between text-amber-300 font-extrabold">
-                  <span>📐 Config. Bloco Chanfrado (Caída Telhado):</span>
-                  <span class="text-[10px] text-slate-400">Alturas Esq/Dir</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1.5 items-end">
-                  <div>
-                    <label class="text-[9px] text-slate-400 block">Alt. Baixa (cm):</label>
-                    <input id="game3dChamferLow" type="number" min="1" max="19" value="4" class="w-full px-1.5 py-0.5 rounded bg-slate-950 border border-slate-700 text-white text-xs font-bold" />
-                  </div>
-                  <div>
-                    <label class="text-[9px] text-slate-400 block">Alt. Alta (cm):</label>
-                    <input id="game3dChamferHigh" type="number" min="4" max="19" value="19" class="w-full px-1.5 py-0.5 rounded bg-slate-950 border border-slate-700 text-white text-xs font-bold" />
-                  </div>
-                  <div>
-                    <button onclick="game3dFillFiada14Canaletas()" class="w-full py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] shadow" title="Assenta Canaletas em toda a 14ª fiada">
-                      🟦 14ª c/ Canaleta
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Ações da Fiada -->
-              <div class="flex items-center justify-between gap-1.5 pt-1 border-t border-slate-800">
-                <button onclick="game3dUndo()" class="flex-1 px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center justify-center gap-1 transition active:scale-95">
-                  <span>⬅️</span> Desfazer Bloco
-                </button>
-                <button onclick="game3dClearCurrentFiada()" class="flex-1 px-2 py-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-300 text-xs font-bold transition">
-                  Limpar Fiada
+              <!-- Ajuste compacto de Bloco Chanfrado e Canaleta -->
+              <div class="px-1.5 py-1 rounded bg-slate-900/90 border border-amber-500/30 flex items-center justify-between gap-1 text-[9px]">
+                <span class="text-amber-300 font-bold shrink-0">📐 Chanfrado (cm):</span>
+                <input id="game3dChamferLow" type="number" min="1" max="19" value="4" class="w-10 px-1 py-0.5 rounded bg-slate-950 border border-slate-700 text-white font-bold text-center" title="Altura Baixa (cm)" />
+                <span class="text-slate-500">→</span>
+                <input id="game3dChamferHigh" type="number" min="4" max="19" value="19" class="w-10 px-1 py-0.5 rounded bg-slate-950 border border-slate-700 text-white font-bold text-center" title="Altura Alta (cm)" />
+                <button onclick="game3dFillFiada14Canaletas()" class="px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-black shadow shrink-0" title="Assenta Canaletas em toda a 14ª fiada">
+                  🟦 14ª Canaleta
                 </button>
               </div>
             </div>
 
-            <!-- 5. VÃOS DE PORTAS E JANELAS (IGUAL À CONFIG DE VIGAS + BLOQUEIO DE COLISÃO) -->
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-slate-300">5. Portas & Janelas (Config. Completa):</span>
-                <span class="text-[10px] text-amber-400 font-bold">Bloqueia invasão de bloco</span>
-              </div>
-
-              <!-- Banner de Aviso de Colisão na Porta/Janela -->
-              <div id="game3dOpeningAlertBanner" class="hidden p-2 rounded-lg bg-rose-950/90 border border-rose-500 text-rose-200 text-[11px] font-bold flex flex-col gap-1 shadow-lg">
-                <div class="flex items-center justify-between">
-                  <span class="text-rose-300 font-black">🚫 BLOQUEIO DE VÃO (PORTA / JANELA)</span>
-                  <button onclick="document.getElementById('game3dOpeningAlertBanner').classList.add('hidden')" class="text-xs text-rose-400 hover:text-white">✕</button>
-                </div>
-                <div id="game3dOpeningAlertMsg">O bloco não pode entrar no vão da porta/janela!</div>
-              </div>
-
-              <!-- Configuração igual à de Vigas -->
-              <div class="grid grid-cols-2 gap-1.5 text-xs">
-                <div class="flex flex-col gap-0.5">
-                  <label class="text-[10px] text-slate-400 font-bold">Tipo de Vão:</label>
-                  <select id="game3dOpenType" onchange="game3dOnOpenTypeChange()" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
-                    <option value="DOOR">🚪 Porta (1ª à 11ª Fiada)</option>
-                    <option value="WINDOW">🪟 Janela (6ª à 11ª Fiada)</option>
-                  </select>
-                </div>
-                <div class="flex flex-col gap-0.5">
+            <!-- 5. Portas & Janelas (Sanfona Compacta para não roubar espaço dos blocos) -->
+            <details class="group rounded-lg bg-slate-950 border border-slate-800/90 p-1.5 text-xs">
+              <summary class="cursor-pointer list-none flex items-center justify-between text-[11px] font-black text-slate-300">
+                <span>🚪 5. Portas & Janelas (Vãos)</span>
+                <span class="text-[9px] text-amber-400 font-bold group-open:rotate-180 transition">▼ Abrir</span>
+              </summary>
+              <div class="pt-1.5 flex flex-col gap-1.5">
+                <div id="game3dOpeningAlertBanner" class="hidden p-1.5 rounded bg-rose-950/90 border border-rose-500 text-rose-200 text-[10px] font-bold flex flex-col gap-0.5">
                   <div class="flex items-center justify-between">
-                    <label class="text-[10px] text-slate-400 font-bold">Início na Parede (cm):</label>
-                    <button onclick="game3dSetOpenStartFromCursor()" class="text-[9px] text-amber-400 hover:underline font-bold" title="Usa a posição atual do último bloco">📍 Atual</button>
+                    <span class="text-rose-300 font-black">🚫 BLOQUEIO DE VÃO</span>
+                    <button onclick="document.getElementById('game3dOpeningAlertBanner').classList.add('hidden')" class="text-xs text-rose-400">✕</button>
                   </div>
-                  <input id="game3dOpenStart" type="number" step="5" min="0" value="120" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none" />
+                  <div id="game3dOpeningAlertMsg">O bloco não pode entrar no vão!</div>
                 </div>
-                <div class="flex flex-col gap-0.5">
-                  <label class="text-[10px] text-slate-400 font-bold">Largura do Vão (cm):</label>
-                  <input id="game3dOpenSpan" type="number" step="5" min="20" value="80" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-amber-400 focus:outline-none" />
-                </div>
-                <div class="flex flex-col gap-0.5">
-                  <label class="text-[10px] text-slate-400 font-bold">Fiadas (Início → Fim):</label>
-                  <div class="grid grid-cols-2 gap-1">
-                    <select id="game3dOpenFiadaStart" class="px-1 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-[11px] font-bold">
-                      <!-- Preenchido via JS -->
-                    </select>
-                    <select id="game3dOpenFiadaEnd" class="px-1 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-[11px] font-bold">
-                      <!-- Preenchido via JS -->
+                <div class="grid grid-cols-2 gap-1 text-[10px]">
+                  <div>
+                    <label class="text-[9px] text-slate-400 font-bold">Tipo:</label>
+                    <select id="game3dOpenType" onchange="game3dOnOpenTypeChange()" class="w-full px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-white font-bold">
+                      <option value="DOOR">🚪 Porta (1ª..11ªF)</option>
+                      <option value="WINDOW">🪟 Janela (6ª..11ªF)</option>
                     </select>
                   </div>
+                  <div>
+                    <div class="flex justify-between">
+                      <label class="text-[9px] text-slate-400 font-bold">Início (cm):</label>
+                      <button onclick="game3dSetOpenStartFromCursor()" class="text-[9px] text-amber-400 font-bold">📍 Atual</button>
+                    </div>
+                    <input id="game3dOpenStart" type="number" step="5" min="0" value="120" class="w-full px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-white font-bold" />
+                  </div>
+                  <div>
+                    <label class="text-[9px] text-slate-400 font-bold">Largura (cm):</label>
+                    <input id="game3dOpenSpan" type="number" step="5" min="20" value="80" class="w-full px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-white font-bold" />
+                  </div>
+                  <div>
+                    <label class="text-[9px] text-slate-400 font-bold">Fiadas:</label>
+                    <div class="grid grid-cols-2 gap-1">
+                      <select id="game3dOpenFiadaStart" class="px-1 py-0.5 rounded bg-slate-900 border border-slate-700 text-white text-[10px] font-bold"></select>
+                      <select id="game3dOpenFiadaEnd" class="px-1 py-0.5 rounded bg-slate-900 border border-slate-700 text-white text-[10px] font-bold"></select>
+                    </div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-4 gap-1 text-[10px]">
+                  <button onclick="game3dQuickConfigOpening('DOOR', 80, 1, 11)" class="py-0.5 rounded bg-slate-800 hover:bg-amber-600 text-slate-200 font-bold">🚪 P.80</button>
+                  <button onclick="game3dQuickConfigOpening('DOOR', 90, 1, 11)" class="py-0.5 rounded bg-slate-800 hover:bg-amber-600 text-slate-200 font-bold">🚪 P.90</button>
+                  <button onclick="game3dQuickConfigOpening('WINDOW', 120, 6, 11)" class="py-0.5 rounded bg-slate-800 hover:bg-sky-600 text-slate-200 font-bold">🪟 J.120</button>
+                  <button onclick="game3dQuickConfigOpening('WINDOW', 160, 6, 11)" class="py-0.5 rounded bg-slate-800 hover:bg-sky-600 text-slate-200 font-bold">🪟 J.160</button>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button onclick="game3dInsertConfiguredOpening()" class="flex-1 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black shadow">➕ Inserir Vão</button>
+                  <button onclick="game3dSkipNextOpening()" class="px-2 py-1 rounded bg-sky-700 hover:bg-sky-600 text-white text-[10px] font-black">⏭️ Pular Vão</button>
+                  <button onclick="game3dClearOpenings()" class="px-2 py-1 rounded bg-rose-950/70 text-rose-300 text-[10px] font-bold">🗑️</button>
+                </div>
+                <div id="game3dOpeningsList" class="flex flex-col gap-1 text-[10px] max-h-20 overflow-y-auto"></div>
+              </div>
+            </details>
+
+            <!-- 6. Vigas & IA (Sanfona Compacta) -->
+            <details class="group rounded-lg bg-slate-950 border border-slate-800/90 p-1.5 text-xs">
+              <summary class="cursor-pointer list-none flex items-center justify-between text-[11px] font-black text-slate-300">
+                <span>🏗️ 6. Vigas & Diagnóstico IA</span>
+                <span id="game3dAiStatusBadge" class="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-600/40 text-emerald-300">IA Ativa ▼</span>
+              </summary>
+              <div class="pt-1.5 flex flex-col gap-1.5">
+                <div class="grid grid-cols-2 gap-1 text-[10px]">
+                  <select id="game3dBeamFiada" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-white font-bold"></select>
+                  <input id="game3dBeamLen" type="number" step="5" min="20" value="200" placeholder="Comp cm" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-white font-bold" />
+                  <input id="game3dBeamWidth" type="number" step="1" min="5" value="14" placeholder="Larg cm" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-white font-bold" />
+                  <input id="game3dBeamHeight" type="number" step="1" min="10" value="20" placeholder="Alt cm" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-white font-bold" />
+                </div>
+                <div class="flex items-center gap-1">
+                  <button onclick="game3dInsertCustomBeam()" class="flex-1 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black">🏗️ Inserir Viga</button>
+                  <button onclick="game3dClearBeams()" class="px-2 py-1 rounded bg-rose-950/70 text-rose-300 text-[10px] font-bold">🗑️</button>
+                </div>
+                <div class="text-[10px] space-y-0.5 bg-slate-900 p-1.5 rounded border border-slate-800 font-mono">
+                  <div class="flex justify-between"><span class="text-slate-400">Estrutura:</span><span id="game3dAiType" class="font-bold text-white">Parede Reta</span></div>
+                  <div class="flex justify-between"><span class="text-slate-400">1ª Fiada:</span><span id="game3dAiFiada1" class="font-bold text-indigo-300 truncate max-w-[180px]">-</span></div>
+                  <div class="flex justify-between"><span class="text-slate-400">2ª Fiada:</span><span id="game3dAiFiada2" class="font-bold text-indigo-300 truncate max-w-[180px]">-</span></div>
+                  <div class="flex justify-between"><span class="text-slate-400">Amarração:</span><span id="game3dAiBond" class="font-bold text-emerald-400">100% Amarrado</span></div>
+                </div>
+                <button onclick="game3dAiAutocompleteNextFiada()" class="w-full py-1 rounded bg-indigo-600/80 hover:bg-indigo-600 text-white text-[10px] font-black">✨ IA, Sugerir Próxima Fiada</button>
+                <div class="flex gap-1">
+                  <input id="game3dPatternName" type="text" placeholder="Nome do padrão..." class="flex-1 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-white text-[10px]" />
+                  <button onclick="game3dTeachAiPattern()" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black shrink-0">🧠 Gravar IA</button>
                 </div>
               </div>
-
-              <!-- Botões Rápidos de Portas e Janelas -->
-              <div class="grid grid-cols-4 gap-1 text-[11px]">
-                <button onclick="game3dQuickConfigOpening('DOOR', 80, 1, 11)" class="p-1 rounded bg-slate-800 hover:bg-amber-600 text-slate-200 hover:text-white font-bold border border-slate-700 transition">🚪 P. 80</button>
-                <button onclick="game3dQuickConfigOpening('DOOR', 90, 1, 11)" class="p-1 rounded bg-slate-800 hover:bg-amber-600 text-slate-200 hover:text-white font-bold border border-slate-700 transition">🚪 P. 90</button>
-                <button onclick="game3dQuickConfigOpening('WINDOW', 120, 6, 11)" class="p-1 rounded bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white font-bold border border-slate-700 transition">🪟 J. 120</button>
-                <button onclick="game3dQuickConfigOpening('WINDOW', 160, 6, 11)" class="p-1 rounded bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white font-bold border border-slate-700 transition">🪟 J. 160</button>
-              </div>
-
-              <div class="flex items-center gap-1.5">
-                <button onclick="game3dInsertConfiguredOpening()" class="flex-1 py-1.5 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white text-xs font-black shadow flex items-center justify-center gap-1 transition active:scale-95 border border-amber-400/50">
-                  <span>➕</span> Inserir Porta / Janela
-                </button>
-                <button onclick="game3dSkipNextOpening()" class="px-2.5 py-1.5 rounded-lg bg-sky-700 hover:bg-sky-600 text-white text-xs font-black shadow transition" title="Pula o vão da porta/janela na fiada atual para continuar assentando do outro lado">
-                  ⏭️ Pular Vão
-                </button>
-                <button onclick="game3dClearOpenings()" class="px-2 py-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-800 text-rose-300 text-xs font-bold transition" title="Remover vãos da parede ativa">
-                  🗑️
-                </button>
-              </div>
-
-              <!-- Lista de Vãos Ativos na Parede -->
-              <div id="game3dOpeningsList" class="flex flex-col gap-1 text-[11px] max-h-24 overflow-y-auto">
-                <!-- Preenchido via JS -->
-              </div>
-            </div>
-
-            <!-- 6. VIGAS DE CONCRETO ARMADO (QUALQUER TAMANHO, ESPESSURA E ALTURA) -->
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-slate-300">6. Viga / Verga de Concreto Armado:</span>
-                <span class="text-[10px] text-indigo-400 font-bold">Acima de qualquer fiada</span>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="flex flex-col gap-0.5">
-                  <label class="text-[10px] text-slate-400 font-bold">Fiada de Apoio:</label>
-                  <select id="game3dBeamFiada" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none">
-                    <!-- Preenchido dinamicamente de 1 a 18 -->
-                  </select>
-                </div>
-                <div class="flex flex-col gap-0.5">
-                  <label class="text-[10px] text-slate-400 font-bold">Comprimento (cm):</label>
-                  <input id="game3dBeamLen" type="number" step="5" min="20" value="200" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none" />
-                </div>
-                <div class="flex flex-col gap-0.5">
-                  <label class="text-[10px] text-slate-400 font-bold">Largura / Espessura (cm):</label>
-                  <input id="game3dBeamWidth" type="number" step="1" min="5" value="14" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none" />
-                </div>
-                <div class="flex flex-col gap-0.5">
-                  <label class="text-[10px] text-slate-400 font-bold">Altura da Viga (cm):</label>
-                  <input id="game3dBeamHeight" type="number" step="1" min="10" value="20" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold focus:border-indigo-400 focus:outline-none" />
-                </div>
-              </div>
-
-              <div class="flex items-center gap-1.5 pt-1">
-                <button onclick="game3dInsertCustomBeam()" class="flex-1 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-black shadow flex items-center justify-center gap-1 transition active:scale-95 border border-blue-400/50">
-                  <span>🏗️</span> Inserir Viga na Parede
-                </button>
-                <button onclick="game3dClearBeams()" class="px-2.5 py-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-800 text-rose-300 text-xs font-bold transition" title="Remover vigas">
-                  🗑️
-                </button>
-              </div>
-            </div>
-
-            <!-- Painel de Análise da IA em Tempo Real -->
-            <div class="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-700/60 flex flex-col gap-2">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5 text-xs font-extrabold text-indigo-300">
-                  <span class="animate-pulse">🧠</span> DIAGNÓSTICO DA IA EM TEMPO REAL
-                </div>
-                <span id="game3dAiStatusBadge" class="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-600/40 text-emerald-300 border border-emerald-500/50">Ativo</span>
-              </div>
-
-              <div class="text-xs space-y-1 bg-slate-950/80 p-2 rounded-lg border border-slate-800 font-mono">
-                <div class="flex justify-between">
-                  <span class="text-slate-400">Parede / Estrutura:</span>
-                  <span id="game3dAiType" class="font-bold text-white">Parede Reta</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-400">1ª Fiada (Ímpar):</span>
-                  <span id="game3dAiFiada1" class="font-bold text-indigo-300 truncate max-w-[200px]">-</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-400">2ª Fiada (Par):</span>
-                  <span id="game3dAiFiada2" class="font-bold text-indigo-300 truncate max-w-[200px]">-</span>
-                </div>
-                <div class="flex justify-between border-t border-slate-800 pt-1">
-                  <span class="text-slate-400">Amarração / 14ª Canaleta:</span>
-                  <span id="game3dAiBond" class="font-bold text-emerald-400">100% Amarrado</span>
-                </div>
-              </div>
-
-              <!-- Botão para a IA autocompletar a próxima fiada amarrada -->
-              <button onclick="game3dAiAutocompleteNextFiada()" class="w-full py-1.5 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-black shadow flex items-center justify-center gap-1.5 transition active:scale-95 border border-indigo-400/40">
-                <span>✨</span> IA, Sugerir / Amarrar Próxima Fiada!
-              </button>
-            </div>
-
-            <!-- Botão Principal: Ensinar para a IA e Gravar na Memória -->
-            <div class="pt-0.5 flex flex-col gap-1.5">
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-bold text-slate-400">Nome do Padrão Aprendido:</label>
-                <input id="game3dPatternName" type="text" placeholder="Ex: Casa Completa Concreto 14 c/ Canaleta" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-white text-xs font-semibold focus:border-amber-400 focus:outline-none" />
-              </div>
-
-              <button onclick="game3dTeachAiPattern()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-xs font-black shadow-xl flex items-center justify-center gap-2 transition active:scale-95 border border-emerald-400/40 tracking-wide">
-                <span class="text-base">🧠</span> ENSINAR ESTE PADRÃO PARA A IA
-              </button>
-            </div>
+            </details>
 
           </div>
         </div>
@@ -11097,13 +10989,37 @@
         updateMoveBlockTargetUI();
       }
 
+      function updateWallMarkerBadgeUI() {
+        const badge = document.getElementById("game3dWallMarkerBadge");
+        const txt = document.getElementById("game3dWallMarkerText");
+        if (!badge || !txt) return;
+        const w = (game3d.walls || []).find(x => x.id === game3d.activeWallId);
+        if (game3d.showWallMarker && w) {
+          const sign = (w.sign === -1) ? -1 : 1;
+          const dirArrow = w.dir === "X" ? (sign === -1 ? "⬅️ -X" : "➡️ +X") : (sign === -1 ? "⬆️ -Z" : "⬇️ +Z");
+          txt.textContent = `📍 Marcador: ${w.name} (${dirArrow}) • some ao colocar bloco`;
+          badge.classList.remove("hidden", "opacity-0");
+        } else {
+          badge.classList.add("hidden");
+        }
+      }
+
+      function game3dShowActiveWallMarker() {
+        game3d.showWallMarker = true;
+        updateWallMarkerBadgeUI();
+        rebuildGame3DMeshes();
+      }
+
       function game3dSetActiveWall(wallId) {
         game3d.activeWallId = wallId;
+        // Mostra o demarcador da parede selecionada (e some assim que colocar os blocos nela!)
+        game3d.showWallMarker = true;
         const w = game3d.walls.find(x => x.id === wallId);
         if (w) {
           game3d.activeDir = w.dir;
           updateDirButtonsUI(w.isTBranch ? "T" : w.dir);
         }
+        updateWallMarkerBadgeUI();
         renderGame3DWallsToolbar();
         renderGame3DOpeningsList();
         rebuildGame3DMeshes();
@@ -11113,6 +11029,8 @@
       function game3dFlipWallReferenceSide() {
         const curWall = game3d.walls.find(w => w.id === game3d.activeWallId);
         if (!curWall) return;
+        game3d.showWallMarker = true;
+        updateWallMarkerBadgeUI();
         const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["14"];
         const wallW = spec.width;
         const mortar = 1;
@@ -11173,6 +11091,8 @@
       function game3dMoveWall(mode, deltaCm) {
         const curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
         if (!curWall) return;
+        game3d.showWallMarker = true;
+        updateWallMarkerBadgeUI();
         const sign = (curWall.sign === -1) ? -1 : 1;
 
         if (mode === "along") {
@@ -11763,6 +11683,8 @@
         game3d.jumpedOpenings = {};
         game3d.activeWallId = "wall_A";
         game3d.activeFiada = 1;
+        game3d.showWallMarker = !autoBuildAll;
+        updateWallMarkerBadgeUI();
 
         if (autoBuildAll) {
           // Constrói todas as paredes A..H da 1ª à 14ª fiada (com Canaleta na 14ª fiada)
@@ -12946,13 +12868,13 @@
         spec.pieces.forEach((p, idx) => {
           html += `
             <div class="flex items-center gap-1 w-full">
-              <button onclick="game3dPlacePiece('${p.id}', ${p.len}, '${p.type}')" class="flex-1 p-2 rounded-lg ${p.color} hover:brightness-110 text-white text-xs font-black shadow flex items-center justify-between transition active:scale-95">
-                <span class="flex items-center gap-1.5 text-left"><span>➕</span> ${p.name}</span>
-                <span class="font-mono text-[10px] bg-black/30 px-1.5 py-0.5 rounded shrink-0">${p.label}</span>
+              <button onclick="game3dPlacePiece('${p.id}', ${p.len}, '${p.type}')" class="flex-1 px-2.5 py-1.5 rounded-lg ${p.color} hover:brightness-110 text-white text-[11px] font-black shadow flex items-center justify-between transition active:scale-95">
+                <span class="flex items-center gap-1 text-left truncate"><span>➕</span> ${p.name}</span>
+                <span class="font-mono text-[9.5px] bg-black/30 px-1.5 py-0.2 rounded shrink-0">${p.label}</span>
               </button>
-              <div class="flex flex-col gap-0.5 shrink-0">
-                <button onclick="game3dMovePiece(${idx}, -1)" class="px-1 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[9px] font-bold transition active:scale-90" title="Mover bloco para cima">▲</button>
-                <button onclick="game3dMovePiece(${idx}, 1)" class="px-1 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[9px] font-bold transition active:scale-90" title="Mover bloco para baixo">▼</button>
+              <div class="flex items-center gap-0.5 shrink-0">
+                <button onclick="game3dMovePiece(${idx}, -1)" class="px-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[8px] font-bold transition active:scale-90" title="Subir na lista">▲</button>
+                <button onclick="game3dMovePiece(${idx}, 1)" class="px-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[8px] font-bold transition active:scale-90" title="Descer na lista">▼</button>
               </div>
             </div>
           `;
@@ -13284,6 +13206,13 @@
         };
 
         game3d.blocks.push(newBlock);
+        if (!game3d._isRedoing) {
+          game3d.redoStack = [];
+        }
+        // Assim que o usuário coloca o bloco na parede, o demarcador de parede SOME!
+        // Só volta a aparecer quando selecionar outra parede!
+        game3d.showWallMarker = false;
+        updateWallMarkerBadgeUI();
         renderGame3DWallsToolbar();
         rebuildGame3DMeshes();
         updateGame3DUI();
@@ -13291,10 +13220,46 @@
 
       function game3dUndo() {
         if (game3d.blocks.length === 0) return;
-        game3d.blocks.pop();
+        if (!game3d.redoStack) game3d.redoStack = [];
+        const removed = game3d.blocks.pop();
+        if (removed) game3d.redoStack.push(removed);
         renderGame3DWallsToolbar();
         rebuildGame3DMeshes();
         updateGame3DUI();
+      }
+
+      function game3dRedo() {
+        if (game3d.redoStack && game3d.redoStack.length > 0) {
+          const restored = game3d.redoStack.pop();
+          game3d.blocks.push(restored);
+          game3d.showWallMarker = false;
+          updateWallMarkerBadgeUI();
+          renderGame3DWallsToolbar();
+          rebuildGame3DMeshes();
+          updateGame3DUI();
+          return;
+        }
+        // Se a pilha de refazer estiver vazia, repete o último bloco colocado na parede ativa (avança 1 bloco pra frente!)
+        const curWallBlocks = game3d.blocks.filter(b => b.wallId === game3d.activeWallId && b.fiada === game3d.activeFiada && !b.isOpening);
+        if (curWallBlocks.length > 0) {
+          const lastB = curWallBlocks[curWallBlocks.length - 1];
+          game3d._isRedoing = true;
+          game3dPlacePiece(lastB.pieceId || "c14_39", lastB.len || 39, lastB.type || "WHOLE");
+          game3d._isRedoing = false;
+        } else {
+          const isBaiano = (game3d.activeFamily === "baiano");
+          game3d._isRedoing = true;
+          game3dPlacePiece(isBaiano ? "b_19" : "c14_39", isBaiano ? 19 : 39, "WHOLE");
+          game3d._isRedoing = false;
+        }
+      }
+
+      function game3dStepBack() {
+        game3dUndo();
+      }
+
+      function game3dStepForward() {
+        game3dRedo();
       }
 
       function game3dClearCurrentFiada() {
@@ -13520,34 +13485,54 @@
         const mortarLineMaterial = new THREE.LineBasicMaterial({ color: 0x94A3B8, linewidth: 1.0 });
 
         // ===================================================================
-        // 0. GABARITO 3D DAS PAREDES NO CHÃO (PLANTA A, B, C, D, E, F, G, H...)
+        // 0. DEMARCADOR DE PAREDE ATIVA (APARECE AO SELECIONAR PAREDE E SOME AO COLOCAR OS BLOCOS!)
         // ===================================================================
-        (game3d.walls || []).forEach(w => {
-          const isAct = (w.id === game3d.activeWallId);
-          const tLen = w.targetLength || 400;
-          const sign = (w.sign === -1) ? -1 : 1;
-          const gDimX = w.dir === "X" ? tLen : wallW;
-          const gDimZ = w.dir === "X" ? wallW : tLen;
-          const gx = w.dir === "X" ? (w.originX + sign * (tLen / 2)) : w.originX;
-          const gz = w.dir === "X" ? (w.originZ + wallW / 2) : (w.originZ + sign * (tLen / 2));
+        if (game3d.showWallMarker) {
+          const w = (game3d.walls || []).find(x => x.id === game3d.activeWallId);
+          if (w) {
+            const tLen = w.targetLength || 320;
+            const sign = (w.sign === -1) ? -1 : 1;
+            const gDimX = w.dir === "X" ? tLen : wallW;
+            const gDimZ = w.dir === "X" ? wallW : tLen;
+            const gx = w.dir === "X" ? (w.originX + sign * (tLen / 2)) : w.originX;
+            const gz = w.dir === "X" ? (w.originZ + wallW / 2) : (w.originZ + sign * (tLen / 2));
+            const markerY = Math.max(0.3, (game3d.activeFiada - 1) * (spec.height + mortar) + 0.3);
 
-          const stripGeom = new THREE.BoxGeometry(gDimX, 0.4, gDimZ);
-          const stripMat = new THREE.MeshBasicMaterial({
-            color: isAct ? 0x6366F1 : 0x1E293B,
-            transparent: true,
-            opacity: isAct ? 0.48 : 0.24
-          });
-          const stripMesh = new THREE.Mesh(stripGeom, stripMat);
-          stripMesh.position.set(gx, 0.2, gz);
-          stripMesh.userData = { floorWallId: w.id };
+            // Faixa demarcadora brilhante mostrando exatamente qual parede e lado receberá os blocos
+            const stripGeom = new THREE.BoxGeometry(gDimX, 0.8, gDimZ);
+            const stripMat = new THREE.MeshBasicMaterial({
+              color: 0xF59E0B,
+              transparent: true,
+              opacity: 0.42
+            });
+            const stripMesh = new THREE.Mesh(stripGeom, stripMat);
+            stripMesh.position.set(gx, markerY, gz);
+            stripMesh.userData = { floorWallId: w.id, isWallMarker: true };
 
-          const sEdges = new THREE.EdgesGeometry(stripGeom);
-          const sLine = new THREE.LineSegments(sEdges, new THREE.LineBasicMaterial({
-            color: isAct ? 0xF59E0B : 0x38BDF8
-          }));
-          stripMesh.add(sLine);
-          game3d.meshGroup.add(stripMesh);
-        });
+            const sEdges = new THREE.EdgesGeometry(stripGeom);
+            const sLine = new THREE.LineSegments(sEdges, new THREE.LineBasicMaterial({
+              color: 0x38BDF8,
+              linewidth: 2
+            }));
+            stripMesh.add(sLine);
+            game3d.meshGroup.add(stripMesh);
+
+            // Pino / Seta 3D de Início e Direção na cabeça da parede demarcada
+            const startX = w.dir === "X" ? (w.originX + sign * 12) : w.originX;
+            const startZ = w.dir === "X" ? (w.originZ + wallW / 2) : (w.originZ + sign * 12);
+            const coneGeom = new THREE.ConeGeometry(5.5, 18, 12);
+            if (w.dir === "X") {
+              coneGeom.rotateZ(sign === 1 ? -Math.PI / 2 : Math.PI / 2);
+            } else {
+              coneGeom.rotateX(sign === 1 ? Math.PI / 2 : -Math.PI / 2);
+            }
+            const coneMat = new THREE.MeshBasicMaterial({ color: 0x10B981 });
+            const coneMesh = new THREE.Mesh(coneGeom, coneMat);
+            coneMesh.position.set(startX, markerY + 6, startZ);
+            coneMesh.userData = { floorWallId: w.id, isWallMarker: true };
+            game3d.meshGroup.add(coneMesh);
+          }
+        }
 
         // ===================================================================
         // 1. RENDERIZA PORTAS E JANELAS EM 3D (MOLDURA, BATENTE E VIDRO/FOLHA)
