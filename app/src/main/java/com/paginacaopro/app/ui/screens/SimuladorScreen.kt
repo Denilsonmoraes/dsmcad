@@ -48,9 +48,7 @@ fun SimuladorScreen(onExit: () -> Unit) {
 
     AndroidView(
         modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding(),
+            .fillMaxSize(),
         factory = { ctx ->
             WebView(ctx).apply {
                 setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)

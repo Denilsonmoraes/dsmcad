@@ -3,7 +3,10 @@
 <head>
   <script>window.onerror = function(msg, url, lineNo, colNo, error) { console.error('SIM_ERROR: ' + msg + ' at ' + lineNo + ':' + colNo); return false; };</script>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Simulador Interativo — Paginação Pro (Compositor Modular de Vãos & Amarração)</title>
   <script src="lib/tailwindcss.min.js"></script>
   <!-- THREE.JS & ORBITCONTROLS NATIVOS EMBUTIDOS (100% OFFLINE, ZERO FALHAS, Z-BUFFER REAL) -->
@@ -1107,6 +1110,13 @@
       .slim-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
       .slim-scroll::-webkit-scrollbar-track { background: transparent; }
       .slim-scroll::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.4); border-radius: 9999px; }
+
+    
+      /* Elimina delay de 300ms no clique/toque e garante tela 100% cheia sem barras */
+      button, select, input, summary, a { touch-action: manipulation; }
+      #iaGame3dCanvas { touch-action: none; }
+      :fullscreen, ::backdrop { background-color: #020617; }
+      html, body { overscroll-behavior: none; }
 
     </style>
   <script src="lib/android_bridge.js"></script>
@@ -2496,15 +2506,15 @@
     <!-- ========================================================================= -->
                 <div id="learnedPatternsModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col w-screen h-screen select-none"><div id="iaModalCard" class="bg-slate-900 w-full h-full text-white flex flex-col overflow-hidden">
         
-        <!-- Cabeçalho Único Ultra-Compacto com Projetos Integrados no Topo (Aproveitamento Máximo de Tela) -->
-        <div class="px-2 py-1 border-b border-slate-800 bg-slate-950 flex items-center justify-between gap-1.5 shrink-0">
+        <!-- Cabeçalho Único Ultra-Compacto com Projetos Integrados no Topo (Ocultável no Celular para Ganhar Espaço!) -->
+        <div id="iaModalTopHeader" class="px-2 py-1 border-b border-slate-800 bg-slate-950 flex items-center justify-between gap-1.5 shrink-0 transition-all">
           <!-- Logo Compacto -->
           <div class="flex items-center gap-1.5 shrink-0">
             <span class="text-base">🧠</span>
             <span class="text-[11px] md:text-xs font-black text-indigo-300 tracking-tight whitespace-nowrap">IA 3D</span>
           </div>
 
-          <!-- Barra de Projetos Integrada no Topo (Sem barra branca, sem ocupar a tela 3D) -->
+          <!-- Barra de Projetos Integrada no Topo -->
           <div class="flex items-center gap-1 overflow-x-auto whitespace-nowrap no-scrollbar py-0.5 flex-1 mx-1">
             <span class="text-[10px] font-extrabold text-slate-400 px-1 hidden lg:inline">Projetos:</span>
             <button onclick="game3dPreset('straight')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white text-[10px] font-bold transition flex items-center gap-1 shrink-0" title="Exemplo de Parede Reta">
@@ -2531,14 +2541,20 @@
             </button>
           </div>
 
-          <!-- Seletor de Abas + Fechar -->
+          <!-- Seletor de Abas + Tela Cheia + Esconder Topo + Fechar -->
           <div class="flex items-center gap-1 shrink-0">
+            <button onclick="toggleTrueFullscreen()" id="btnHeaderFullscreen" class="px-2 py-0.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-black border border-emerald-400/50 shadow flex items-center gap-1 transition" title="Tela Inteira Real (Oculta até a barra de navegação do Android)">
+              <span>⛶</span> <span class="hidden sm:inline">Tela Cheia</span>
+            </button>
+            <button onclick="toggleMobile3DTopBars()" class="md:hidden px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 text-[10px] font-black border border-amber-500/40" title="Esconder cabeçalho superior no celular">
+              🔼 Topo
+            </button>
             <div class="flex items-center gap-0.5 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
               <button id="iaTabBtn_game3d" onclick="switchIaTab('game3d')" class="px-2 py-0.5 rounded text-[10px] font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow flex items-center gap-1 transition">
-                <span>🎮</span> <span>Jogo 3D</span>
+                <span>🎮</span> <span>3D</span>
               </button>
               <button id="iaTabBtn_vaos" onclick="switchIaTab('vaos')" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 hover:text-white flex items-center gap-1 transition">
-                <span>📋</span> <span>Vãos IA</span>
+                <span>📋</span> <span>Vãos</span>
               </button>
             </div>
             <button onclick="closeLearnedPatternsModal()" class="w-6 h-6 rounded-full bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white text-xs font-bold flex items-center justify-center transition">✕</button>
@@ -2548,42 +2564,64 @@
         <!-- ABA 1: JOGO 3D CONSTRUIR DO ZERO & ENSINAR IA (Empilhado no Celular / Lado a Lado no PC) -->
         <div id="iaTabContent_game3d" class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
           
-          <!-- Viewport 3D Interativo (Limpo, sem barras no rodapé, com controle discreto no canto superior esquerdo) -->
-          <div class="w-full h-[44vh] min-h-[220px] md:h-full md:flex-1 relative bg-slate-950 flex flex-col overflow-hidden shrink-0">
+          <!-- Viewport 3D Interativo -->
+          <div id="game3dViewportContainer" class="w-full h-[46vh] min-h-[210px] md:h-full md:flex-1 relative bg-slate-950 flex flex-col overflow-hidden shrink-0 transition-all">
             
-            <!-- Barra Superior Esquerda Pequena e Discreta: Zoom + Pra Trás / Pra Frente + Vistas + Indicador do Marcador de Parede -->
-            <div class="absolute top-2 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-1.5 pointer-events-none">
-              <div class="flex flex-col gap-1 items-start">
-                <!-- Linha 1: Zoom e Câmera Discretos -->
-                <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/85 backdrop-blur-md px-1.5 py-1 rounded-lg border border-slate-700/70 shadow text-[11px]">
-                  <button onclick="game3dQuickZoom(1.6)" class="px-1.5 py-0.5 rounded bg-emerald-800/80 hover:bg-emerald-700 text-white font-black" title="Aproximar Zoom">🔍+</button>
-                  <button onclick="game3dQuickZoom(0.62)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-black" title="Afastar Zoom">🔍-</button>
-                  <div class="h-3 w-px bg-slate-700 mx-0.5"></div>
-                  <button onclick="game3dSetCamera('iso')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Isométrica 3D">🎥 3D</button>
-                  <button onclick="game3dSetCamera('top')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Superior (Planta)">📐 Topo</button>
-                  <button onclick="game3dSetCamera('front')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Frontal">🧱 Frente</button>
-                  <button onclick="game3dResetCamera()" class="px-1.5 py-0.5 rounded bg-indigo-700 hover:bg-indigo-600 text-white font-bold" title="Centralizar Obra">🎯 Focar</button>
+            <!-- Barra Superior do 3D: Esquerda (Zoom + Trás/Frente), Centro (Medidas Internas dos Compartimentos), Direita (Esconder Topo no Celular / Tela Cheia) -->
+            <div class="absolute top-1.5 left-1.5 right-1.5 z-10 flex flex-col gap-1 pointer-events-none">
+              <div class="flex flex-wrap items-start justify-between gap-1">
+                <!-- Controles Esquerda (Colapsáveis no Celular se o usuário esconder o topo!) -->
+                <div class="flex flex-col gap-1 items-start">
+                  <!-- Linha 1: Zoom e Vistas (Ocultável no celular pelo botão Esconder Topo) -->
+                  <div id="game3dTopCamRow" class="pointer-events-auto flex items-center gap-1 bg-slate-900/85 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-slate-700/70 shadow text-[10px] md:text-[11px]">
+                    <button onclick="game3dQuickZoom(1.6)" class="px-1.5 py-0.5 rounded bg-emerald-800/80 hover:bg-emerald-700 text-white font-black" title="Aproximar Zoom">🔍+</button>
+                    <button onclick="game3dQuickZoom(0.62)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-black" title="Afastar Zoom">🔍-</button>
+                    <div class="h-3 w-px bg-slate-700 mx-0.5"></div>
+                    <button onclick="game3dSetCamera('iso')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Isométrica 3D">🎥 3D</button>
+                    <button onclick="game3dSetCamera('top')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Superior (Planta)">📐 Topo</button>
+                    <button onclick="game3dSetCamera('front')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Frontal">🧱 Frente</button>
+                    <button onclick="game3dResetCamera()" class="px-1.5 py-0.5 rounded bg-indigo-700 hover:bg-indigo-600 text-white font-bold" title="Centralizar Obra">🎯 Focar</button>
+                  </div>
+
+                  <!-- Linha 2: Botão Pequeno e Discreto de PRA TRÁS e PRA FRENTE (Sempre acessível!) -->
+                  <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/85 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-slate-700/60 shadow text-[10px]">
+                    <button onclick="game3dStepBack()" id="btnTopUndoBlock" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-extrabold transition flex items-center gap-1 active:scale-95" title="Pra Trás (Desfazer último bloco colocado)">
+                      <span>◀</span> <span>Trás</span>
+                    </button>
+                    <button onclick="game3dStepForward()" id="btnTopRedoBlock" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 font-extrabold transition flex items-center gap-1 active:scale-95" title="Pra Frente (Refazer / Avançar bloco)">
+                      <span>Frente</span> <span>▶</span>
+                    </button>
+                    <div class="h-3 w-px bg-slate-700 mx-0.5"></div>
+                    <button onclick="game3dClearCurrentFiada()" id="btnTopClearFiada" class="px-1.5 py-0.5 rounded bg-slate-800/90 hover:bg-rose-800 text-rose-300 text-[9px] font-bold transition" title="Limpar apenas a fiada atual">
+                      🗑️ Fiada
+                    </button>
+                  </div>
                 </div>
 
-                <!-- Linha 2 (Onde o usuário marcou em verde): Botão Pequeno e Discreto de PRA TRÁS e PRA FRENTE -->
-                <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/80 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-slate-700/60 shadow text-[10px]">
-                  <button onclick="game3dStepBack()" id="btnTopUndoBlock" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-extrabold transition flex items-center gap-1 active:scale-95" title="Pra Trás (Desfazer último bloco colocado)">
-                    <span>◀</span> <span>Trás</span>
-                  </button>
-                  <button onclick="game3dStepForward()" id="btnTopRedoBlock" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 font-extrabold transition flex items-center gap-1 active:scale-95" title="Pra Frente (Refazer / Avançar bloco)">
-                    <span>Frente</span> <span>▶</span>
-                  </button>
-                  <div class="h-3 w-px bg-slate-700 mx-0.5"></div>
-                  <button onclick="game3dClearCurrentFiada()" id="btnTopClearFiada" class="px-1.5 py-0.5 rounded bg-slate-800/90 hover:bg-rose-800 text-rose-300 text-[9px] font-bold transition" title="Limpar apenas a fiada atual">
-                    🗑️ Fiada
-                  </button>
+                <!-- Direita: Botão de Esconder/Mostrar Parte de Cima + Tela Cheia + Marcador de Parede -->
+                <div class="flex flex-col items-end gap-1">
+                  <div class="pointer-events-auto flex items-center gap-1">
+                    <button onclick="toggleMobile3DTopBars()" id="btnToggle3DTopBar" class="px-2 py-0.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/50 text-[10px] font-black shadow flex items-center gap-1 transition" title="Esconder / Mostrar a parte de cima para ganhar mais espaço na tela">
+                      <span id="lblToggle3DTopBar">🔼 Esconder Topo</span>
+                    </button>
+                    <button onclick="toggleTrueFullscreen()" id="btnViewportFullscreen" class="px-2 py-0.5 rounded-lg bg-emerald-800/90 hover:bg-emerald-700 text-white border border-emerald-400/50 text-[10px] font-black shadow flex items-center gap-1 transition" title="Usar a tela inteira (oculta até a navbar do Android)">
+                      <span>⛶</span> <span>Tela Cheia</span>
+                    </button>
+                    <button onclick="closeLearnedPatternsModal()" id="btnQuickCloseWhenTopHidden" class="hidden w-6 h-6 rounded-lg bg-rose-900/90 hover:bg-rose-700 text-white text-xs font-black flex items-center justify-center border border-rose-500/50 shadow" title="Fechar 3D">✕</button>
+                  </div>
+
+                  <!-- Badge Discreto do Marcador de Parede Ativa (Aparece ao selecionar parede e SOME ao colocar bloco!) -->
+                  <div id="game3dWallMarkerBadge" class="pointer-events-auto bg-amber-500/20 backdrop-blur-md border border-amber-400/70 text-amber-200 px-2 py-0.5 rounded-lg text-[9.5px] font-black shadow flex items-center gap-1 transition-opacity duration-200">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                    <span id="game3dWallMarkerText">📍 Demarcador Ativo: Parede 1 • A</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- Badge Discreto do Marcador de Parede Ativa (Aparece ao selecionar parede e SOME ao colocar bloco!) -->
-              <div id="game3dWallMarkerBadge" class="pointer-events-auto bg-amber-500/20 backdrop-blur-md border border-amber-400/70 text-amber-200 px-2.5 py-1 rounded-lg text-[10px] font-black shadow-lg flex items-center gap-1.5 transition-opacity duration-200">
-                <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-                <span id="game3dWallMarkerText">📍 Demarcador Ativo: Parede 1 • A (some ao assentar bloco)</span>
+              <!-- BARRA EM TEMPO REAL DE MEDIDAS INTERNAS DOS COMPARTIMENTOS (SEMPRE MEDIDA INTERNA LIVRE, NUNCA EXTERNA!) -->
+              <div id="game3dInternalDimsBar" class="pointer-events-auto self-start max-w-full overflow-x-auto no-scrollbar bg-emerald-950/90 backdrop-blur-md border border-emerald-500/70 text-emerald-200 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold shadow-lg flex items-center gap-2 whitespace-nowrap">
+                <span class="text-emerald-400 font-black">📐 Medidas Internas (Livre):</span>
+                <span id="game3dInternalDimsText" class="font-mono text-white">Coloque blocos para ver o vão livre interno...</span>
               </div>
             </div>
 
@@ -10317,15 +10355,35 @@
       }
 
       function openLearnedPatternsModal(defaultTab = 'game3d') {
-        const curFam = (typeof activeThicknessCm !== 'undefined') ? getFamilyKey(activeThicknessCm) : "baiano";
+        const curFam = (typeof activeThicknessCm !== 'undefined') ? getFamilyKey(activeThicknessCm) : "14";
         currentLearnedFamilyFilter = curFam;
         renderLearnedPatternsList();
         closeVaoEditor();
         const m = document.getElementById("learnedPatternsModal");
         if (m) m.classList.remove("hidden");
+
+        // No celular (< 768px): esconde automaticamente o cabeçalho superior e ativa Tela Inteira (sem navbar do Android)!
+        if (window.innerWidth < 768) {
+          const docEl = document.documentElement;
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (docEl.requestFullscreen) {
+              docEl.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+            } else if (docEl.webkitRequestFullscreen) {
+              try { docEl.webkitRequestFullscreen(); } catch (e) {}
+            }
+          }
+          if (typeof toggleMobile3DTopBars === "function") {
+            toggleMobile3DTopBars(true);
+          }
+        }
+
+        const wasInit = game3d.initialized;
         switchIaTab(defaultTab);
-        if (typeof game3dSetFamily === 'function') {
-          game3dSetFamily(curFam);
+        if (!wasInit && typeof game3dSetFamily === 'function') {
+          game3dSetFamily("14");
+        } else {
+          onGame3DResize();
+          renderGame3DNow();
         }
       }
 
@@ -10921,9 +10979,9 @@
           const btn = document.getElementById("gFamBtn_" + f.replace('.', ''));
           if (btn) {
             if (f === fam) {
-              btn.className = "p-1.5 rounded-lg bg-orange-600 text-white shadow text-left flex items-center gap-1.5 font-black";
+              btn.className = "px-1.5 py-1 rounded bg-orange-600 text-white shadow text-center font-black truncate";
             } else {
-              btn.className = "p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-left flex items-center gap-1.5 font-bold";
+              btn.className = "px-1.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 text-center font-bold truncate";
             }
           }
         });
@@ -12447,6 +12505,96 @@
       // ============================================================================
       // CLIQUE NO BLOCO OU NO GABARITO DE PAREDE NO CHÃO 3D (RAYCASTER)
       // ============================================================================
+      const NOOP_RAYCAST = function() {};
+      const game3dMatCache = new Map();
+
+      let _renderPending = false;
+      function renderGame3DNow() {
+        if (_renderPending) return;
+        _renderPending = true;
+        Promise.resolve().then(() => {
+          _renderPending = false;
+          if (game3d && game3d.renderer && game3d.scene && game3d.camera) {
+            game3d.renderer.render(game3d.scene, game3d.camera);
+          }
+        });
+      }
+
+      function toggleTrueFullscreen() {
+        const docEl = document.documentElement;
+        const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+        if (!isFs) {
+          if (docEl.requestFullscreen) {
+            docEl.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+          } else if (docEl.webkitRequestFullscreen) {
+            docEl.webkitRequestFullscreen();
+          }
+          if (window.AndroidBridge && typeof window.AndroidBridge.enableImmersiveMode === "function") {
+            try { window.AndroidBridge.enableImmersiveMode(); } catch (e) {}
+          }
+          showLearningToast("⛶ Modo Tela Inteira Ativado (Sem barra de navegação)!");
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+        setTimeout(onGame3DResize, 120);
+        setTimeout(onGame3DResize, 350);
+      }
+
+      function toggleMobile3DTopBars(forceHide) {
+        const topHeader = document.getElementById("iaModalTopHeader");
+        const camRow = document.getElementById("game3dTopCamRow");
+        const lbl = document.getElementById("lblToggle3DTopBar");
+        const closeBtn = document.getElementById("btnQuickCloseWhenTopHidden");
+        const vp = document.getElementById("game3dViewportContainer");
+        if (!topHeader) return;
+
+        const willHide = (typeof forceHide === "boolean") ? forceHide : !topHeader.classList.contains("hidden");
+        game3d.topBarsHidden = willHide;
+
+        if (willHide) {
+          topHeader.classList.add("hidden");
+          if (camRow) camRow.classList.add("hidden");
+          if (lbl) lbl.textContent = "🔽 Mostrar Topo";
+          if (closeBtn) closeBtn.classList.remove("hidden");
+          if (vp) {
+            vp.classList.remove("h-[46vh]");
+            vp.classList.add("h-[54vh]");
+          }
+        } else {
+          topHeader.classList.remove("hidden");
+          if (camRow) camRow.classList.remove("hidden");
+          if (lbl) lbl.textContent = "🔼 Esconder Topo";
+          if (closeBtn) closeBtn.classList.add("hidden");
+          if (vp) {
+            vp.classList.remove("h-[54vh]");
+            vp.classList.add("h-[46vh]");
+          }
+        }
+        onGame3DResize();
+        renderGame3DNow();
+      }
+
+      function syncSelectionBoxWithBlocks() {
+        if (!game3d.selectedBlock) {
+          if (game3d.selectionBox && game3d.scene) {
+            game3d.scene.remove(game3d.selectionBox);
+            game3d.selectionBox = null;
+          }
+          return;
+        }
+        // Verifica se o bloco selecionado ainda existe na lista de blocos!
+        const stillExists = game3d.blocks.find(b => b.id === game3d.selectedBlock.id);
+        if (!stillExists) {
+          game3dClearSnapBond();
+        } else if (game3d.selectionBox) {
+          game3d.selectionBox.position.set(stillExists.x, stillExists.y, stillExists.z);
+        }
+      }
+
       function onGame3DCanvasClick(e) {
         const canvas = document.getElementById("iaGame3dCanvas");
         if (!canvas || !game3d.camera || !game3d.meshGroup) return;
@@ -12459,61 +12607,82 @@
 
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouse, game3d.camera);
-        const intersects = raycaster.intersectObjects(game3d.meshGroup.children, true);
+        // Testa apenas os meshes de primeiro nível (NOOP_RAYCAST ignora linhas e argamassa -> clique instantâneo < 0.5ms!)
+        const pickables = game3d.meshGroup.children.filter(m => m.userData && (m.userData.blockId || m.userData.floorWallId));
+        const intersects = raycaster.intersectObjects(pickables, false);
 
         if (intersects.length > 0) {
-          let topObj = intersects[0].object;
-          while (topObj && (!topObj.userData || (!topObj.userData.blockId && !topObj.userData.floorWallId)) && topObj.parent) {
-            topObj = topObj.parent;
-          }
-
+          const topObj = intersects[0].object;
           if (topObj && topObj.userData) {
             if (topObj.userData.floorWallId) {
               game3dSetActiveWall(topObj.userData.floorWallId);
-              const w = game3d.walls.find(x => x.id === topObj.userData.floorWallId);
-              if (w) showLearningToast(`🧱 ${w.name} selecionada no gabarito 3D! Clique nos blocos da paleta para assentar.`);
               return;
             }
             if (topObj.userData.blockId) {
               const blockId = topObj.userData.blockId;
               const targetBlock = game3d.blocks.find(b => b.id === blockId);
               if (targetBlock) {
-                if (targetBlock.wallId) {
-                  game3dSetActiveWall(targetBlock.wallId);
+                // Se clicar novamente no mesmo bloco já selecionado, limpa a seleção!
+                if (game3d.selectedBlock && game3d.selectedBlock.id === targetBlock.id) {
+                  game3dClearSnapBond();
+                  return;
+                }
+                if (targetBlock.wallId && targetBlock.wallId !== game3d.activeWallId) {
+                  game3d.activeWallId = targetBlock.wallId;
+                  game3d.showWallMarker = false;
+                  updateWallMarkerBadgeUI();
+                  renderGame3DWallsToolbar();
                 }
                 selectBlockForBonding(targetBlock);
+                return;
               }
             }
+          }
+        } else {
+          // Clicou no fundo vazio -> limpa o destaque de seleção imediatamente!
+          if (game3d.selectedBlock || game3d.selectionBox) {
+            game3dClearSnapBond();
           }
         }
       }
 
       function selectBlockForBonding(block) {
+        if (!block || !game3d.blocks.some(b => b.id === block.id)) {
+          game3dClearSnapBond();
+          return;
+        }
         game3d.selectedBlock = block;
         game3d.snapBondBlock = block;
-        // Mantém na fiada do bloco clicado para que o usuário possa movê-lo (1, 5, 10, 20cm) ou puxar Saída em T na mesma fiada!
-        game3dSetFiada(block.fiada);
+        if (game3d.activeFiada !== block.fiada) {
+          game3dSetFiada(block.fiada);
+        }
 
         if (game3d.selectionBox && game3d.scene) {
           game3d.scene.remove(game3d.selectionBox);
+          if (game3d.selectionBox.geometry) game3d.selectionBox.geometry.dispose();
+          game3d.selectionBox = null;
         }
         const geom = new THREE.BoxGeometry(
-          block.dir === "X" ? block.len + 1.2 : block.width + 1.2,
-          block.height + 1.2,
-          block.dir === "X" ? block.width + 1.2 : block.len + 1.2
+          block.dir === "X" ? block.len + 1.4 : block.width + 1.4,
+          block.height + 1.4,
+          block.dir === "X" ? block.width + 1.4 : block.len + 1.4
         );
-        const mat = new THREE.MeshBasicMaterial({ color: 0x38BDF8, wireframe: true });
-        game3d.selectionBox = new THREE.Mesh(geom, mat);
+        const edges = new THREE.EdgesGeometry(geom);
+        geom.dispose();
+        const mat = new THREE.LineBasicMaterial({ color: 0x38BDF8, linewidth: 2 });
+        game3d.selectionBox = new THREE.LineSegments(edges, mat);
+        game3d.selectionBox.raycast = NOOP_RAYCAST;
         game3d.selectionBox.position.set(block.x, block.y, block.z);
         if (game3d.scene) game3d.scene.add(game3d.selectionBox);
 
         const banner = document.getElementById("game3dSnapBondBanner");
         const bannerTxt = document.getElementById("game3dSnapBondText");
         if (banner && bannerTxt) {
-          bannerTxt.innerHTML = `Bloco <b>${block.len}cm</b> (${block.fiada}ªF) selecionado • Use <b>±1, 5, 10, 20cm</b> p/ mover ou <button onclick="game3dSetFiada(${block.fiada + 1})" class="underline text-amber-300 font-black ml-1">Subir p/ ${block.fiada + 1}ªF</button>`;
+          bannerTxt.innerHTML = `Bloco <b>${block.len}cm</b> (${block.fiada}ªF) selecionado • Use <b>±1, 5, 10, 20cm</b> p/ mover`;
           banner.classList.remove("hidden");
         }
         updateMoveBlockTargetUI();
+        renderGame3DNow();
       }
 
       function game3dClearSnapBond() {
@@ -12521,11 +12690,22 @@
         game3d.snapBondBlock = null;
         if (game3d.selectionBox && game3d.scene) {
           game3d.scene.remove(game3d.selectionBox);
+          if (game3d.selectionBox.geometry) game3d.selectionBox.geometry.dispose();
           game3d.selectionBox = null;
+        }
+        // Também varre a cena caso algum selectionBox antigo tenha sobrado
+        if (game3d.scene && game3d.scene.children) {
+          for (let i = game3d.scene.children.length - 1; i >= 0; i--) {
+            const ch = game3d.scene.children[i];
+            if (ch && ch.userData && ch.userData.isSelectionBox) {
+              game3d.scene.remove(ch);
+            }
+          }
         }
         const banner = document.getElementById("game3dSnapBondBanner");
         if (banner) banner.classList.add("hidden");
         updateMoveBlockTargetUI();
+        renderGame3DNow();
       }
 
       function updateMoveBlockTargetUI() {
@@ -13219,6 +13399,7 @@
       }
 
       function game3dUndo() {
+        game3dClearSnapBond();
         if (game3d.blocks.length === 0) return;
         if (!game3d.redoStack) game3d.redoStack = [];
         const removed = game3d.blocks.pop();
@@ -13263,6 +13444,7 @@
       }
 
       function game3dClearCurrentFiada() {
+        game3dClearSnapBond();
         game3d.blocks = game3d.blocks.filter(b => !(b.wallId === game3d.activeWallId && b.fiada === game3d.activeFiada));
         renderGame3DWallsToolbar();
         rebuildGame3DMeshes();
@@ -13270,6 +13452,7 @@
       }
 
       function game3dClearAll() {
+        game3dClearSnapBond();
         game3d.blocks = [];
         game3d.beams = [];
         game3d.jumpedOpenings = {};
@@ -13463,8 +13646,195 @@
         return entry;
       }
 
+      function getCachedStandardMat(colorHex, isCurrentFiada) {
+        const key = `${colorHex}_${isCurrentFiada ? 1 : 0}`;
+        if (game3dMatCache.has(key)) return game3dMatCache.get(key);
+        const mat = new THREE.MeshStandardMaterial({
+          color: colorHex,
+          roughness: 0.72,
+          metalness: 0.05,
+          transparent: !isCurrentFiada,
+          opacity: isCurrentFiada ? 1.0 : 0.88
+        });
+        game3dMatCache.set(key, mat);
+        return mat;
+      }
+
+      function getCachedMortarGeom(dimX, dimY, dimZ) {
+        const key = `MORT_${dimX}_${dimY}_${dimZ}`;
+        if (game3dGeomCache.has(key)) return game3dGeomCache.get(key);
+        const g = new THREE.BoxGeometry(dimX, dimY, dimZ);
+        game3dGeomCache.set(key, g);
+        return g;
+      }
+
+      // ============================================================================
+      // CÁLCULO E RENDERIZAÇÃO EM TEMPO REAL DAS MEDIDAS INTERNAS DOS COMPARTIMENTOS
+      // (SEMPRE MEDIDAS INTERNAS LIVRES ENTRE FACES INTERNAS DOS BLOCOS, NUNCA EXTERNAS!)
+      // ============================================================================
+      function computeInternalCompartmentMeasures(wallW, mortar) {
+        const measures = [];
+        if (!game3d.blocks || game3d.blocks.length === 0) return measures;
+
+        (game3d.walls || []).forEach(w => {
+          // Pega os blocos da parede na fiada ativa (ou na 1ª fiada disponível com blocos nesta parede)
+          let wBlocks = game3d.blocks.filter(b => b.wallId === w.id && b.fiada === game3d.activeFiada && !b.isOpening);
+          if (wBlocks.length === 0) {
+            wBlocks = game3d.blocks.filter(b => b.wallId === w.id && b.fiada === 1 && !b.isOpening);
+          }
+          if (wBlocks.length === 0) {
+            const anyB = game3d.blocks.filter(b => b.wallId === w.id && !b.isOpening);
+            if (anyB.length > 0) {
+              const firstF = anyB[0].fiada;
+              wBlocks = anyB.filter(b => b.fiada === firstF);
+            }
+          }
+          if (wBlocks.length === 0) return;
+
+          const isX = (w.dir === "X");
+          const sign = (w.sign === -1) ? -1 : 1;
+          const sorted = [...wBlocks].sort((a, b) => sign * ((isX ? a.x : a.z) - (isX ? b.x : b.z)));
+
+          // Identifica blocos Amarradores em T (54 / T_JUNCTION) que dividem a parede em compartimentos separados!
+          // Cada parede em T tem espessura 'wallW' (ex: 14cm), que é DESCONTADA para medir apenas o vão livre interno!
+          const tBlocks = sorted.filter((b, idx) => (b.len >= 50 || b.type === "T_JUNCTION") && idx > 0);
+
+          // Constrói sub-trechos (compartimentos ao longo desta parede)
+          const rawSegments = [];
+          let curList = [];
+          let prevTBlock = null;
+
+          sorted.forEach((b, idx) => {
+            const isMidT = (b.len >= 50 || b.type === "T_JUNCTION") && idx > 0;
+            if (isMidT) {
+              curList.push(b);
+              rawSegments.push({
+                blocks: [...curList],
+                startsAtT: prevTBlock,
+                endsAtT: b
+              });
+              prevTBlock = b;
+              curList = [b];
+            } else {
+              curList.push(b);
+            }
+          });
+
+          if (curList.length > 0) {
+            // Se terminou exatamente no bloco T (e ainda não há blocos depois do T), ainda assim mostra o compartimento anterior (e se houver blocos após o T, mostra o novo compartimento!)
+            if (!prevTBlock || curList.length > 1) {
+              rawSegments.push({
+                blocks: curList,
+                startsAtT: prevTBlock,
+                endsAtT: null
+              });
+            }
+          }
+
+          rawSegments.forEach((seg, sIdx) => {
+            const firstB = seg.blocks[0];
+            const lastB = seg.blocks[seg.blocks.length - 1];
+            const firstCenter = isX ? firstB.x : firstB.z;
+            const lastCenter = isX ? lastB.x : lastB.z;
+
+            let outerStart = firstCenter - sign * (firstB.len / 2);
+            let outerEnd = lastCenter + sign * (lastB.len / 2);
+
+            // Determina a FACE INTERNA INICIAL (descontando a espessura 'wallW' da parede perpendicular/canto se o 1º bloco ocupar a quina!)
+            let innerStart = outerStart;
+            const wallOrig = isX ? w.originX : w.originZ;
+            const startsAtWallOrigin = Math.abs(outerStart - wallOrig) < 2.5;
+
+            if (seg.startsAtT) {
+              // Começa na face interna direita/inferior da parede em T centralizada no bloco 54
+              const tCenter = isX ? seg.startsAtT.x : seg.startsAtT.z;
+              innerStart = tCenter + sign * (wallW / 2 + mortar);
+            } else if (startsAtWallOrigin) {
+              // Só desconta 'wallW' se o 1º bloco desta parede ocupa a própria quina (ex: Bloco 34 na ponta, ou parede sem recuo inicial).
+              // Se a parede já começou recuada após a quina (ex: Parede B começando em Z=15cm após os 14cm da Parede A), outerStart JÁ É a face interna!
+              const startsWithCornerBlock = (firstB.len === 34 || firstB.type === "CORNER_TIE");
+              if (startsWithCornerBlock) {
+                innerStart = outerStart + sign * wallW;
+              }
+            }
+
+            // Determina a FACE INTERNA FINAL (descontando a espessura 'wallW' da parede em T ou do canto final!)
+            let innerEnd = outerEnd;
+            if (seg.endsAtT) {
+              // Termina na face interna esquerda/superior da parede em T centralizada no bloco 54!
+              const tCenter = isX ? seg.endsAtT.x : seg.endsAtT.z;
+              innerEnd = tCenter - sign * (wallW / 2 + mortar);
+            } else {
+              const endsWithCornerBlock = (seg.blocks.length > 1) && (lastB.len === 34 || lastB.type === "CORNER_TIE");
+              if (endsWithCornerBlock) {
+                // Desconta os 14cm (wallW) da parede de canto no fechamento!
+                innerEnd = outerEnd - sign * wallW;
+              }
+            }
+
+            // Medida Interna Livre em cm (arredondada e garantida >= 0)
+            const rawInternalCm = Math.round(Math.abs(innerEnd - innerStart));
+            if (rawInternalCm < 4) return;
+
+            const shortWallName = (w.label ? `Parede ${w.label}` : w.name.split("(")[0].trim());
+            const compLabel = rawSegments.length > 1 ? `${shortWallName} • Vão ${sIdx + 1}` : shortWallName;
+
+            measures.push({
+              wallId: w.id,
+              label: compLabel,
+              dir: w.dir,
+              sign: sign,
+              innerStart: innerStart,
+              innerEnd: innerEnd,
+              internalCm: rawInternalCm,
+              orthoCoord: isX ? (w.originZ + wallW + 10) : (w.originX + wallW / 2 + 10),
+              y: 1.5
+            });
+          });
+        });
+
+        return measures;
+      }
+
+      const game3dSpriteMatCache = new Map();
+      function createInternalDimSprite(textStr) {
+        let mat = game3dSpriteMatCache.get(textStr);
+        if (!mat) {
+          const canvas = document.createElement("canvas");
+          canvas.width = 320;
+          canvas.height = 64;
+          const ctx = canvas.getContext("2d");
+
+          ctx.fillStyle = "rgba(6, 78, 59, 0.92)";
+          ctx.strokeStyle = "#34D399";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(4, 4, 312, 56, 12);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = "#ECFDF5";
+          ctx.font = "900 22px monospace";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(textStr, 160, 32);
+
+          const tex = new THREE.CanvasTexture(canvas);
+          tex.needsUpdate = true;
+          mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true });
+          game3dSpriteMatCache.set(textStr, mat);
+        }
+        const sprite = new THREE.Sprite(mat);
+        sprite.scale.set(72, 14.5, 1);
+        sprite.raycast = NOOP_RAYCAST;
+        return sprite;
+      }
+
       function rebuildGame3DMeshes() {
         if (!game3d.meshGroup || typeof THREE === "undefined") return;
+
+        // Garante que se o bloco selecionado foi desfeito ou apagado, o destaque de seleção some imediatamente!
+        syncSelectionBoxWithBlocks();
 
         while (game3d.meshGroup.children.length > 0) {
           const obj = game3d.meshGroup.children[0];
@@ -13476,13 +13846,11 @@
         const mortar = 1;
         const wallW = spec.width;
 
-        const mortarMaterial = new THREE.MeshStandardMaterial({
-          color: 0xCBD5E1,
-          roughness: 0.95,
-          metalness: 0.05
-        });
-        const edgeDarkMat = new THREE.LineBasicMaterial({ color: 0x0F172A, linewidth: 1.4 });
-        const mortarLineMaterial = new THREE.LineBasicMaterial({ color: 0x94A3B8, linewidth: 1.0 });
+        const mortarMaterial = getCachedStandardMat(0xCBD5E1, true);
+        if (!game3d._edgeDarkMat) {
+          game3d._edgeDarkMat = new THREE.LineBasicMaterial({ color: 0x0F172A, linewidth: 1.4 });
+        }
+        const edgeDarkMat = game3d._edgeDarkMat;
 
         // ===================================================================
         // 0. DEMARCADOR DE PAREDE ATIVA (APARECE AO SELECIONAR PAREDE E SOME AO COLOCAR OS BLOCOS!)
@@ -13498,7 +13866,6 @@
             const gz = w.dir === "X" ? (w.originZ + wallW / 2) : (w.originZ + sign * (tLen / 2));
             const markerY = Math.max(0.3, (game3d.activeFiada - 1) * (spec.height + mortar) + 0.3);
 
-            // Faixa demarcadora brilhante mostrando exatamente qual parede e lado receberá os blocos
             const stripGeom = new THREE.BoxGeometry(gDimX, 0.8, gDimZ);
             const stripMat = new THREE.MeshBasicMaterial({
               color: 0xF59E0B,
@@ -13514,10 +13881,10 @@
               color: 0x38BDF8,
               linewidth: 2
             }));
+            sLine.raycast = NOOP_RAYCAST;
             stripMesh.add(sLine);
             game3d.meshGroup.add(stripMesh);
 
-            // Pino / Seta 3D de Início e Direção na cabeça da parede demarcada
             const startX = w.dir === "X" ? (w.originX + sign * 12) : w.originX;
             const startZ = w.dir === "X" ? (w.originZ + wallW / 2) : (w.originZ + sign * 12);
             const coneGeom = new THREE.ConeGeometry(5.5, 18, 12);
@@ -13530,6 +13897,7 @@
             const coneMesh = new THREE.Mesh(coneGeom, coneMat);
             coneMesh.position.set(startX, markerY + 6, startZ);
             coneMesh.userData = { floorWallId: w.id, isWallMarker: true };
+            coneMesh.raycast = NOOP_RAYCAST;
             game3d.meshGroup.add(coneMesh);
           }
         }
@@ -13564,18 +13932,20 @@
           const openMesh = new THREE.Mesh(openGeom, openMat);
           openMesh.position.set(ox, opCenterY, oz);
           openMesh.userData = { openingId: op.id, wallId: w.id };
+          openMesh.raycast = NOOP_RAYCAST;
 
           const openEdges = new THREE.EdgesGeometry(openGeom);
           const frameLine = new THREE.LineSegments(
             openEdges,
             new THREE.LineBasicMaterial({ color: isDoor ? 0xFBBF24 : 0x7DD3FC, linewidth: 2.2 })
           );
+          frameLine.raycast = NOOP_RAYCAST;
           openMesh.add(frameLine);
           game3d.meshGroup.add(openMesh);
         });
 
         // ===================================================================
-        // 2. RENDERIZA CADA BLOCO 3D (COM ALVÉOLOS, CANALETAS E CHANFRADOS)
+        // 2. RENDERIZA CADA BLOCO 3D (ULTRA RÁPIDO COM MATERIAIS E GEOMETRIAS EM CACHE!)
         // ===================================================================
         game3d.blocks.forEach(b => {
           if (b.isOpening) return;
@@ -13598,28 +13968,24 @@
           }
 
           const isCurrentFiada = (b.fiada === game3d.activeFiada);
-          const mat = new THREE.MeshStandardMaterial({
-            color: matColor,
-            roughness: 0.72,
-            metalness: 0.05,
-            transparent: !isCurrentFiada,
-            opacity: isCurrentFiada ? 1.0 : 0.88
-          });
+          const mat = getCachedStandardMat(matColor, isCurrentFiada);
 
           const mesh = new THREE.Mesh(geom, mat);
           mesh.position.set(b.x, b.y, b.z);
           mesh.userData = { blockId: b.id, fiada: b.fiada, wallId: b.wallId };
 
           const line = new THREE.LineSegments(edges, edgeDarkMat);
+          line.raycast = NOOP_RAYCAST;
           mesh.add(line);
           game3d.meshGroup.add(mesh);
 
-          // Argamassa Horizontal de Assentamento (1cm abaixo do bloco)
+          // Argamassa Horizontal de Assentamento em Cache
           const mDimX = b.dir === "X" ? b.len : b.width;
           const mDimZ = b.dir === "X" ? b.width : b.len;
-          const mortGeom = new THREE.BoxGeometry(mDimX, mortar, mDimZ);
+          const mortGeom = getCachedMortarGeom(mDimX, mortar, mDimZ);
           const mortMesh = new THREE.Mesh(mortGeom, mortarMaterial);
           mortMesh.position.set(b.x, b.y - b.height / 2 - mortar / 2, b.z);
+          mortMesh.raycast = NOOP_RAYCAST;
           game3d.meshGroup.add(mortMesh);
         });
 
@@ -13632,22 +13998,73 @@
           const bGeomY = beam.height;
 
           const beamGeom = new THREE.BoxGeometry(bGeomX, bGeomY, bGeomZ);
-          const beamMat = new THREE.MeshStandardMaterial({
-            color: 0x1D4ED8,
-            roughness: 0.35,
-            metalness: 0.3
-          });
+          const beamMat = getCachedStandardMat(0x1D4ED8, true);
 
           const beamMesh = new THREE.Mesh(beamGeom, beamMat);
           beamMesh.position.set(beam.x, beam.y, beam.z);
           beamMesh.userData = { beamId: beam.id };
+          beamMesh.raycast = NOOP_RAYCAST;
 
           const edges = new THREE.EdgesGeometry(beamGeom);
           const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x93C5FD, linewidth: 2.0 }));
+          line.raycast = NOOP_RAYCAST;
           beamMesh.add(line);
 
           game3d.meshGroup.add(beamMesh);
         });
+
+        // ===================================================================
+        // 4. COTAS E MEDIDAS INTERNAS DOS COMPARTIMENTOS EM TEMPO REAL (SEMPRE INTERNAS, NUNCA EXTERNAS!)
+        // ===================================================================
+        const internalMeasures = computeInternalCompartmentMeasures(wallW, mortar);
+        const dimBarTxt = document.getElementById("game3dInternalDimsText");
+        if (internalMeasures.length === 0) {
+          if (dimBarTxt) dimBarTxt.textContent = "Coloque blocos para ver o vão livre interno...";
+        } else {
+          const dimLineMat = new THREE.LineBasicMaterial({ color: 0x10B981, linewidth: 2 });
+          const summaryParts = [];
+
+          internalMeasures.forEach(m => {
+            const mFormatted = (m.internalCm / 100).toFixed(2) + "m";
+            summaryParts.push(`${m.label}: ${m.internalCm}cm (${mFormatted})`);
+
+            // Desenha a Linha de Cota Interna no Chão 3D (estritamente de face interna a face interna!)
+            const isX = (m.dir === "X");
+            const p1 = isX ? new THREE.Vector3(m.innerStart, m.y, m.orthoCoord) : new THREE.Vector3(m.orthoCoord, m.y, m.innerStart);
+            const p2 = isX ? new THREE.Vector3(m.innerEnd, m.y, m.orthoCoord) : new THREE.Vector3(m.orthoCoord, m.y, m.innerEnd);
+
+            // Ticks nas duas faces internas
+            const tickHalf = 5;
+            const t1A = isX ? new THREE.Vector3(m.innerStart, m.y, m.orthoCoord - tickHalf) : new THREE.Vector3(m.orthoCoord - tickHalf, m.y, m.innerStart);
+            const t1B = isX ? new THREE.Vector3(m.innerStart, m.y, m.orthoCoord + tickHalf) : new THREE.Vector3(m.orthoCoord + tickHalf, m.y, m.innerStart);
+            const t2A = isX ? new THREE.Vector3(m.innerEnd, m.y, m.orthoCoord - tickHalf) : new THREE.Vector3(m.orthoCoord - tickHalf, m.y, m.innerEnd);
+            const t2B = isX ? new THREE.Vector3(m.innerEnd, m.y, m.orthoCoord + tickHalf) : new THREE.Vector3(m.orthoCoord + tickHalf, m.y, m.innerEnd);
+
+            const pts = [p1, p2, t1A, t1B, t2A, t2B];
+            const lineGeom = new THREE.BufferGeometry().setFromPoints(pts);
+            const dimSegments = new THREE.LineSegments(lineGeom, dimLineMat);
+            dimSegments.raycast = NOOP_RAYCAST;
+            dimSegments.userData = { isInternalDim: true };
+            game3d.meshGroup.add(dimSegments);
+
+            // Placa 3D Flutuante com a Medida Interna Livre
+            const midCoord = (m.innerStart + m.innerEnd) / 2;
+            const sprite = createInternalDimSprite(`📏 Interna: ${m.internalCm}cm (${mFormatted})`);
+            sprite.position.set(
+              isX ? midCoord : (m.orthoCoord + 16),
+              m.y + 8,
+              isX ? (m.orthoCoord + 14) : midCoord
+            );
+            sprite.userData = { isInternalDim: true, internalCm: m.internalCm };
+            game3d.meshGroup.add(sprite);
+          });
+
+          if (dimBarTxt) {
+            dimBarTxt.textContent = summaryParts.join("  |  ");
+          }
+        }
+
+        renderGame3DNow();
       }
 
       function highlightActiveFiadaMeshes() {
