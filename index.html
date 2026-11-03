@@ -2664,8 +2664,7 @@
           <div id="buildRightNumDock" class="hidden md:flex flex-col items-center justify-center gap-1.5 fixed md:absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-slate-950/95 backdrop-blur-md border-l border-y border-slate-700/90 py-2 px-1 rounded-l-2xl shadow-2xl">
             <button onclick="toggleBuildRightSection(1)" id="buildDockBtn_1" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-orange-600 text-slate-200 hover:text-white font-black text-xs border border-slate-600 shadow flex items-center justify-center transition active:scale-90" title="1. Família de Bloco">1</button>
             <button onclick="toggleBuildRightSection(2)" id="buildDockBtn_2" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white font-black text-xs border border-slate-600 shadow flex items-center justify-center transition active:scale-90" title="2. Parede & Linha de Referência">2</button>
-            <button onclick="toggleBuildRightSection(3)" id="buildDockBtn_3" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white font-black text-xs border border-slate-600 shadow flex items-center justify-center transition active:scale-90" title="3. Fiada, Direção & Replicar Fiadas">3</button>
-            <button onclick="toggleBuildRightSection(4)" id="buildDockBtn_4" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-amber-500 text-slate-200 hover:text-slate-950 font-black text-xs border border-slate-600 shadow flex items-center justify-center transition active:scale-90" title="4. Escolha o Bloco & Mover Bloco">4</button>
+            <button onclick="toggleBuildRightSection(3)" id="buildDockBtn_3" class="w-8 h-9 rounded-xl bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-black text-[10px] border border-amber-500/50 shadow flex items-center justify-center transition active:scale-90" title="3 e 4 Juntos: Fiada, Direção, Saída em T & Escolha o Bloco">3•4</button>
             <button onclick="toggleBuildRightSection(5)" id="buildDockBtn_5" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-emerald-600 text-slate-200 hover:text-white font-black text-xs border border-slate-600 shadow flex items-center justify-center transition active:scale-90" title="5. Portas & Janelas (Vãos)">5</button>
             <button onclick="toggleBuildRightSection(6)" id="buildDockBtn_6" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-purple-600 text-slate-200 hover:text-white font-black text-xs border border-slate-600 shadow flex items-center justify-center transition active:scale-90" title="6. Vigas & Diagnóstico IA">6</button>
           </div>
@@ -2796,7 +2795,7 @@
             <div id="buildSec_3" class="p-2 rounded-xl bg-slate-950 border border-sky-500/40 flex flex-col gap-1.5">
               <div class="flex items-center justify-between gap-1">
                 <div class="flex items-center gap-1 min-w-0">
-                  <span class="text-[11px] font-black text-slate-300 shrink-0">3. Fiada:</span>
+                  <span class="text-[11px] font-black text-amber-300 shrink-0">3•4. Fiada & Blocos:</span>
                   <span id="game3dFiadaBadge" class="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-indigo-600/40 text-indigo-300 truncate">1ª Fiada</span>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
@@ -2841,10 +2840,11 @@
                 </div>
                 <button onclick="game3dClearSnapBond()" class="text-slate-400 hover:text-white font-bold px-1 rounded bg-slate-800">✕</button>
               </div>
-            </div>
 
-            <!-- 4. Escolha o Bloco (54, 39, 34 bem no alto e visíveis!) + Pra Trás / Pra Frente + Mover Bloco -->
-            <div id="buildSec_4" class="p-2 rounded-xl bg-slate-950 border border-amber-500/40 flex flex-col gap-1.5">
+              <div class="h-px bg-slate-800 my-0.5"></div>
+
+              <!-- 3 e 4 UNIFICADOS: Escolha o Bloco (54, 39, 34 bem no alto e visíveis!) + Pra Trás / Pra Frente + Mover Bloco -->
+              <div id="buildSec_4_inner" class="flex flex-col gap-1.5">
               <div class="flex items-center justify-between gap-1">
                 <span class="text-[11px] font-black text-amber-300">4. Escolha o Bloco:</span>
                 <!-- Botões Pequenos e Discretos de Pra Trás e Pra Frente também junto aos blocos -->
@@ -2899,6 +2899,7 @@
                 <button onclick="game3dFillFiada14Canaletas()" class="px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-black shadow shrink-0" title="Assenta Canaletas em toda a 14ª fiada">
                   🟦 14ª Canaleta
                 </button>
+              </div>
               </div>
             </div>
 
@@ -12102,6 +12103,7 @@
         };
 
         game3d.openings.push(openingObj);
+        game3d.lastAddedOpening = openingObj;
         game3d.lastDoorCycle = {
           doorId: openingObj.id,
           type: type,
@@ -12851,6 +12853,7 @@
       // Tudo escondido na lateral direita apenas com os números; clicou em um, o outro some!
       // ============================================================================
       function toggleBuildRightSection(secNum, forceOpen) {
+        if (secNum === 4) secNum = 3; // 3 e 4 agora são um só painel unificado!
         const drawer = document.getElementById("buildRightDrawerPanel");
         if (!drawer) return;
         const isDesktop = (window.innerWidth >= 768);
@@ -12875,7 +12878,7 @@
         const activeColors = {
           1: "w-8 h-8 rounded-xl bg-orange-600 text-white font-black text-xs border-2 border-orange-300 shadow-lg flex items-center justify-center transition scale-105",
           2: "w-8 h-8 rounded-xl bg-indigo-600 text-white font-black text-xs border-2 border-indigo-300 shadow-lg flex items-center justify-center transition scale-105",
-          3: "w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs border-2 border-sky-300 shadow-lg flex items-center justify-center transition scale-105",
+          3: "w-8 h-9 rounded-xl bg-amber-500 text-slate-950 font-black text-[10px] border-2 border-amber-200 shadow-lg flex items-center justify-center transition scale-105",
           4: "w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black text-xs border-2 border-amber-200 shadow-lg flex items-center justify-center transition scale-105",
           5: "w-8 h-8 rounded-xl bg-emerald-600 text-white font-black text-xs border-2 border-emerald-300 shadow-lg flex items-center justify-center transition scale-105",
           6: "w-8 h-8 rounded-xl bg-purple-600 text-white font-black text-xs border-2 border-purple-300 shadow-lg flex items-center justify-center transition scale-105"
@@ -13473,6 +13476,57 @@
           game3d.activeWallId = curWall.id;
         }
 
+        // Verifica se o usuário acabou de adicionar uma Porta ou Janela (inclusive girada para outra direção!)
+        let activeLastOp = null;
+        if (game3d.lastAddedOpening) {
+          activeLastOp = (game3d.openings || []).find(o => o.id === game3d.lastAddedOpening.id) || null;
+          if (!activeLastOp) game3d.lastAddedOpening = null;
+        }
+
+        if (activeLastOp) {
+          const opDir = activeLastOp.dir || curWall.dir;
+          const opSign = (activeLastOp.cardinalDir && activeLastOp.cardinalDir.startsWith("-"))
+            ? -1
+            : ((activeLastOp.cardinalDir && activeLastOp.cardinalDir.startsWith("+")) ? 1 : ((curWall.sign === -1) ? -1 : 1));
+          const curSign = (curWall.sign === -1) ? -1 : 1;
+
+          if (opDir !== curWall.dir || opSign !== curSign) {
+            // A porta/janela foi girada para uma nova direção (ex: +X saindo de uma parede Z):
+            // Seleciona ou cria automaticamente a parede alinhada com a porta para assentar o bloco depois dela!
+            const targetOrigX = (opDir === "X")
+              ? (opSign === 1 ? activeLastOp.startPos : activeLastOp.endPos)
+              : (activeLastOp.customX !== undefined ? activeLastOp.customX : curWall.originX);
+            const targetOrigZ = (opDir === "X")
+              ? ((activeLastOp.customZ !== undefined ? activeLastOp.customZ : (curWall.originZ + wallW / 2)) - wallW / 2)
+              : (opSign === 1 ? activeLastOp.startPos : activeLastOp.endPos);
+
+            let alignedWall = (game3d.walls || []).find(w => {
+              if (w.dir !== opDir || ((w.sign === -1 ? -1 : 1) !== opSign)) return false;
+              if (opDir === "X") return Math.abs((w.originZ + wallW / 2) - (targetOrigZ + wallW / 2)) < 4;
+              return Math.abs(w.originX - targetOrigX) < 4;
+            });
+
+            if (!alignedWall) {
+              const nextChar = String.fromCharCode(65 + game3d.walls.length);
+              alignedWall = {
+                id: "wall_P_" + Date.now(),
+                name: `Parede ${game3d.walls.length + 1} • ${nextChar} (Pós-Porta)`,
+                dir: opDir,
+                sign: opSign,
+                originX: targetOrigX,
+                originZ: targetOrigZ,
+                targetLength: 400,
+                parentWallId: curWall.id,
+                isLCorner: true
+              };
+              game3d.walls.push(alignedWall);
+            }
+            activeLastOp.wallId = alignedWall.id;
+            game3d.activeWallId = alignedWall.id;
+            curWall = alignedWall;
+          }
+        }
+
         const wallDir = curWall.dir; // 'X' ou 'Z'
         const sign = (curWall.sign === -1) ? -1 : 1;
         const wallBlocksOnFiada = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === fiada && !b.isOpening);
@@ -13689,13 +13743,37 @@
         }
 
         // =========================================================================
-        // 2. VERIFICAÇÃO DE COLISÃO COM PORTAS E JANELAS (O BLOCO NÃO PODE ENTRAR!)
+        // 2. POSICIONAMENTO AUTOMÁTICO DEPOIS DE PORTAS E JANELAS
+        // REGRA DO USUÁRIO: "SE ADICIONEI UMA PORTA/JANELA E EM SEGUIDA UM BLOCO,
+        // O BLOCO TEM QUE COMEÇAR DEPOIS DELA, QUALQUER BLOCO QUE EU COLOCAR!"
         // =========================================================================
-        const wallOpeningsOnFiada = (game3d.openings || [])
-          .filter(op => op.wallId === curWall.id && fiada >= (op.startFiada || 1) && fiada <= (op.endFiada || 11))
-          .sort((a, b) => a.startPos - b.startPos);
-
         if (!game3d.jumpedOpenings) game3d.jumpedOpenings = {};
+
+        // 2A) Se o usuário acabou de adicionar uma Porta ou Janela, o próximo bloco (qualquer bloco!)
+        //     começa IMEDIATAMENTE depois dessa Porta/Janela!
+        if (activeLastOp && activeLastOp.wallId === curWall.id && (activeLastOp.dir || wallDir) === wallDir) {
+          if (sign === 1) {
+            const afterCenter = activeLastOp.endPos + mortar + len / 2;
+            if (wallDir === "X") posX = afterCenter;
+            else posZ = afterCenter;
+          } else {
+            const afterCenter = activeLastOp.startPos - mortar - len / 2;
+            if (wallDir === "X") posX = afterCenter;
+            else posZ = afterCenter;
+          }
+          game3d.lastAddedOpening = null;
+        }
+
+        // 2B) Verifica todos os vãos (Portas e Janelas) desta parede e direção que interceptam esta fiada:
+        //     Se o bloco cair dentro do vão (ou se o vão foi pulado), avança automaticamente para DEPOIS do vão!
+        const wallOpeningsOnFiada = (game3d.openings || [])
+          .filter(op =>
+            op.wallId === curWall.id &&
+            (op.dir || wallDir) === wallDir &&
+            fiada >= (op.startFiada || 1) &&
+            fiada <= (op.endFiada || 11)
+          )
+          .sort((a, b) => sign === 1 ? (a.startPos - b.startPos) : (b.endPos - a.endPos));
 
         for (const op of wallOpeningsOnFiada) {
           const jumpKey = `${op.id}_f${fiada}`;
@@ -13703,43 +13781,41 @@
           let candStart = candCenter - len / 2;
           let candEnd = candCenter + len / 2;
 
-          // Se o usuário já pulou este vão nesta fiada e ainda não há blocos após o vão, posiciona após o vão
-          const hasBlocksAfterOp = wallBlocksOnFiada.some(b => ((wallDir === "X" ? b.x : b.z) - b.len / 2) >= op.endPos - 1.5);
-          if (game3d.jumpedOpenings[jumpKey] && !hasBlocksAfterOp && candStart < op.endPos) {
-            candStart = op.endPos;
-            candEnd = candStart + len;
-            candCenter = candStart + len / 2;
-            if (wallDir === "X") posX = candCenter;
-            else posZ = candCenter;
-          }
-
-          // Verifica se o bloco invade o intervalo [op.startPos, op.endPos]
-          if (candEnd > op.startPos + 0.5 && candStart < op.endPos - 0.5) {
-            const spaceBefore = Math.round(op.startPos - candStart);
-            const opTypeName = op.type === "DOOR" ? "Porta" : "Janela";
-
-            if (spaceBefore >= 4) {
-              // Ainda há espaço antes da porta/janela, mas o bloco escolhido é grande demais e entra no vão!
-              let sugestao = `${spaceBefore}cm`;
-              if (spaceBefore >= 33 && spaceBefore <= 36) sugestao = "Canto em L 34";
-              else if (spaceBefore >= 28 && spaceBefore <= 32) sugestao = "Meio Bloco 19 + Compensador 9";
-              else if (spaceBefore >= 23 && spaceBefore <= 27) sugestao = "Meio Bloco 19 + Compensador 4";
-              else if (spaceBefore >= 18 && spaceBefore <= 21) sugestao = "Meio Bloco 19";
-              else if (spaceBefore >= 13 && spaceBefore <= 16) sugestao = "Compensador 9 + Compensador 4";
-              else if (spaceBefore >= 8 && spaceBefore <= 11) sugestao = "Compensador 9";
-              else if (spaceBefore >= 4 && spaceBefore <= 6) sugestao = "Compensador 4";
-
-              showOpeningCollisionWarning(
-                `🚫 AVISO: O bloco de ${len}cm NÃO pode entrar na ${opTypeName} (${op.startPos} a ${op.endPos}cm)! Restam ${spaceBefore}cm até o vão — use ${sugestao} ou clique em "⏭️ Pular Vão"!`
-              );
-              return;
-            } else {
-              // O bloco está exatamente na entrada da porta/janela: bloqueia a entrada no vão, avisa o usuário e avança o cursor para depois do vão!
+          if (sign === 1) {
+            const hasBlocksAfterOp = updatedWallBlocksOnFiada.some(b => ((wallDir === "X" ? b.x : b.z) - b.len / 2) >= op.endPos - 1.5);
+            if (game3d.jumpedOpenings[jumpKey] && !hasBlocksAfterOp && candStart < op.endPos) {
+              candStart = op.endPos + mortar;
+              candEnd = candStart + len;
+              candCenter = candStart + len / 2;
+              if (wallDir === "X") posX = candCenter;
+              else posZ = candCenter;
+            }
+            // Se o bloco invade ou toca o vão [op.startPos, op.endPos], começa automaticamente DEPOIS da porta/janela!
+            if (candEnd > op.startPos + 0.5 && candStart < op.endPos + 0.5) {
+              candStart = op.endPos + mortar;
+              candEnd = candStart + len;
+              candCenter = candStart + len / 2;
+              if (wallDir === "X") posX = candCenter;
+              else posZ = candCenter;
               game3d.jumpedOpenings[jumpKey] = op.endPos;
-              showOpeningCollisionWarning(
-                `🚫 AVISO: Bloco bloqueado na entrada da ${opTypeName} (${op.startPos} a ${op.endPos}cm)! O bloco não pode entrar no vão. Cursor pulou para ${op.endPos}cm — clique novamente para assentar após a ${opTypeName}!`
-              );
-              return;
+            }
+          } else {
+            const hasBlocksAfterOp = updatedWallBlocksOnFiada.some(b => ((wallDir === "X" ? b.x : b.z) + b.len / 2) <= op.startPos + 1.5);
+            if (game3d.jumpedOpenings[jumpKey] && !hasBlocksAfterOp && candEnd > op.startPos) {
+              candEnd = op.startPos - mortar;
+              candStart = candEnd - len;
+              candCenter = candEnd - len / 2;
+              if (wallDir === "X") posX = candCenter;
+              else posZ = candCenter;
+            }
+            // No sentido -1, se o bloco invade ou toca o vão [op.startPos, op.endPos], começa automaticamente DEPOIS da porta/janela!
+            if (candEnd > op.startPos - 0.5 && candStart < op.endPos - 0.5) {
+              candEnd = op.startPos - mortar;
+              candStart = candEnd - len;
+              candCenter = candEnd - len / 2;
+              if (wallDir === "X") posX = candCenter;
+              else posZ = candCenter;
+              game3d.jumpedOpenings[jumpKey] = op.startPos;
             }
           }
         }
