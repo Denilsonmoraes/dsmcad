@@ -2543,7 +2543,13 @@
                 <button onclick="game3dBuild14WallsFullTest()" id="btnHouse14Walls" class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-black border border-amber-400/60 shadow transition flex items-center gap-1" title="Gera e testa da Parede 1 à Parede 14 até a 14ª Fiada com Canaleta na última fiada, Portas, Janelas e Oitão Chanfrado">
                   <span>🏘️</span> Casa 14 Paredes (1..14 c/ Canaleta)
                 </button>
-                <button onclick="game3dClearAll()" class="px-2 py-1 rounded-lg bg-rose-950/90 hover:bg-rose-900 text-rose-300 font-bold border border-rose-800 transition" title="Limpar blocos mantendo as paredes">
+                <button onclick="game3dUndo()" id="btnTopUndoBlock" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black border border-amber-300 shadow transition flex items-center gap-1 active:scale-95" title="Desfazer último bloco colocado (Atalho rápido no topo)">
+                  ↩️ Desfazer Bloco
+                </button>
+                <button onclick="game3dClearCurrentFiada()" id="btnTopClearFiada" class="px-2 py-1 rounded-lg bg-rose-900/90 hover:bg-rose-800 text-rose-200 font-bold border border-rose-700 transition" title="Limpar apenas a fiada atual">
+                  🗑️ Fiada
+                </button>
+                <button onclick="game3dClearAll()" class="px-2 py-1 rounded-lg bg-rose-950/90 hover:bg-rose-900 text-rose-300 font-bold border border-rose-800 transition" title="Limpar todos os blocos">
                   🧹 Limpar
                 </button>
               </div>
@@ -2683,12 +2689,48 @@
                 </div>
               </div>
 
+              <!-- CONTROLE DE MOVER PAREDE / LINHA DE REFERÊNCIA (1, 5, 10, 20 cm) + INVERTER LADO -->
+              <div class="p-2 rounded-lg bg-slate-900/95 border border-sky-500/40 flex flex-col gap-1.5 text-[10px]">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-sky-300 flex items-center gap-1">📏 Mover Parede / Linha de Referência:</span>
+                  <button onclick="game3dFlipWallReferenceSide()" id="btnFlipRefSide" class="px-2 py-0.5 rounded bg-sky-600 hover:bg-sky-500 text-white font-black shadow transition active:scale-95" title="Muda a linha de referência para o outro lado (mesmo efeito de clicar 2x em Saída em T ou Canto L)">
+                    ⇄ Mudar Lado (180°)
+                  </button>
+                </div>
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-slate-400 font-bold shrink-0 w-14">Lateral:</span>
+                  <div class="grid grid-cols-8 gap-0.5 flex-1">
+                    <button onclick="game3dMoveWall('perp', -20)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-20</button>
+                    <button onclick="game3dMoveWall('perp', -10)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-10</button>
+                    <button onclick="game3dMoveWall('perp', -5)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-5</button>
+                    <button onclick="game3dMoveWall('perp', -1)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-1</button>
+                    <button onclick="game3dMoveWall('perp', 1)" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-slate-200 font-bold">+1</button>
+                    <button onclick="game3dMoveWall('perp', 5)" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-slate-200 font-bold">+5</button>
+                    <button onclick="game3dMoveWall('perp', 10)" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-slate-200 font-bold">+10</button>
+                    <button onclick="game3dMoveWall('perp', 20)" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-slate-200 font-bold">+20</button>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-slate-400 font-bold shrink-0 w-14">No Eixo:</span>
+                  <div class="grid grid-cols-8 gap-0.5 flex-1">
+                    <button onclick="game3dMoveWall('along', -20)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-20</button>
+                    <button onclick="game3dMoveWall('along', -10)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-10</button>
+                    <button onclick="game3dMoveWall('along', -5)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-5</button>
+                    <button onclick="game3dMoveWall('along', -1)" class="py-0.5 rounded bg-slate-800 hover:bg-rose-700 text-slate-200 font-bold">-1</button>
+                    <button onclick="game3dMoveWall('along', 1)" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-slate-200 font-bold">+1</button>
+                    <button onclick="game3dMoveWall('along', 5)" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-slate-200 font-bold">+5</button>
+                    <button onclick="game3dMoveWall('along', 10)" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-slate-200 font-bold">+10</button>
+                    <button onclick="game3dMoveWall('along', 20)" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-slate-200 font-bold">+20</button>
+                  </div>
+                </div>
+              </div>
+
               <!-- Ações Rápidas da Parede Ativa (Sentido, Completar Fiada, Subir 1..14 c/ Canaleta, Caída de Telhado) -->
               <div class="grid grid-cols-2 gap-1 pt-0.5 text-[11px]">
                 <button onclick="game3dToggleWallSense()" id="btnWallSense" class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center justify-center gap-1 transition" title="Alterna o sentido de assentamento dos blocos na parede ativa">
                   <span>🔄</span> <span id="lblWallSense">Sentido: Normal (➡️)</span>
                 </button>
-                <button onclick="game3dAutoFillCurrentWallFiada()" class="px-2 py-1 rounded-lg bg-indigo-900/70 hover:bg-indigo-800 border border-indigo-500/50 text-indigo-200 font-bold flex items-center justify-center gap-1 transition" title="Preenche automaticamente a fiada atual desta parede respeitando portas e janelas">
+                <button onclick="game3dAutoFillCurrentWallFiada()" class="px-2 py-1 rounded-lg bg-indigo-900/70 hover:bg-indigo-800 border border-indigo-500/50 text-indigo-200 font-bold flex items-center justify-center gap-1 transition" title="Preenche automaticamente a fiada atual desta parede respeitando portas, janelas e amarração">
                   <span>⚡</span> Completar Fiada Atual
                 </button>
                 <button onclick="game3dAutoBuildActiveWall14()" class="px-2 py-1 rounded-lg bg-emerald-900/70 hover:bg-emerald-800 border border-emerald-500/50 text-emerald-200 font-bold flex items-center justify-center gap-1 transition" title="Constrói da 1ª à 14ª fiada na parede ativa com Canaleta na 14ª fiada">
@@ -2759,9 +2801,40 @@
 
             <!-- 4. Paleta de Blocos para Assentar no Jogo (54, 39, 34 no topo + Canaletas + Chanfrados) -->
             <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-slate-300">4. Escolha o Bloco para Assentar:</span>
-                <span class="text-[10px] text-emerald-400 font-bold">▲/▼ move • +1cm massa</span>
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-xs font-black text-slate-300">4. Escolha o Bloco:</span>
+                <div class="flex items-center gap-1">
+                  <button onclick="game3dUndo()" class="px-2 py-0.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-black shadow transition active:scale-95" title="Desfazer último bloco colocado">
+                    ↩️ Desfazer Bloco
+                  </button>
+                  <button onclick="game3dClearCurrentFiada()" class="px-1.5 py-0.5 rounded bg-rose-900/80 hover:bg-rose-800 text-rose-200 text-[10px] font-bold transition" title="Limpar fiada atual">
+                    🗑️ Fiada
+                  </button>
+                </div>
+              </div>
+
+              <!-- MOVER BLOCO (1, 5, 10, 20 cm) + CORREÇÃO AUTOMÁTICA DE AMARRAÇÃO NA FIADA SEGUINTE -->
+              <div class="p-2 rounded-lg bg-slate-900/95 border border-emerald-500/40 flex flex-col gap-1.5 text-[10px]">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-emerald-300">🧱 Mover Bloco (1, 5, 10, 20 cm):</span>
+                  <span id="game3dMoveBlockTargetLbl" class="text-[9px] text-slate-400 font-mono truncate max-w-[155px]">Alvo: Último Bloco</span>
+                </div>
+                <div class="grid grid-cols-8 gap-0.5">
+                  <button onclick="game3dMoveBlock(-20)" id="btnMoveBlk_m20" class="py-1 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-20</button>
+                  <button onclick="game3dMoveBlock(-10)" id="btnMoveBlk_m10" class="py-1 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-10</button>
+                  <button onclick="game3dMoveBlock(-5)" id="btnMoveBlk_m5" class="py-1 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-5</button>
+                  <button onclick="game3dMoveBlock(-1)" id="btnMoveBlk_m1" class="py-1 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-1</button>
+                  <button onclick="game3dMoveBlock(1)" id="btnMoveBlk_p1" class="py-1 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+1</button>
+                  <button onclick="game3dMoveBlock(5)" id="btnMoveBlk_p5" class="py-1 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+5</button>
+                  <button onclick="game3dMoveBlock(10)" id="btnMoveBlk_p10" class="py-1 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+10</button>
+                  <button onclick="game3dMoveBlock(20)" id="btnMoveBlk_p20" class="py-1 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+20</button>
+                </div>
+                <div class="flex items-center justify-between gap-1 pt-0.5">
+                  <span id="game3dBondStatusHint" class="text-[9px] text-emerald-400 font-bold">✨ Na fiada seguinte o algoritmo corrige a amarração!</span>
+                  <button onclick="game3dTriggerNextFiadaBondCorrection()" id="btnFixNextFiadaBond" class="px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[9px] shrink-0 shadow transition" title="Sobe para a fiada seguinte e corrige automaticamente a amarração sobre os blocos movidos">
+                    🔧 Corrigir Fiada Seguinte
+                  </button>
+                </div>
               </div>
               
               <!-- Container dinâmico com os botões das peças da família -->
@@ -10990,7 +11063,8 @@
           const cls = isActive
             ? "px-2.5 py-1 rounded-lg font-black bg-indigo-600 text-white shadow border border-indigo-400 shrink-0 flex items-center gap-1 active:scale-95"
             : "px-2 py-1 rounded-lg font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white shrink-0 flex items-center gap-1 active:scale-95";
-          const arrow = w.dir === "X" ? (w.reverseSense ? "⬅️" : "➡️") : (w.reverseSense ? "⬇️" : "⬆️");
+          const sign = (w.sign === -1) ? -1 : 1;
+          const arrow = w.dir === "X" ? ((sign === -1 || w.reverseSense) ? "⬅️" : "➡️") : ((sign === -1 || w.reverseSense) ? "⬆️" : "⬇️");
           html += `
             <button onclick="game3dSetActiveWall('${w.id}')" id="gWallBtn_${w.id}" class="${cls}">
               <span>${arrow}</span>
@@ -11004,7 +11078,8 @@
         const curWall = game3d.walls.find(w => w.id === game3d.activeWallId);
         const badge = document.getElementById("game3dActiveWallBadge");
         if (badge && curWall) {
-          badge.textContent = `${curWall.name} (${curWall.dir === 'X' ? 'Eixo X' : 'Eixo Z'})`;
+          const sTxt = (curWall.sign === -1) ? (curWall.dir === "X" ? "⬅️ -X" : "⬆️ -Z") : (curWall.dir === "X" ? "➡️ +X" : "⬇️ +Z");
+          badge.textContent = `${curWall.name} (${sTxt})`;
         }
         const hudWall = document.getElementById("game3dHudWall");
         if (hudWall && curWall) {
@@ -11012,8 +11087,10 @@
         }
         const lblSense = document.getElementById("lblWallSense");
         if (lblSense && curWall) {
-          lblSense.textContent = curWall.reverseSense ? "Sentido: Inverso (⬅️)" : "Sentido: Normal (➡️)";
+          const isRev = (curWall.sign === -1 || curWall.reverseSense);
+          lblSense.textContent = isRev ? "Sentido: Oposto (⬅️/⬆️)" : "Sentido: Normal (➡️/⬇️)";
         }
+        updateMoveBlockTargetUI();
       }
 
       function game3dSetActiveWall(wallId) {
@@ -11021,7 +11098,7 @@
         const w = game3d.walls.find(x => x.id === wallId);
         if (w) {
           game3d.activeDir = w.dir;
-          updateDirButtonsUI(w.dir);
+          updateDirButtonsUI(w.isTBranch ? "T" : w.dir);
         }
         renderGame3DWallsToolbar();
         renderGame3DOpeningsList();
@@ -11029,13 +11106,104 @@
         updateGame3DUI();
       }
 
-      function game3dToggleWallSense() {
+      function game3dFlipWallReferenceSide() {
         const curWall = game3d.walls.find(w => w.id === game3d.activeWallId);
         if (!curWall) return;
-        curWall.reverseSense = !curWall.reverseSense;
+        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["14"];
+        const wallW = spec.width;
+        const mortar = 1;
+
+        curWall.sign = (curWall.sign === -1) ? 1 : -1;
+        const newSign = curWall.sign;
+
+        // Se a parede for uma Saída em T ou Canto em L ainda na linha de referência (0 blocos), espelha a origem para o outro lado da parede mãe!
+        const wallBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && !b.isOpening);
+        const parentWall = curWall.parentWallId ? game3d.walls.find(w => w.id === curWall.parentWallId) : null;
+
+        if (wallBlocks.length === 0 && parentWall) {
+          if (curWall.isTBranch) {
+            if (curWall.dir === "X") {
+              // Mãe em Z (centrada em parentWall.originX) -> Ramal T em X vai para a Direita (+1) ou para a Esquerda (-1)
+              const pCenterX = parentWall.originX;
+              curWall.originX = (newSign === 1) ? (pCenterX + wallW / 2 + mortar) : (pCenterX - wallW / 2 - mortar);
+            } else {
+              // Mãe em X (ocupando Z de parentWall.originZ até parentWall.originZ + wallW) -> Ramal T em Z vai para Baixo (+1) ou para Cima (-1)
+              const pTopZ = parentWall.originZ;
+              curWall.originZ = (newSign === 1) ? (pTopZ + wallW + mortar) : (pTopZ - mortar);
+            }
+          } else if (curWall.isLCorner) {
+            if (curWall.dir === "X") {
+              const pCenterX = parentWall.originX;
+              if (curWall.capCorner) {
+                curWall.originX = (newSign === 1) ? (pCenterX - wallW / 2) : (pCenterX + wallW / 2);
+              } else {
+                curWall.originX = (newSign === 1) ? (pCenterX + wallW / 2 + mortar) : (pCenterX - wallW / 2 - mortar);
+              }
+            } else {
+              const pTopZ = parentWall.originZ;
+              if (curWall.capCorner) {
+                curWall.originZ = (newSign === 1) ? pTopZ : (pTopZ + wallW);
+              } else {
+                curWall.originZ = (newSign === 1) ? (pTopZ + wallW + mortar) : (pTopZ - mortar);
+              }
+            }
+          }
+        }
+
         renderGame3DWallsToolbar();
         rebuildGame3DMeshes();
-        showLearningToast(`🔄 ${curWall.name}: Sentido alterado para ${curWall.reverseSense ? 'Inverso (Fim → Início)' : 'Normal (Início → Fim)'}!`);
+        updateGame3DUI();
+        const dirDesc = curWall.dir === "X"
+          ? (newSign === -1 ? "⬅️ Esquerda (-X)" : "➡️ Direita (+X)")
+          : (newSign === -1 ? "⬆️ Cima (-Z)" : "⬇️ Baixo (+Z)");
+        showLearningToast(`🔄 Linha de referência da ${curWall.name} mudou para o outro lado: ${dirDesc}!`);
+      }
+
+      function game3dToggleWallSense() {
+        game3dFlipWallReferenceSide();
+      }
+
+      // ============================================================================
+      // MOVER PAREDE AINDA NA LINHA DE REFERÊNCIA (OU COM BLOCOS) EM 1, 5, 10, 20 CM
+      // ============================================================================
+      function game3dMoveWall(mode, deltaCm) {
+        const curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
+        if (!curWall) return;
+        const sign = (curWall.sign === -1) ? -1 : 1;
+
+        if (mode === "along") {
+          // Move no próprio eixo da linha de referência
+          const d = deltaCm * sign;
+          if (curWall.dir === "X") {
+            curWall.originX += d;
+            game3d.blocks.forEach(b => { if (b.wallId === curWall.id) b.x += d; });
+            (game3d.openings || []).forEach(op => { if (op.wallId === curWall.id) { op.startPos += d; op.endPos += d; } });
+          } else {
+            curWall.originZ += d;
+            game3d.blocks.forEach(b => { if (b.wallId === curWall.id) b.z += d; });
+            (game3d.openings || []).forEach(op => { if (op.wallId === curWall.id) { op.startPos += d; op.endPos += d; } });
+          }
+        } else {
+          // Move lateralmente (perpendicular à linha de referência)
+          if (curWall.dir === "X") {
+            curWall.originZ += deltaCm;
+            if (curWall.refCoord !== undefined) curWall.refCoord += deltaCm;
+            game3d.blocks.forEach(b => { if (b.wallId === curWall.id) b.z += deltaCm; });
+          } else {
+            curWall.originX += deltaCm;
+            if (curWall.refCoord !== undefined) curWall.refCoord += deltaCm;
+            game3d.blocks.forEach(b => { if (b.wallId === curWall.id) b.x += deltaCm; });
+          }
+        }
+
+        if (game3d.selectionBox && game3d.selectedBlock && game3d.selectedBlock.wallId === curWall.id) {
+          game3d.selectionBox.position.set(game3d.selectedBlock.x, game3d.selectedBlock.y, game3d.selectedBlock.z);
+        }
+
+        renderGame3DWallsToolbar();
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+        showLearningToast(`📏 ${curWall.name} (Linha de Referência) movida ${deltaCm > 0 ? '+' + deltaCm : deltaCm}cm (${mode === 'along' ? 'no eixo' : 'lateralmente'})!`);
       }
 
       function updateDirButtonsUI(d) {
@@ -11665,11 +11833,17 @@
       function game3dAutoFillCurrentWallFiada() {
         const curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
         if (!curWall) return;
-        paginateWallFiada(curWall, game3d.activeFiada);
+        const f = game3d.activeFiada;
+        const blocksBelow = f > 1 ? game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === f - 1 && !b.isOpening) : [];
+        if (f > 1 && (curWall.hasMovedBlocks || curWall.sign === -1) && blocksBelow.length > 0) {
+          corrigirAmarracaoFiadaSeguinte(curWall, f);
+        } else {
+          paginateWallFiada(curWall, f);
+        }
         renderGame3DWallsToolbar();
         rebuildGame3DMeshes();
         updateGame3DUI();
-        showLearningToast(`⚡ ${curWall.name}: ${game3d.activeFiada}ª Fiada completada automaticamente!`);
+        showLearningToast(`⚡ ${curWall.name}: ${f}ª Fiada completada com amarração automática!`);
       }
 
       function game3dAutoBuildActiveWall14() {
@@ -12017,9 +12191,19 @@
       function game3dTerminarEmL() {
         const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["14"];
         const wallW = spec.width;
+        const mortar = 1;
 
         let curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
+        const allCurWallBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && !b.isOpening);
+
+        // SE JÁ ESTIVER NA LINHA DE REFERÊNCIA DE UM CANTO EM L (0 BLOCOS), O 2º CLIQUE MUDA A REFERÊNCIA PARA O OUTRO LADO!
+        if (curWall.isLCorner && allCurWallBlocks.length === 0) {
+          game3dFlipWallReferenceSide();
+          return;
+        }
+
         const curBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === game3d.activeFiada && !b.isOpening);
+        const curSign = (curWall.sign === -1) ? -1 : 1;
 
         const nextChar = String.fromCharCode(65 + game3d.walls.length);
         const newWallId = "wall_L_" + Date.now();
@@ -12027,41 +12211,75 @@
 
         const newDir = (curWall.dir === "X") ? "Z" : "X";
         let originX = 0, originZ = 0;
+        let capCorner = true;
 
         if (curWall.dir === "X") {
-          let endX = curWall.originX + (curWall.targetLength || 200);
+          let endX = curWall.originX + curSign * (curWall.targetLength || 200);
+          let lastBlk = null;
           if (curBlocks.length > 0) {
-            endX = Math.max(...curBlocks.map(b => b.x + b.len / 2));
+            if (curSign === 1) {
+              endX = Math.max(...curBlocks.map(b => b.x + b.len / 2));
+              lastBlk = curBlocks.reduce((a, b) => (b.x + b.len / 2 > a.x + a.len / 2 ? b : a), curBlocks[0]);
+            } else {
+              endX = Math.min(...curBlocks.map(b => b.x - b.len / 2));
+              lastBlk = curBlocks.reduce((a, b) => (b.x - b.len / 2 < a.x - a.len / 2 ? b : a), curBlocks[0]);
+            }
           }
-          // Convenção Z-wall: originX é o centro em X
-          originX = endX - wallW / 2;
-          originZ = curWall.originZ;
+          // Se a parede X já terminou com um bloco na ponta, a nova parede Z começa logo após a espessura da parede X (sem sobrepor!)
+          if (curBlocks.length > 0) {
+            capCorner = false;
+            originX = (curSign === 1) ? (endX - wallW / 2) : (endX + wallW / 2);
+            originZ = curWall.originZ + wallW + mortar;
+          } else {
+            capCorner = true;
+            originX = (curSign === 1) ? (endX - wallW / 2) : (endX + wallW / 2);
+            originZ = curWall.originZ;
+          }
         } else {
-          let endZ = curWall.originZ + (curWall.targetLength || 200);
+          // curWall.dir === "Z" (Parede vertical virando 90° para Horizontal X)
+          let endZ = curWall.originZ + curSign * (curWall.targetLength || 200);
+          let lastBlk = null;
           if (curBlocks.length > 0) {
-            endZ = Math.max(...curBlocks.map(b => b.z + b.len / 2));
+            if (curSign === 1) {
+              endZ = Math.max(...curBlocks.map(b => b.z + b.len / 2));
+              lastBlk = curBlocks.reduce((a, b) => (b.z + b.len / 2 > a.z + a.len / 2 ? b : a), curBlocks[0]);
+            } else {
+              endZ = Math.min(...curBlocks.map(b => b.z - b.len / 2));
+              lastBlk = curBlocks.reduce((a, b) => (b.z - b.len / 2 < a.z - a.len / 2 ? b : a), curBlocks[0]);
+            }
           }
-          // Convenção X-wall: originX é a borda inicial em X, e originZ é a face externa em Z (centro = originZ + wallW/2)
-          originX = curWall.originX - wallW / 2;
-          originZ = endZ - wallW;
+          const endedWith34 = lastBlk && (lastBlk.len === 34 || lastBlk.type === "CORNER_TIE");
+          if (endedWith34) {
+            // Já colocou o 34 na parede Z: a parede X sai ao lado dele sem sobrepor!
+            capCorner = false;
+            originX = curWall.originX + wallW / 2 + mortar;
+            originZ = (curSign === 1) ? (endZ - wallW) : endZ;
+          } else {
+            // Terminou a parede Z com bloco 39/comum: a nova parede X e o bloco 34 entram EXATAMENTE na linha verde abaixo de endZ (+1cm massa), alinhados à face externa!
+            capCorner = true;
+            originX = curWall.originX - wallW / 2;
+            originZ = (curSign === 1) ? (endZ + mortar) : (endZ - mortar - wallW);
+          }
         }
 
         const newWall = {
           id: newWallId,
           name: newWallName,
           dir: newDir,
+          sign: 1,
           originX: originX,
           originZ: originZ,
           targetLength: 400,
           parentWallId: curWall.id,
-          isLCorner: true
+          isLCorner: true,
+          capCorner: capCorner
         };
 
         game3d.walls.push(newWall);
         game3dSetActiveWall(newWallId);
         updateDirButtonsUI(newDir);
         renderGame3DWallsToolbar();
-        showLearningToast(`📐 Parede terminada em L! ${newWallName} virou 90°. Assente o bloco de canto.`);
+        showLearningToast(`📐 ${newWallName} criada! (Dica: clique novamente em "Terminar em L" se quiser virar a linha de referência para o outro lado!)`);
       }
 
       // Cria bloco canaleta com calha em U real para passagem de vigas e ferragens
@@ -12133,12 +12351,33 @@
       function game3dCreateTBranch(refBlock) {
         const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["14"];
         const wallW = spec.width;
+        const mortar = 1;
+
+        const curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
+        const curWallBlocks = curWall ? game3d.blocks.filter(b => b.wallId === curWall.id && !b.isOpening) : [];
+
+        // IDEIA DO USUÁRIO: SE JÁ SELECIONOU SAÍDA EM T (PAREDE AINDA NA LINHA DE REFERÊNCIA COM 0 BLOCOS)
+        // E DER MAIS UM CLIQUE EM "SAÍDA EM T", A REFERÊNCIA MUDA IMEDIATAMENTE PARA O OUTRO LADO!
+        if (!refBlock && curWall && curWall.isTBranch && curWallBlocks.length === 0) {
+          game3dFlipWallReferenceSide();
+          updateDirButtonsUI("T");
+          return;
+        }
 
         if (!refBlock) {
-          if (game3d.snapBondBlock) refBlock = game3d.snapBondBlock;
-          else {
-            const curBlocks = game3d.blocks.filter(b => b.wallId === game3d.activeWallId && !b.isOpening);
-            if (curBlocks.length > 0) refBlock = curBlocks[curBlocks.length - 1];
+          if (game3d.selectedBlock && game3d.selectedBlock.wallId === curWall.id) {
+            refBlock = game3d.selectedBlock;
+          } else if (game3d.snapBondBlock && game3d.snapBondBlock.wallId === curWall.id) {
+            refBlock = game3d.snapBondBlock;
+          } else {
+            const curFiadaBlocks = game3d.blocks.filter(b => b.wallId === game3d.activeWallId && b.fiada === game3d.activeFiada && !b.isOpening);
+            if (curFiadaBlocks.length > 0) {
+              // Prioriza o último bloco 54 (T_JUNCTION) se houver, ou o último bloco colocado na parede
+              const tBlocks = curFiadaBlocks.filter(b => b.len >= 50 || b.type === "T_JUNCTION");
+              refBlock = tBlocks.length > 0 ? tBlocks[tBlocks.length - 1] : curFiadaBlocks[curFiadaBlocks.length - 1];
+            } else if (curWallBlocks.length > 0) {
+              refBlock = curWallBlocks[curWallBlocks.length - 1];
+            }
           }
         }
 
@@ -12155,8 +12394,8 @@
         let comesFrom54 = false;
 
         if (parentDir === "X") {
-          // Parede mãe em X -> Ramal T corre em Z (originX = centro do bloco 54)
-          originZ = parentWall ? parentWall.originZ : 0;
+          // Parede mãe em X -> Ramal T corre em Z (começa na face da parede mãe + 1cm massa, sem invadir a parede mãe!)
+          originZ = (parentWall ? parentWall.originZ : 0) + wallW + mortar;
           if (refBlock) {
             comesFrom54 = (refBlock.len >= 50 || refBlock.type === "T_JUNCTION");
             originX = refBlock.x;
@@ -12164,8 +12403,8 @@
             originX = wallW / 2 + 40;
           }
         } else {
-          // Parede mãe em Z -> Ramal T corre em X (posZ = originZ + wallW/2 = refBlock.z => originZ = refBlock.z - wallW/2)
-          originX = parentWall ? (parentWall.originX - wallW / 2) : 0;
+          // Parede mãe em Z (centrada em parentWall.originX) -> Ramal T corre em X (começa na face direita + 1cm massa; no 2º clique vira para a face esquerda!)
+          originX = (parentWall ? parentWall.originX : wallW / 2) + wallW / 2 + mortar;
           if (refBlock) {
             comesFrom54 = (refBlock.len >= 50 || refBlock.type === "T_JUNCTION");
             originZ = refBlock.z - wallW / 2;
@@ -12178,6 +12417,7 @@
           id: newWallId,
           name: newWallName,
           dir: newDir,
+          sign: 1,
           originX: originX,
           originZ: originZ,
           targetLength: 300,
@@ -12188,11 +12428,14 @@
           refCoord: refBlock ? (parentDir === "X" ? refBlock.x : refBlock.z) : 40
         };
 
+        // Limpa seleção de snap para que o próximo bloco não seja puxado para dentro da parede mãe
+        game3d.snapBondBlock = null;
+
         game3d.walls.push(newWall);
         game3dSetActiveWall(newWallId);
         updateDirButtonsUI("T");
         renderGame3DWallsToolbar();
-        showLearningToast(`🔀 ${newWallName} criada a 90° (Eixo ${newDir})!`);
+        showLearningToast(`🔀 ${newWallName} criada! Se a linha de referência estiver do lado errado, clique mais uma vez em "Saída em T" para inverter o lado!`);
       }
 
       function renderGame3DFiadasToolbar() {
@@ -12320,11 +12563,12 @@
       }
 
       function selectBlockForBonding(block) {
+        game3d.selectedBlock = block;
         game3d.snapBondBlock = block;
-        const nextFiada = block.fiada + 1;
-        game3dSetFiada(nextFiada);
+        // Mantém na fiada do bloco clicado para que o usuário possa movê-lo (1, 5, 10, 20cm) ou puxar Saída em T na mesma fiada!
+        game3dSetFiada(block.fiada);
 
-        if (game3d.selectionBox) {
+        if (game3d.selectionBox && game3d.scene) {
           game3d.scene.remove(game3d.selectionBox);
         }
         const geom = new THREE.BoxGeometry(
@@ -12335,17 +12579,19 @@
         const mat = new THREE.MeshBasicMaterial({ color: 0x38BDF8, wireframe: true });
         game3d.selectionBox = new THREE.Mesh(geom, mat);
         game3d.selectionBox.position.set(block.x, block.y, block.z);
-        game3d.scene.add(game3d.selectionBox);
+        if (game3d.scene) game3d.scene.add(game3d.selectionBox);
 
         const banner = document.getElementById("game3dSnapBondBanner");
         const bannerTxt = document.getElementById("game3dSnapBondText");
         if (banner && bannerTxt) {
-          bannerTxt.textContent = `Amarrando sobre bloco (${block.len}cm) da ${block.fiada}ª Fiada → escolha o bloco da ${nextFiada}ª Fiada!`;
+          bannerTxt.innerHTML = `Bloco <b>${block.len}cm</b> (${block.fiada}ªF) selecionado • Use <b>±1, 5, 10, 20cm</b> p/ mover ou <button onclick="game3dSetFiada(${block.fiada + 1})" class="underline text-amber-300 font-black ml-1">Subir p/ ${block.fiada + 1}ªF</button>`;
           banner.classList.remove("hidden");
         }
+        updateMoveBlockTargetUI();
       }
 
       function game3dClearSnapBond() {
+        game3d.selectedBlock = null;
         game3d.snapBondBlock = null;
         if (game3d.selectionBox && game3d.scene) {
           game3d.scene.remove(game3d.selectionBox);
@@ -12353,6 +12599,328 @@
         }
         const banner = document.getElementById("game3dSnapBondBanner");
         if (banner) banner.classList.add("hidden");
+        updateMoveBlockTargetUI();
+      }
+
+      function updateMoveBlockTargetUI() {
+        const lbl = document.getElementById("game3dMoveBlockTargetLbl");
+        if (!lbl) return;
+        if (game3d.selectedBlock && game3d.blocks.includes(game3d.selectedBlock)) {
+          const b = game3d.selectedBlock;
+          const off = b.manualOffsetCm ? ` (${b.manualOffsetCm > 0 ? '+' : ''}${b.manualOffsetCm}cm)` : "";
+          lbl.textContent = `Alvo: Bloco ${b.len}cm (${b.fiada}ªF)${off}`;
+          lbl.className = "text-[9px] text-sky-300 font-mono font-bold truncate max-w-[165px]";
+        } else {
+          lbl.textContent = "Alvo: Último Bloco da Fiada";
+          lbl.className = "text-[9px] text-slate-400 font-mono truncate max-w-[165px]";
+        }
+      }
+
+      // ============================================================================
+      // MOVER UM BLOCO (1, 5, 10, 20 CM) E CORRIGIR A AMARRAÇÃO NA FIADA SEGUINTE
+      // ============================================================================
+      function game3dMoveBlock(deltaCm) {
+        let curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
+        if (!curWall) return;
+
+        let target = null;
+        if (game3d.selectedBlock && game3d.blocks.includes(game3d.selectedBlock)) {
+          target = game3d.selectedBlock;
+          curWall = game3d.walls.find(w => w.id === target.wallId) || curWall;
+        } else {
+          const fiadaBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === game3d.activeFiada && !b.isOpening);
+          if (fiadaBlocks.length > 0) {
+            target = fiadaBlocks[fiadaBlocks.length - 1];
+          } else {
+            const anyWallBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && !b.isOpening);
+            if (anyWallBlocks.length > 0) target = anyWallBlocks[anyWallBlocks.length - 1];
+          }
+        }
+
+        if (!target) {
+          showLearningToast("⚠️ Coloque ou clique em um bloco primeiro para movê-lo (1, 5, 10, 20 cm)!");
+          return;
+        }
+
+        const sign = (curWall.sign === -1) ? -1 : 1;
+        const shift = deltaCm * sign;
+        const isX = (target.dir === "X");
+        const targetCoord = isX ? target.x : target.z;
+
+        // Desloca o bloco alvo e também empurra blocos posteriores na mesma fiada para não sobrepor
+        const sameFiadaBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === target.fiada && !b.isOpening);
+        sameFiadaBlocks.forEach(b => {
+          const c = isX ? b.x : b.z;
+          const isTargetOrAfter = (sign === 1) ? (c >= targetCoord - 0.5) : (c <= targetCoord + 0.5);
+          if (b.id === target.id || isTargetOrAfter) {
+            if (isX) b.x += shift;
+            else b.z += shift;
+          }
+        });
+
+        target.manualOffsetCm = (target.manualOffsetCm || 0) + deltaCm;
+        curWall.hasMovedBlocks = true;
+        curWall.lastMovedFiada = target.fiada;
+
+        if (game3d.selectionBox) {
+          game3d.selectionBox.position.set(target.x, target.y, target.z);
+        }
+
+        // Se a fiada seguinte (target.fiada + 1) já tiver blocos nesta parede, o algoritmo recalcula e corrige a amarração IMEDIATAMENTE!
+        const nextF = target.fiada + 1;
+        const nextFiadaBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === nextF && !b.isOpening);
+        if (nextFiadaBlocks.length > 0) {
+          corrigirAmarracaoFiadaSeguinte(curWall, nextF);
+        }
+
+        updateMoveBlockTargetUI();
+        renderGame3DWallsToolbar();
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+
+        const hintEl = document.getElementById("game3dBondStatusHint");
+        if (hintEl) {
+          hintEl.textContent = `✅ Bloco movido ${target.manualOffsetCm > 0 ? '+' : ''}${target.manualOffsetCm}cm! Na ${nextF}ª fiada a amarração se ajusta automaticamente.`;
+        }
+        showLearningToast(`🧱 Bloco (${target.len}cm) movido ${deltaCm > 0 ? '+' + deltaCm : deltaCm}cm! Na ${nextF}ª fiada o algoritmo corrige a amarração automaticamente.`);
+      }
+
+      function corrigirAmarracaoFiadaSeguinte(wall, targetFiada) {
+        if (!wall || targetFiada <= 1) return;
+        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["14"];
+        const isBaiano = (game3d.activeFamily === "baiano");
+        const wallW = spec.width;
+        const mortar = 1;
+        const sign = (wall.sign === -1) ? -1 : 1;
+        const isX = (wall.dir === "X");
+        const useCanaleta = (targetFiada === 14);
+        const posY = (targetFiada - 1) * (spec.height + mortar) + mortar + spec.height / 2;
+
+        const blocksBelow = game3d.blocks
+          .filter(b => b.wallId === wall.id && b.fiada === targetFiada - 1 && !b.isOpening)
+          .sort((a, b) => sign * ((isX ? a.x : a.z) - (isX ? b.x : b.z)));
+
+        if (blocksBelow.length === 0) {
+          paginateWallFiada(wall, targetFiada);
+          return;
+        }
+
+        // Remove blocos atuais da targetFiada nesta parede para reconstruir com amarração corrigida
+        game3d.blocks = game3d.blocks.filter(b => !(b.wallId === wall.id && b.fiada === targetFiada));
+
+        // Coleta todas as juntas verticais da fiada de baixo e os centros ideais de amarração de cada bloco
+        const firstBlk = blocksBelow[0];
+        const lastBlk = blocksBelow[blocksBelow.length - 1];
+        const baseOrigin = isX ? wall.originX : wall.originZ;
+        const firstStart = (isX ? firstBlk.x : firstBlk.z) - sign * (firstBlk.len / 2);
+        const lastEnd = (isX ? lastBlk.x : lastBlk.z) + sign * (lastBlk.len / 2);
+
+        // Começa no início real da parede (ou no início do primeiro bloco se foi recuado)
+        let startCoord = firstStart;
+        const startGapFromOrigin = Math.round((firstStart - baseOrigin) * sign);
+        if (startGapFromOrigin > 0 && startGapFromOrigin <= 25) {
+          startCoord = baseOrigin;
+        }
+        const endCoord = lastEnd;
+
+        // Lista de juntas proibidas na fiada de baixo (bordas entre blocos)
+        const jointsBelow = [];
+        blocksBelow.forEach((b, idx) => {
+          const bS = (isX ? b.x : b.z) - sign * (b.len / 2);
+          const bE = (isX ? b.x : b.z) + sign * (b.len / 2);
+          if (Math.abs(bS - startCoord) > 3 && Math.abs(bS - endCoord) > 3) jointsBelow.push(bS);
+          if (Math.abs(bE - startCoord) > 3 && Math.abs(bE - endCoord) > 3) jointsBelow.push(bE);
+        });
+
+        // Solver de Amarração Inteligente: escolhe peças comerciais que NUNCA caem sobre as juntas dos blocos movidos abaixo!
+        const totalSpan = Math.round(Math.abs(endCoord - startCoord));
+        const piecesSeq = solveBondedPiecesSequence(startCoord, endCoord, sign, jointsBelow, blocksBelow, isX, isBaiano, useCanaleta);
+
+        let cur = startCoord;
+        piecesSeq.forEach((p, idx) => {
+          const centerCoord = cur + sign * (p.len / 2);
+          const posX = isX ? centerCoord : wall.originX;
+          const posZ = isX ? (wall.originZ + wallW / 2) : centerCoord;
+
+          game3d.blocks.push({
+            id: `gblk_bond_${wall.id}_f${targetFiada}_${idx}_${Date.now()}`,
+            wallId: wall.id,
+            wallName: wall.name,
+            family: game3d.activeFamily,
+            fiada: targetFiada,
+            dir: wall.dir,
+            pieceId: p.id,
+            type: p.type,
+            len: p.len,
+            width: wallW,
+            height: spec.height,
+            x: posX,
+            y: posY,
+            z: posZ,
+            color: spec.color
+          });
+          cur += sign * (p.len + mortar);
+        });
+      }
+
+      function solveBondedPiecesSequence(startCoord, endCoord, sign, jointsBelow, blocksBelow, isX, isBaiano, useCanaleta) {
+        const mortar = 1;
+        const result = [];
+        let cur = startCoord;
+        const maxIter = 80;
+        let iter = 0;
+
+        while (iter++ < maxIter) {
+          const rem = Math.round((endCoord - cur) * sign);
+          if (rem < 3) break;
+
+          if (useCanaleta) {
+            const len = isBaiano ? Math.min(19, rem) : (rem >= 39 ? 39 : (rem >= 19 ? 19 : rem));
+            result.push({
+              len: len,
+              id: isBaiano ? "b_can_19" : (len >= 35 ? "c14_can_39" : "c14_can_19"),
+              type: len >= 35 ? "CANALETA" : "MEIA_CANALETA"
+            });
+            cur += sign * (len + mortar);
+            continue;
+          }
+
+          // Verifica qual bloco da fiada de baixo estamos cobrindo agora e onde fica o centro dele
+          const candidates = isBaiano
+            ? [
+                { len: 19, id: "b_19", type: "WHOLE", baseCost: 0 },
+                { len: 9, id: "b_9", type: "HALF", baseCost: 1 },
+                { len: 4, id: "b_4", type: "COMPENSATOR", baseCost: 2 }
+              ]
+            : [
+                { len: 39, id: "c14_39", type: "WHOLE", baseCost: 0 },
+                { len: 19, id: "c14_19", type: "HALF", baseCost: result.length === 0 ? -2 : 2 },
+                { len: 34, id: "c14_34", type: "CORNER_TIE", baseCost: 1.5 },
+                { len: 54, id: "c14_54", type: "T_JUNCTION", baseCost: 2.0 },
+                { len: 9, id: "c14_9", type: "COMPENSATOR", baseCost: 3.5 },
+                { len: 4, id: "c14_4", type: "COMPENSATOR", baseCost: 4.0 }
+              ];
+
+          // Se resta exatamente o tamanho de uma peça final (ou menos de 22cm), fecha o segmento
+          if (rem <= 54 && [54, 39, 34, 19, 9, 4].includes(rem)) {
+            const exact = candidates.find(c => c.len === rem) || { len: rem, id: "c14_19", type: "HALF" };
+            result.push(exact);
+            break;
+          }
+
+          // Encontra o bloco da fiada de baixo cujo centro está à frente de 'cur'
+          let targetCenterCoord = null;
+          for (const bBelow of blocksBelow) {
+            const bCenter = isX ? bBelow.x : bBelow.z;
+            const distToCenter = Math.round((bCenter - cur) * sign);
+            if (distToCenter >= 4) {
+              targetCenterCoord = bCenter;
+              break;
+            }
+          }
+
+          // Se a distância até o centro do bloco de baixo (que foi movido 1, 5, 10 ou 20cm!) pede um compensador + bloco (ex: 44 = 4+1+39, 49 = 9+1+39, 59 = 19+1+39, 24 = 4+1+19, 29 = 9+1+19):
+          if (targetCenterCoord !== null && !isBaiano) {
+            const distToCenter = Math.round((targetCenterCoord - cur) * sign);
+            if (distToCenter >= 23 && distToCenter <= 26 && rem > 35) {
+              // Bloco 1 de baixo foi movido +5cm -> Compensador 4 + Meio Bloco 19 = 24cm!
+              result.push({ len: 4, id: "c14_4", type: "COMPENSATOR" });
+              cur += sign * (4 + mortar);
+              result.push({ len: 19, id: "c14_19", type: "HALF" });
+              cur += sign * (19 + mortar);
+              continue;
+            } else if (distToCenter >= 28 && distToCenter <= 31 && rem > 40) {
+              // Bloco 1 de baixo foi movido +10cm -> Compensador 9 + Meio Bloco 19 = 29cm!
+              result.push({ len: 9, id: "c14_9", type: "COMPENSATOR" });
+              cur += sign * (9 + mortar);
+              result.push({ len: 19, id: "c14_19", type: "HALF" });
+              cur += sign * (19 + mortar);
+              continue;
+            } else if (distToCenter >= 43 && distToCenter <= 46 && rem > 50) {
+              // Bloco de baixo foi movido +5cm -> Compensador 4 + Bloco 39 = 44cm!
+              result.push({ len: 4, id: "c14_4", type: "COMPENSATOR" });
+              cur += sign * (4 + mortar);
+              result.push({ len: 39, id: "c14_39", type: "WHOLE" });
+              cur += sign * (39 + mortar);
+              continue;
+            } else if (distToCenter >= 48 && distToCenter <= 51 && rem > 55) {
+              // Bloco de baixo foi movido +10cm -> Compensador 9 + Bloco 39 = 49cm!
+              result.push({ len: 9, id: "c14_9", type: "COMPENSATOR" });
+              cur += sign * (9 + mortar);
+              result.push({ len: 39, id: "c14_39", type: "WHOLE" });
+              cur += sign * (39 + mortar);
+              continue;
+            } else if (distToCenter >= 58 && distToCenter <= 61 && rem > 65) {
+              // Bloco de baixo foi movido +20cm -> Meio Bloco 19 + Bloco 39 = 59cm!
+              result.push({ len: 19, id: "c14_19", type: "HALF" });
+              cur += sign * (19 + mortar);
+              result.push({ len: 39, id: "c14_39", type: "WHOLE" });
+              cur += sign * (39 + mortar);
+              continue;
+            }
+          }
+
+          // Avalia cada peça candidata para garantir que a junta criada fique longe das juntas de baixo e perto do centro do bloco de baixo
+          let bestCand = null;
+          let bestScore = Infinity;
+
+          for (const cand of candidates) {
+            if (cand.len > rem + 0.5) continue;
+            const remAfter = rem - (cand.len + mortar);
+            if (remAfter > 0 && remAfter < 4) continue; // Não deixa sobra menor que 4cm
+
+            const jointCoord = cur + sign * (cand.len + mortar / 2);
+            let minDistToJointBelow = 999;
+            for (const jb of jointsBelow) {
+              minDistToJointBelow = Math.min(minDistToJointBelow, Math.abs(jointCoord - jb));
+            }
+
+            let score = cand.baseCost;
+            // Penalidade forte se cair em cima de junta da fiada de baixo (junta a prumo / sem amarração)
+            if (minDistToJointBelow < 5.5) score += 500;
+            else if (minDistToJointBelow < 9.5) score += 80;
+            else if (minDistToJointBelow >= 14) score -= 12;
+
+            // Bônus forte se a junta cair bem no centro do bloco da fiada de baixo!
+            for (const bBelow of blocksBelow) {
+              const bCenter = isX ? bBelow.x : bBelow.z;
+              if (Math.abs(jointCoord - bCenter) <= 3.5) {
+                score -= 25;
+                break;
+              }
+            }
+
+            if (score < bestScore) {
+              bestScore = score;
+              bestCand = cand;
+            }
+          }
+
+          if (!bestCand) {
+            const fallbackLen = Math.max(4, Math.min(39, rem));
+            bestCand = { len: fallbackLen, id: fallbackLen >= 35 ? "c14_39" : (fallbackLen >= 15 ? "c14_19" : "c14_4"), type: fallbackLen >= 35 ? "WHOLE" : "COMPENSATOR" };
+          }
+
+          result.push(bestCand);
+          cur += sign * (bestCand.len + mortar);
+        }
+
+        return result;
+      }
+
+      function game3dTriggerNextFiadaBondCorrection() {
+        const curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
+        if (!curWall) return;
+        const baseF = curWall.lastMovedFiada || game3d.activeFiada;
+        const curFiadaBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === baseF && !b.isOpening);
+        const targetF = curFiadaBlocks.length > 0 ? Math.min(18, baseF + 1) : game3d.activeFiada;
+
+        corrigirAmarracaoFiadaSeguinte(curWall, targetF);
+        game3dSetFiada(targetF);
+        renderGame3DWallsToolbar();
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+        showLearningToast(`🔧 ${targetF}ª Fiada da ${curWall.name} gerada com amarração corrigida automaticamente sobre os blocos da ${targetF - 1}ª Fiada!`);
       }
 
       function game3dMovePiece(idx, delta) {
@@ -12404,8 +12972,52 @@
         }
 
         const wallDir = curWall.dir; // 'X' ou 'Z'
+        const sign = (curWall.sign === -1) ? -1 : 1;
         const wallBlocksOnFiada = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === fiada && !b.isOpening);
+        const posY = (fiada - 1) * (spec.height + mortar) + mortar + spec.height / 2;
 
+        // =========================================================================
+        // CORREÇÃO AUTOMÁTICA DE AMARRAÇÃO NA FIADA SEGUINTE QUANDO BLOCO FOI MOVIDO
+        // =========================================================================
+        if (fiada > 1 && curWall.hasMovedBlocks && !game3d._inAutoCompensator) {
+          const blocksBelow = game3d.blocks
+            .filter(b => b.wallId === curWall.id && b.fiada === fiada - 1 && !b.isOpening)
+            .sort((a, b) => sign * ((wallDir === "X" ? a.x : a.z) - (wallDir === "X" ? b.x : b.z)));
+
+          if (blocksBelow.length > 0) {
+            let curStart = (wallDir === "X") ? curWall.originX : curWall.originZ;
+            if (wallBlocksOnFiada.length > 0) {
+              if (sign === 1) {
+                curStart = Math.max(...wallBlocksOnFiada.map(b => (wallDir === "X" ? b.x : b.z) + b.len / 2)) + mortar;
+              } else {
+                curStart = Math.min(...wallBlocksOnFiada.map(b => (wallDir === "X" ? b.x : b.z) - b.len / 2)) - mortar;
+              }
+            }
+            // Encontra o bloco da fiada de baixo cujo centro deve amarrar com o término deste bloco
+            for (const bBelow of blocksBelow) {
+              const bCenter = (wallDir === "X") ? bBelow.x : bBelow.z;
+              const distToCenter = Math.round((bCenter - curStart) * sign);
+              // Se o bloco de baixo foi movido em +5, +10 ou +20cm, a distância até o centro dele aumentou em +5, +10 ou +20cm!
+              const extraGap = distToCenter - len;
+              if (distToCenter > len + 2 && extraGap >= 4 && extraGap <= 21 && (bBelow.manualOffsetCm || curWall.hasMovedBlocks)) {
+                let compLen = 0, compId = "", compType = "COMPENSATOR";
+                if (extraGap >= 4 && extraGap <= 6) { compLen = 4; compId = "c14_4"; }
+                else if (extraGap >= 9 && extraGap <= 11) { compLen = 9; compId = "c14_9"; }
+                else if (extraGap >= 19 && extraGap <= 21) { compLen = 19; compId = "c14_19"; compType = "HALF"; }
+                if (compLen > 0) {
+                  game3d._inAutoCompensator = true;
+                  game3dPlacePiece(compId, compLen, compType);
+                  game3d._inAutoCompensator = false;
+                  showLearningToast(`🧠 IA inseriu peça de ${compLen}cm automaticamente na ${fiada}ª Fiada para corrigir a amarração do bloco movido abaixo!`);
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        // Recalcula a lista de blocos na fiada caso um compensador automático tenha acabado de entrar
+        const updatedWallBlocksOnFiada = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === fiada && !b.isOpening);
         let posX = 0, posZ = 0;
 
         // 1. Calcula posição inicial ou de continuação na parede ativa
@@ -12413,75 +13025,78 @@
           const ref = game3d.snapBondBlock;
           if (wallDir === "X") {
             posZ = curWall.originZ + wallW / 2;
-            posX = (wallBlocksOnFiada.length === 0) ? (ref.x - (ref.len / 2) + (len / 2)) : ref.x;
+            posX = (updatedWallBlocksOnFiada.length === 0) ? (ref.x - sign * (ref.len / 2) + sign * (len / 2)) : ref.x;
           } else {
             posX = curWall.originX;
-            posZ = (wallBlocksOnFiada.length === 0) ? (ref.z - (ref.len / 2) + (len / 2)) : ref.z;
+            posZ = (updatedWallBlocksOnFiada.length === 0) ? (ref.z - sign * (ref.len / 2) + sign * (len / 2)) : ref.z;
           }
           game3dClearSnapBond();
-        } else if (curWall.reverseSense) {
-          // Sentido inverso (do fim da parede para o início)
+        } else if (curWall.reverseSense && sign === 1) {
+          // Sentido inverso explícito (do fim da parede para o início)
           const tLen = curWall.targetLength || 600;
           if (wallDir === "X") {
             posZ = curWall.originZ + wallW / 2;
-            if (wallBlocksOnFiada.length === 0) {
+            if (updatedWallBlocksOnFiada.length === 0) {
               posX = curWall.originX + tLen - len / 2;
             } else {
-              const minStartX = Math.min(...wallBlocksOnFiada.map(b => b.x - b.len / 2));
+              const minStartX = Math.min(...updatedWallBlocksOnFiada.map(b => b.x - b.len / 2));
               posX = minStartX - mortar - len / 2;
             }
           } else {
             posX = curWall.originX;
-            if (wallBlocksOnFiada.length === 0) {
+            if (updatedWallBlocksOnFiada.length === 0) {
               posZ = curWall.originZ + tLen - len / 2;
             } else {
-              const minStartZ = Math.min(...wallBlocksOnFiada.map(b => b.z - b.len / 2));
+              const minStartZ = Math.min(...updatedWallBlocksOnFiada.map(b => b.z - b.len / 2));
               posZ = minStartZ - mortar - len / 2;
             }
           }
-        } else if (wallBlocksOnFiada.length === 0) {
-          // PRIMEIRO BLOCO DESTA FIADA NA PAREDE (SENTIDO NORMAL)
+        } else if (updatedWallBlocksOnFiada.length === 0) {
+          // PRIMEIRO BLOCO DESTA FIADA NA PAREDE
           if (wallDir === "X") {
             posZ = curWall.originZ + wallW / 2;
 
             if (curWall.isTBranch) {
-              // Ramal em T que corre no eixo X (saindo de uma parede em Z, ex: Parede E saindo da Parede D)
               const parentWall = game3d.walls.find(w => w.id === curWall.parentWallId);
-              const parentOuterX = parentWall ? (parentWall.originX - wallW / 2) : curWall.originX;
-              const refZ = curWall.refCoord !== undefined ? curWall.refCoord : (curWall.originZ + wallW / 2);
-
-              const blockOnMain = game3d.blocks.find(b =>
-                b.wallId === curWall.parentWallId &&
-                b.fiada === fiada &&
-                !b.isOpening &&
-                Math.abs(b.z - refZ) < 28 &&
-                (b.len >= 50 || b.type === "T_JUNCTION")
-              );
-
-              let comesFrom54 = false;
-              if (blockOnMain) comesFrom54 = true;
-              else if (curWall.comesFrom54Initial) comesFrom54 = (fiada % 2 === 1);
-
-              if (comesFrom54) {
-                posX = parentOuterX + wallW + mortar + len / 2;
+              if (parentWall && parentWall.dir === "Z") {
+                const pCenterX = parentWall.originX;
+                const refZ = curWall.refCoord !== undefined ? curWall.refCoord : (curWall.originZ + wallW / 2);
+                const anyBlockOnMain = game3d.blocks.find(b =>
+                  b.wallId === parentWall.id &&
+                  b.fiada === fiada &&
+                  !b.isOpening &&
+                  Math.abs(b.z - refZ) < 28
+                );
+                if (anyBlockOnMain) {
+                  // Há bloco na parede mãe nesta fiada: começa na face externa da parede mãe (+1cm massa), NUNCA dentro dela!
+                  const faceX = (sign === 1) ? (pCenterX + wallW / 2 + mortar) : (pCenterX - wallW / 2 - mortar);
+                  posX = faceX + sign * (len / 2);
+                } else {
+                  const comesFrom54 = curWall.comesFrom54Initial ? (fiada % 2 === 1) : true;
+                  const startX = comesFrom54
+                    ? ((sign === 1) ? (pCenterX + wallW / 2 + mortar) : (pCenterX - wallW / 2 - mortar))
+                    : ((sign === 1) ? (pCenterX - wallW / 2) : (pCenterX + wallW / 2));
+                  posX = startX + sign * (len / 2);
+                }
               } else {
-                posX = parentOuterX + len / 2;
+                posX = curWall.originX + sign * (len / 2);
               }
             } else {
-              // Verifica se há bloco perpendicular de canto a 90° já assentado nesta mesma fiada
+              // Parede normal ou Canto em L em X: verifica se algum bloco perpendicular em Z já ocupa a quina inicial nesta fiada
+              const checkX = curWall.originX + sign * (wallW / 2);
               const perpCorner = game3d.blocks.find(b =>
                 b.fiada === fiada &&
                 !b.isOpening &&
                 b.dir === "Z" &&
-                Math.abs(b.x - (curWall.originX + wallW / 2)) < (wallW + 2) &&
-                (b.z - b.len / 2) <= (curWall.originZ + wallW + 2) &&
-                (b.z + b.len / 2) >= (curWall.originZ - 2)
+                Math.abs(b.x - checkX) < (wallW + 2) &&
+                (b.z - b.len / 2) <= (curWall.originZ + wallW + 0.5) &&
+                (b.z + b.len / 2) >= (curWall.originZ - 0.5)
               );
 
               if (perpCorner) {
-                posX = curWall.originX + wallW + mortar + len / 2;
+                posX = curWall.originX + sign * (wallW + mortar + len / 2);
               } else {
-                posX = curWall.originX + len / 2;
+                posX = curWall.originX + sign * (len / 2);
               }
             }
           } else {
@@ -12489,64 +13104,79 @@
             posX = curWall.originX;
 
             if (curWall.isTBranch) {
-              // Ramal em T que corre no eixo Z (saindo de uma parede em X, ex: Paredes F, G, H)
               const parentWall = game3d.walls.find(w => w.id === curWall.parentWallId) || game3d.walls[0];
-              const parentZ = parentWall ? parentWall.originZ : curWall.originZ;
-
-              const blockOnMain = game3d.blocks.find(b =>
-                b.wallId === curWall.parentWallId &&
-                b.fiada === fiada &&
-                !b.isOpening &&
-                Math.abs(b.x - curWall.originX) < 28 &&
-                (b.len >= 50 || b.type === "T_JUNCTION")
-              );
-
-              let comesFrom54 = false;
-              if (blockOnMain) {
-                comesFrom54 = true;
-              } else if (curWall.comesFrom54Initial) {
-                comesFrom54 = (fiada % 2 === 1);
-              }
-
-              if (comesFrom54) {
-                posZ = parentZ + wallW + mortar + len / 2;
+              if (parentWall && parentWall.dir === "X") {
+                const pTopZ = parentWall.originZ;
+                const anyBlockOnMain = game3d.blocks.find(b =>
+                  b.wallId === parentWall.id &&
+                  b.fiada === fiada &&
+                  !b.isOpening &&
+                  Math.abs(b.x - curWall.originX) < 28
+                );
+                if (anyBlockOnMain) {
+                  // Há bloco na parede mãe nesta fiada: começa na face da parede mãe (+1cm massa), sem sobrepor!
+                  const faceZ = (sign === 1) ? (pTopZ + wallW + mortar) : (pTopZ - mortar);
+                  posZ = faceZ + sign * (len / 2);
+                } else {
+                  const comesFrom54 = curWall.comesFrom54Initial ? (fiada % 2 === 1) : true;
+                  const startZ = comesFrom54
+                    ? ((sign === 1) ? (pTopZ + wallW + mortar) : (pTopZ - mortar))
+                    : ((sign === 1) ? pTopZ : (pTopZ + wallW));
+                  posZ = startZ + sign * (len / 2);
+                }
               } else {
-                posZ = parentZ + len / 2;
+                posZ = curWall.originZ + sign * (len / 2);
               }
             } else {
-              // Canto a 90° convencional
+              // Canto a 90° em Z: verifica se algum bloco perpendicular em X já ocupa a quina inicial nesta fiada
+              const checkZ = curWall.originZ + (sign === 1 ? wallW / 2 : -wallW / 2);
               const perpCorner = game3d.blocks.find(b =>
                 b.fiada === fiada &&
                 !b.isOpening &&
                 b.dir === "X" &&
-                Math.abs(b.z - (curWall.originZ + wallW / 2)) < (wallW + 2) &&
-                (b.x - b.len / 2) <= (curWall.originX + wallW / 2 + 2) &&
-                (b.x + b.len / 2) >= (curWall.originX - wallW / 2 - 2)
+                Math.abs(b.z - checkZ) < (wallW + 0.5) &&
+                (b.x - b.len / 2) <= (curWall.originX + wallW / 2 + 1) &&
+                (b.x + b.len / 2) >= (curWall.originX - wallW / 2 - 1)
               );
 
               if (perpCorner) {
-                posZ = curWall.originZ + wallW + mortar + len / 2;
+                posZ = curWall.originZ + sign * (wallW + mortar + len / 2);
               } else {
-                posZ = curWall.originZ + len / 2;
+                posZ = curWall.originZ + sign * (len / 2);
               }
             }
           }
+
+          // Ajuste de +1cm de junta se o 1º bloco da fiada de baixo foi movido +1cm
+          if (fiada > 1 && curWall.hasMovedBlocks) {
+            const blocksBelow = game3d.blocks
+              .filter(b => b.wallId === curWall.id && b.fiada === fiada - 1 && !b.isOpening)
+              .sort((a, b) => sign * ((wallDir === "X" ? a.x : a.z) - (wallDir === "X" ? b.x : b.z)));
+            if (blocksBelow.length > 0 && Math.abs(blocksBelow[0].manualOffsetCm || 0) === 1) {
+              if (wallDir === "X") posX += blocksBelow[0].manualOffsetCm * sign;
+              else posZ += blocksBelow[0].manualOffsetCm * sign;
+            }
+          }
         } else {
-          // CONTINUAÇÃO DA PAREDE NA MESMA FIADA
+          // CONTINUAÇÃO DA PAREDE NA MESMA FIADA (SUPORTA SENTIDO +1 E -1)
           if (wallDir === "X") {
-            let maxEndX = -Infinity;
-            wallBlocksOnFiada.forEach(b => {
-              maxEndX = Math.max(maxEndX, b.x + b.len / 2);
-            });
-            posX = maxEndX + mortar + len / 2;
             posZ = curWall.originZ + wallW / 2;
+            if (sign === 1) {
+              const maxEndX = Math.max(...updatedWallBlocksOnFiada.map(b => b.x + b.len / 2));
+              posX = maxEndX + mortar + len / 2;
+            } else {
+              const minStartX = Math.min(...updatedWallBlocksOnFiada.map(b => b.x - b.len / 2));
+              posX = minStartX - mortar - len / 2;
+            }
           } else {
-            let maxEndZ = -Infinity;
-            wallBlocksOnFiada.forEach(b => {
-              maxEndZ = Math.max(maxEndZ, b.z + b.len / 2);
-            });
-            posZ = maxEndZ + mortar + len / 2;
             posX = curWall.originX;
+            if (sign === 1) {
+              const maxEndZ = Math.max(...updatedWallBlocksOnFiada.map(b => b.z + b.len / 2));
+              posZ = maxEndZ + mortar + len / 2;
+            } else {
+              const minStartZ = Math.min(...updatedWallBlocksOnFiada.map(b => b.z - b.len / 2));
+              posZ = minStartZ - mortar - len / 2;
+            }
           }
         }
 
@@ -12628,8 +13258,6 @@
             hLeft = lowVal; hRight = lowVal;
           }
         }
-
-        const posY = (fiada - 1) * (spec.height + mortar) + mortar + spec.height / 2;
 
         const newBlock = {
           id: "gblk_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
@@ -12893,10 +13521,11 @@
         (game3d.walls || []).forEach(w => {
           const isAct = (w.id === game3d.activeWallId);
           const tLen = w.targetLength || 400;
+          const sign = (w.sign === -1) ? -1 : 1;
           const gDimX = w.dir === "X" ? tLen : wallW;
           const gDimZ = w.dir === "X" ? wallW : tLen;
-          const gx = w.dir === "X" ? (w.originX + tLen / 2) : w.originX;
-          const gz = w.dir === "X" ? (w.originZ + wallW / 2) : (w.originZ + tLen / 2);
+          const gx = w.dir === "X" ? (w.originX + sign * (tLen / 2)) : w.originX;
+          const gz = w.dir === "X" ? (w.originZ + wallW / 2) : (w.originZ + sign * (tLen / 2));
 
           const stripGeom = new THREE.BoxGeometry(gDimX, 0.4, gDimZ);
           const stripMat = new THREE.MeshBasicMaterial({
@@ -13200,12 +13829,17 @@
         const curWall = game3d.walls.find(w => w.id === game3d.activeWallId) || game3d.walls[0];
         if (!curWall) return;
         const nextF = Math.min(18, game3d.activeFiada + 1);
-        paginateWallFiada(curWall, nextF);
+        const blocksBelow = game3d.blocks.filter(b => b.wallId === curWall.id && b.fiada === nextF - 1 && !b.isOpening);
+        if (blocksBelow.length > 0 && (curWall.hasMovedBlocks || curWall.sign === -1)) {
+          corrigirAmarracaoFiadaSeguinte(curWall, nextF);
+        } else {
+          paginateWallFiada(curWall, nextF);
+        }
         game3dSetFiada(nextF);
         renderGame3DWallsToolbar();
         rebuildGame3DMeshes();
         updateGame3DUI();
-        showLearningToast(`✨ IA: ${nextF}ª Fiada da ${curWall.name} amarrada e completada automaticamente!`);
+        showLearningToast(`✨ IA: ${nextF}ª Fiada da ${curWall.name} amarrada e corrigida automaticamente!`);
       }
 
       function game3dTeachAiPattern() {
