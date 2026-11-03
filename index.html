@@ -1115,33 +1115,38 @@
     <!-- BARRA FIXA SEMPRE VISÍVEL: UNDO / REDO (TRÁS / FRENTE) + TRAVA 90°        -->
     <!-- (Fica sempre visível no canto superior esquerdo mesmo com menus fechados) -->
     <!-- ========================================================================= -->
-    <div class="absolute top-2.5 left-2.5 z-20 flex flex-wrap items-center gap-1.5 bg-slate-900/95 border border-slate-600 rounded-2xl px-2 py-1 shadow-xl text-white">
+    <div class="absolute top-2 left-2 right-2 md:right-auto z-30 flex flex-wrap items-center gap-1 bg-slate-900/95 border border-slate-600 rounded-2xl px-2 py-1 shadow-xl text-white max-w-[calc(100vw-16px)]">
       <!-- Botão Voltar para o Menu Principal Nativo -->
       <button onclick="if(window.AndroidBridge && window.AndroidBridge.goBackHome) { window.AndroidBridge.goBackHome(); } else { history.back(); }"
-        class="flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-600 active:scale-95 transition"
+        class="flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-black bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-600 active:scale-95 transition shrink-0"
         title="Voltar para a Tela Principal do App">
         <span>← Início</span>
       </button>
 
-      <div class="h-4 w-[1px] bg-slate-700 mx-0.5"></div>
+      <!-- BOTÃO IA & JOGO 3D LOGO NO INÍCIO DO TOPO (SEMPRE VISÍVEL NO CELULAR E NO PC!) -->
+      <button id="learnedHeaderPill" onclick="openLearnedPatternsModal()"
+        class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500 via-orange-600 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 border border-amber-300/80 text-white text-xs font-black shadow-lg transition active:scale-95 shrink-0"
+        title="Abrir IA & Jogo 3D (Construir Casa 3D Bloco a Bloco e Ensinar IA)">
+        <span class="text-sm">🧠</span>
+        <span>IA • Jogo 3D</span>
+        <span id="learnedCountBadge" class="px-1.5 py-0.2 rounded-full bg-slate-950/80 text-amber-300 text-[9px] font-black">10</span>
+      </button>
 
       <button id="btnUndo" onclick="performUndo()" disabled
-        class="flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 disabled:opacity-35 border border-slate-600"
+        class="flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 disabled:opacity-35 border border-slate-600 shrink-0"
         title="Desfazer última ação (Ctrl+Z)">
         <span>↩️</span>
-        <span>Trás</span>
+        <span class="hidden sm:inline">Trás</span>
       </button>
       <button id="btnRedo" onclick="performRedo()" disabled
-        class="flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 disabled:opacity-35 border border-slate-600"
+        class="flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 disabled:opacity-35 border border-slate-600 shrink-0"
         title="Refazer ação (Ctrl+Y)">
-        <span>Frente</span>
+        <span class="hidden sm:inline">Frente</span>
         <span>↪️</span>
       </button>
 
-      <div class="h-4 w-[1px] bg-slate-700 mx-0.5"></div>
-
       <!-- Seletor rápido de modo: Selecionar vs Mover vs Desenhar Parede -->
-      <div class="flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-xl border border-slate-700">
+      <div class="hidden sm:flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-xl border border-slate-700">
         <button id="quickTool_SELECT" onclick="selectTool('SELECT')"
           class="px-2 py-0.5 rounded-lg text-xs font-bold bg-transparent text-slate-300 hover:bg-slate-800" title="Modo Seleção: clicar seleciona e edita paredes sem desenhar">
           👆 Selecionar
@@ -1160,30 +1165,19 @@
         </button>
       </div>
 
-      <div class="h-4 w-[1px] bg-slate-700 mx-0.5"></div>
-
       <!-- Toggle Sempre Visível: Não Deixar Paredes se Desencontrarem (Fechar 90°) -->
-      <label class="flex items-center gap-1 px-2 py-0.5 rounded-xl bg-emerald-950/80 border border-emerald-500/70 cursor-pointer text-[11px] font-bold text-emerald-300"
+      <label class="hidden md:flex items-center gap-1 px-2 py-0.5 rounded-xl bg-emerald-950/80 border border-emerald-500/70 cursor-pointer text-[11px] font-bold text-emerald-300"
         title="Quando marcado, alinha as pontas das paredes automaticamente e fecha os encontros em 90° sem degraus e sem desencontro">
         <input id="chkSnapJoin90" type="checkbox" checked onchange="toggleAutoJoin90(this.checked)" class="accent-emerald-400 w-3 h-3" />
         <span>🧲 Fechar 90°</span>
       </label>
-
-      <!-- Botão IA Paginador Inteligente: Padrões Aprendidos -->
-      <button id="learnedHeaderPill" onclick="openLearnedPatternsModal()"
-        class="flex items-center gap-1 px-2 py-0.5 rounded-xl bg-indigo-950/90 border border-indigo-500/80 hover:bg-indigo-900 text-indigo-300 text-[11px] font-bold shadow transition active:scale-95"
-        title="Paginador Inteligente: O robô aprende sua forma de paginar e aplica automaticamente!">
-        <span class="text-xs">🧠</span>
-        <span>IA</span>
-        <span id="learnedCountBadge" class="px-1 py-0.1 rounded-full bg-indigo-600 text-white text-[9px] font-black">10</span>
-      </button>
     </div>
 
     
     <!-- ========================================================================= -->
     <!-- DSMCAD RIBBON & TOOLBAR — O MOTOR CAD & BIM DE ALVENARIA ESTRUTURAL       -->
     <!-- ========================================================================= -->
-    <div id="dsmcadRibbon" class="absolute top-12 left-2.5 z-20 flex flex-wrap items-center gap-1 bg-slate-950/95 border border-sky-500/60 rounded-xl px-2 py-1 shadow-2xl text-white backdrop-blur-md">
+    <div id="dsmcadRibbon" class="hidden md:flex absolute top-12 left-2.5 z-20 flex-wrap items-center gap-1 bg-slate-950/95 border border-sky-500/60 rounded-xl px-2 py-1 shadow-2xl text-white backdrop-blur-md">
       <!-- Logo / Marca DSMCAD -->
       <div class="flex items-center gap-1.5 pr-2 border-r border-slate-700 select-none">
         <span class="flex items-center justify-center w-6 h-6 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 text-slate-950 font-black text-xs shadow">D</span>
@@ -1265,7 +1259,7 @@
     <!-- ========================================================================= -->
     <!-- DSMCAD COMMAND LINE TERMINAL — A AUTÊNTICA BARRA DE COMANDOS CAD          -->
     <!-- ========================================================================= -->
-    <div id="dsmcadTerminal" class="fixed bottom-7 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-4xl bg-slate-950/95 border border-sky-500/80 rounded-2xl shadow-2xl backdrop-blur-md p-1.5 flex flex-col gap-1 text-white">
+    <div id="dsmcadTerminal" class="hidden md:flex fixed bottom-7 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-4xl bg-slate-950/95 border border-sky-500/80 rounded-2xl shadow-2xl backdrop-blur-md p-1.5 flex-col gap-1 text-white">
       <!-- Linha de feedback / histórico -->
       <div class="flex items-center justify-between px-2 text-[11px] font-mono border-b border-slate-800 pb-0.5">
         <div class="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
@@ -1375,6 +1369,9 @@
         </button>
         <button onclick="openFullscreenSvg(); toggleEdgeMenu('top', false)" class="px-3 py-1 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-extrabold">
           🔍 SVG TELA CHEIA
+        </button>
+        <button onclick="openLearnedPatternsModal(); toggleEdgeMenu('top', false)" class="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-xs font-black shadow flex items-center gap-1">
+          🧠 IA • JOGO 3D
         </button>
         <button onclick="openThreeDimensionModal(true); toggleEdgeMenu('top', false)" class="px-3 py-1 rounded-lg bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white text-xs font-black shadow flex items-center gap-1">
           🧊 VER EM 3D (360°)
@@ -1519,6 +1516,10 @@
             <button onclick="openFullscreenSvg()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-black text-xs shadow-lg flex items-center gap-1 active:scale-95 transition">
               <span>🔍</span>
               <span>VER FIADAS (SVG)</span>
+            </button>
+            <button onclick="openLearnedPatternsModal()" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-black text-xs shadow flex items-center gap-1 active:scale-95 transition">
+              <span>🧠</span>
+              <span>IA • Jogo 3D</span>
             </button>
             <button onclick="openThreeDimensionModal(false)" class="px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow flex items-center gap-1 active:scale-95 transition">
               <span>🧊</span>
@@ -2487,42 +2488,42 @@
     <!-- ========================================================================= -->
                 <div id="learnedPatternsModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col w-screen h-screen select-none"><div id="iaModalCard" class="bg-slate-900 w-full h-full text-white flex flex-col overflow-hidden">
         
-        <!-- Cabeçalho Expandido com Tabs -->
-        <div class="px-4 py-3 border-b border-slate-700 bg-slate-950 flex flex-wrap items-center justify-between gap-3 shrink-0">
-          <div class="flex items-center gap-3">
-            <span class="text-3xl animate-pulse">🧠</span>
+        <!-- Cabeçalho Expandido com Tabs (Compacto no Celular, Completo no Desktop) -->
+        <div class="px-2.5 py-1.5 md:px-4 md:py-3 border-b border-slate-700 bg-slate-950 flex flex-wrap items-center justify-between gap-1.5 md:gap-3 shrink-0">
+          <div class="flex items-center gap-2 md:gap-3">
+            <span class="text-xl md:text-3xl animate-pulse">🧠</span>
             <div>
-              <div class="text-sm font-extrabold text-indigo-300 tracking-wide flex items-center gap-2">
-                PAGINADOR INTELIGENTE • IA DSMCAD
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600/60 border border-indigo-400 text-indigo-200">PRO v2.0</span>
+              <div class="text-xs md:text-sm font-extrabold text-indigo-300 tracking-wide flex items-center gap-1.5">
+                <span>IA DSMCAD 3D</span>
+                <span class="px-1.5 py-0.5 rounded-full text-[9px] md:text-[10px] font-black bg-indigo-600/60 border border-indigo-400 text-indigo-200">PRO v2.0</span>
               </div>
-              <div class="text-xs text-slate-400">Aprende cantos em L, encontros em T, vãos e modulações diretamente com você em 3D</div>
+              <div class="hidden md:block text-xs text-slate-400">Aprende cantos em L, encontros em T, vãos e modulações diretamente com você em 3D</div>
             </div>
           </div>
 
           <!-- Seletor de Modos / Abas da IA -->
-          <div class="flex items-center gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
-            <button id="iaTabBtn_game3d" onclick="switchIaTab('game3d')" class="px-3.5 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow flex items-center gap-2 transition active:scale-95">
-              <span>🎮</span> Jogo 3D • Construir & Ensinar IA
-              <span class="px-1.5 py-0.2 rounded bg-amber-900/80 text-[10px] text-amber-200 border border-amber-400/50">NOVO</span>
+          <div class="flex items-center gap-1 md:gap-2 bg-slate-900 p-0.5 md:p-1 rounded-xl border border-slate-800">
+            <button id="iaTabBtn_game3d" onclick="switchIaTab('game3d')" class="px-2.5 py-1 md:px-3.5 md:py-1.5 rounded-lg text-[11px] md:text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow flex items-center gap-1.5 transition active:scale-95">
+              <span>🎮</span> <span>Jogo 3D</span>
+              <span class="hidden sm:inline px-1.5 py-0.2 rounded bg-amber-900/80 text-[10px] text-amber-200 border border-amber-400/50">NOVO</span>
             </button>
-            <button id="iaTabBtn_vaos" onclick="switchIaTab('vaos')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1.5 transition">
-              <span>📋</span> Tabela de Vãos & Modulações
+            <button id="iaTabBtn_vaos" onclick="switchIaTab('vaos')" class="px-2.5 py-1 md:px-3.5 md:py-1.5 rounded-lg text-[11px] md:text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1 transition">
+              <span>📋</span> <span>Vãos IA</span>
             </button>
           </div>
 
-          <button onclick="closeLearnedPatternsModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition">✕</button>
+          <button onclick="closeLearnedPatternsModal()" class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition">✕</button>
         </div>
 
-        <!-- ABA 1: JOGO 3D CONSTRUIR DO ZERO & ENSINAR IA -->
-        <div id="iaTabContent_game3d" class="flex-1 flex flex-row overflow-hidden relative">
+        <!-- ABA 1: JOGO 3D CONSTRUIR DO ZERO & ENSINAR IA (Empilhado no Celular / Lado a Lado no PC) -->
+        <div id="iaTabContent_game3d" class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
           
-          <!-- Viewport 3D Interativo -->
-          <div class="flex-1 h-full relative bg-slate-950 flex flex-col overflow-hidden">
-            <!-- Barra Superior de Ferramentas do 3D -->
-            <div class="absolute top-2 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-1.5 pointer-events-none">
+          <!-- Viewport 3D Interativo (44% da altura no Celular, 100% no Desktop) -->
+          <div class="w-full h-[43vh] min-h-[220px] md:h-full md:flex-1 relative bg-slate-950 flex flex-col overflow-hidden shrink-0">
+            <!-- Barra Superior de Ferramentas do 3D (Rolável horizontalmente no celular) -->
+            <div class="absolute top-1.5 left-1.5 right-1.5 md:top-2 md:left-2 md:right-2 z-10 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-1 pointer-events-none">
               <!-- Presets Rápidos do Jogo & Casa Completa -->
-              <div class="pointer-events-auto flex flex-wrap items-center gap-1 bg-slate-900/95 backdrop-blur-md p-1.5 rounded-xl border border-slate-700/80 shadow-lg text-xs">
+              <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/95 backdrop-blur-md p-1 md:p-1.5 rounded-xl border border-slate-700/80 shadow-lg text-[11px] md:text-xs overflow-x-auto whitespace-nowrap scrollbar-thin">
                 <span class="text-[10px] font-extrabold text-slate-400 px-1.5">Projetos:</span>
                 <button onclick="game3dPreset('straight')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white font-bold transition flex items-center gap-1" title="Exemplo de Parede Reta">
                   <span>🧱</span> Parede Reta
@@ -2606,8 +2607,8 @@
             </div>
           </div>
 
-          <!-- Painel Lateral Fixo à Direita: Controles do Jogo & Construção Completa -->
-          <div class="w-[390px] lg:w-[425px] bg-slate-900/95 border-l border-slate-800 p-3 flex flex-col gap-2.5 overflow-y-auto shrink-0 shadow-2xl">
+          <!-- Painel de Controles (Embaixo com rolagem no Celular / Fixo à Direita no PC) -->
+          <div class="w-full flex-1 md:flex-none md:h-full md:w-[390px] lg:w-[425px] bg-slate-900/95 border-t md:border-t-0 md:border-l border-slate-800 p-2.5 md:p-3 flex flex-col gap-2 overflow-y-auto shrink-0 shadow-2xl">
             
             <!-- 1. Seletor de Família -->
             <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-1.5">
@@ -10865,7 +10866,7 @@
           });
           canvas.addEventListener("pointerup", (e) => {
             const dist = Math.hypot(e.clientX - ptrDownPos.x, e.clientY - ptrDownPos.y);
-            if (dist < 6 && e.button === 0) {
+            if (dist < 14 && (e.button === 0 || e.pointerType === "touch")) {
               onGame3DCanvasClick(e);
             }
           });
@@ -10931,13 +10932,16 @@
       function onGame3DResize() {
         const canvas = document.getElementById("iaGame3dCanvas");
         if (!canvas || !game3d.renderer || !game3d.camera) return;
-        const rect = canvas.getBoundingClientRect();
-        const w = rect.width || 800;
-        const h = rect.height || 600;
+        const parent = canvas.parentElement || canvas;
+        const rect = parent.getBoundingClientRect();
+        const w = rect.width || 360;
+        const h = rect.height || 260;
         if (w === 0 || h === 0) return;
         game3d.camera.aspect = w / h;
         game3d.camera.updateProjectionMatrix();
-        game3d.renderer.setSize(w, h);
+        game3d.renderer.setSize(w, h, false);
+        canvas.style.width = w + "px";
+        canvas.style.height = h + "px";
       }
 
       function game3dQuickZoom(factor) {
