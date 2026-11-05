@@ -2530,8 +2530,11 @@
             <button onclick="game3dLoadHousePlanta(false)" id="btnHouseBlueprint" class="px-2 py-0.5 rounded bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] font-black border border-indigo-400/50 transition flex items-center gap-1 shrink-0" title="Carrega Paredes A..H para construir bloco a bloco">
               <span>📐</span> Planta Casa A..H
             </button>
-            <button onclick="game3dLoadHousePlanta(true)" id="btnHouseFullBuild" class="px-2 py-0.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-black border border-emerald-400/50 transition flex items-center gap-1 shrink-0" title="Constrói Casa Completa A..H (1..14 + Canaleta + Telhado)">
+            <button onclick="game3dLoadHousePlanta(true)" id="btnHouseFullBuild" class="px-2 py-0.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-black border border-emerald-400/50 transition flex items-center gap-1 shrink-0" title="Constrói ou abre Casa Completa A..H com suas alterações salvas">
               <span>🏠</span> Casa Completa A..H
+            </button>
+            <button onclick="game3dResetSavedHouseOriginal()" id="btnResetHouseOriginal" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-[9px] font-bold border border-slate-700 transition flex items-center gap-1 shrink-0" title="Restaurar Casa Completa Original (descarta alterações salvas)">
+              <span>🔄</span> Restaurar Original
             </button>
             <button onclick="game3dBuild14WallsFullTest()" id="btnHouse14Walls" class="px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black border border-amber-400/50 transition flex items-center gap-1 shrink-0" title="Constrói 14 Paredes (1..14 c/ Canaleta)">
               <span>🏘️</span> 14 Paredes
@@ -2675,8 +2678,33 @@
           </div>
 
           <!-- Painel de Controles: No PC fica 100% escondido e flutua na lateral direita APENAS com a seção (1..6) chamada! -->
-          <div id="buildRightDrawerPanel" class="w-full flex-1 md:flex-none md:hidden md:absolute md:right-11 md:top-12 md:max-h-[calc(100%-60px)] md:w-[360px] lg:w-[380px] md:z-20 md:rounded-2xl bg-slate-900/95 backdrop-blur-md border-t md:border border-slate-700/90 p-2 flex flex-col gap-1.5 overflow-y-auto slim-scroll shrink-0 shadow-2xl">
+          <div id="buildRightDrawerPanel" class="w-full flex-1 md:flex-none md:hidden md:absolute md:right-11 md:top-12 md:max-h-[calc(100%-60px)] md:w-[360px] lg:w-[380px] md:z-20 md:rounded-2xl bg-slate-900/95 backdrop-blur-md border-t md:border border-slate-700/90 p-2 flex flex-col gap-1.5 overflow-y-auto slim-scroll shrink-0 shadow-2xl" style="resize: both; min-width: 280px; min-height: 200px;">
             
+            <!-- Header Arrastável e Flutuante no PC (Mouse Drag) -->
+            <div id="buildPanelDragHeader" class="hidden md:flex items-center justify-between px-2.5 py-1.5 bg-slate-800/90 hover:bg-slate-750 border border-slate-600/80 rounded-xl cursor-grab active:cursor-grabbing select-none text-slate-200 transition shadow shrink-0">
+              <div class="flex items-center gap-1.5 text-[10.5px] font-black">
+                <span class="text-slate-400 text-xs">⠿</span>
+                <span>Painel de Ferramentas (Flutuante)</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="resetBuildPanelPosition()" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold" title="Resetar posição padrão">⟲ Centralizar</button>
+                <button onclick="openBuildDrawerSection(game3d.activeRightSection, false)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-700 hover:bg-rose-600 text-slate-300 hover:text-white font-black" title="Fechar">✕</button>
+              </div>
+            </div>
+
+            <!-- Barra de Redimensionamento / Altura no Celular -->
+            <div id="buildMobileDrawerHandle" class="md:hidden flex items-center justify-between px-3 py-1.5 bg-slate-800/95 border-b border-slate-700/80 cursor-ns-resize touch-none select-none shrink-0 rounded-t-xl">
+              <div class="flex items-center gap-1.5 text-[10px] font-black text-slate-300">
+                <span class="w-8 h-1 bg-slate-500 rounded-full inline-block"></span>
+                <span>Ferramentas</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="setMobileDrawerHeight('min')" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-[9.5px] font-black active:scale-95">🔽 Min</button>
+                <button onclick="setMobileDrawerHeight('mid')" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-[9.5px] font-black active:scale-95">↕️ 50%</button>
+                <button onclick="setMobileDrawerHeight('max')" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-[9.5px] font-black active:scale-95">🔼 Max</button>
+              </div>
+            </div>
+
             <!-- 1. Família da Parede -->
             <div id="buildSec_1" class="p-2 rounded-xl bg-slate-950 border border-orange-500/40 flex flex-col gap-1.5">
               <div class="flex items-center justify-between">
@@ -2837,13 +2865,26 @@
                 </button>
               </div>
 
-              <!-- Banner de Bloco Clicado para Amarração Direta -->
-              <div id="game3dSnapBondBanner" class="hidden p-1.5 rounded bg-sky-950/90 border border-sky-400 text-[10px] flex items-center justify-between shadow">
-                <div class="flex items-center gap-1 text-sky-200 truncate">
-                  <span>🎯</span>
-                  <span id="game3dSnapBondText" class="font-bold truncate">Bloco selecionado!</span>
+              <!-- Banner de Bloco Clicado para Amarração Direta e Troca Rápida de Blocos -->
+              <div id="game3dSnapBondBanner" class="hidden p-1.5 rounded bg-sky-950/90 border border-sky-400 text-[10px] flex flex-col gap-1 shadow">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1 text-sky-200 truncate">
+                    <span>🎯</span>
+                    <span id="game3dSnapBondText" class="font-bold truncate">Bloco selecionado!</span>
+                  </div>
+                  <button onclick="game3dClearSnapBond()" class="text-slate-400 hover:text-white font-bold px-1.5 rounded bg-slate-800 text-[9px]">✕</button>
                 </div>
-                <button onclick="game3dClearSnapBond()" class="text-slate-400 hover:text-white font-bold px-1 rounded bg-slate-800">✕</button>
+                <div class="flex items-center gap-1 flex-wrap pt-1 border-t border-sky-800/60">
+                  <span class="text-[9px] font-black text-sky-300">🔁 Trocar Bloco por:</span>
+                  <button onclick="game3dReplaceSelectedBlock('c14_54', 54, 'WHOLE')" class="px-1.5 py-0.5 rounded bg-sky-900 hover:bg-sky-700 text-white text-[9px] font-black shadow" title="Trocar por 54cm">54</button>
+                  <button onclick="game3dReplaceSelectedBlock('c14_39', 39, 'WHOLE')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[9px] font-black shadow" title="Trocar por 39cm">39</button>
+                  <button onclick="game3dReplaceSelectedBlock('c14_34', 34, 'CORNER_TIE')" class="px-1.5 py-0.5 rounded bg-orange-700 hover:bg-orange-600 text-white text-[9px] font-black shadow" title="Trocar por Canto 34cm">34</button>
+                  <button onclick="game3dReplaceSelectedBlock('c14_19', 19, 'HALF')" class="px-1.5 py-0.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white text-[9px] font-black shadow" title="Trocar por Meio 19cm">19</button>
+                  <button onclick="game3dReplaceSelectedBlock('c14_9', 9, 'COMPENSATOR')" class="px-1.5 py-0.5 rounded bg-purple-700 hover:bg-purple-600 text-white text-[9px] font-black shadow" title="Trocar por Compensador 9cm">9</button>
+                  <button onclick="game3dReplaceSelectedBlock('c14_4', 4, 'COMPENSATOR')" class="px-1.5 py-0.5 rounded bg-rose-700 hover:bg-rose-600 text-white text-[9px] font-black shadow" title="Trocar por Compensador 4cm">4</button>
+                  <button onclick="game3dReplaceSelectedBlock('c14_can_39', 39, 'CANALETA')" class="px-1.5 py-0.5 rounded bg-sky-600 hover:bg-sky-500 text-white text-[9px] font-black shadow" title="Trocar por Canaleta 39cm">Canaleta</button>
+                  <button onclick="game3dDeleteSelectedBlock()" class="px-1.5 py-0.5 rounded bg-rose-900 hover:bg-rose-700 text-rose-200 text-[9px] font-black shadow ml-auto" title="Excluir este bloco">🗑️ Excluir</button>
+                </div>
               </div>
 
               <div class="h-px bg-slate-800 my-0.5"></div>
@@ -10833,6 +10874,286 @@
         }
       }
 
+            // ============================================================================
+      // PERSISTÊNCIA COMPLETA E AUTO-SAVE DA CASA (LOCALSTORAGE - SEM PERDER NADA!)
+      // ============================================================================
+      function game3dSaveActiveHouse() {
+        try {
+          if (!game3d || !Array.isArray(game3d.blocks) || game3d.blocks.length === 0) return;
+          const payload = {
+            savedAt: Date.now(),
+            structureType: game3d.structureType || "house_full",
+            activeFamily: game3d.activeFamily || "14",
+            walls: game3d.walls || [],
+            blocks: (game3d.blocks || []).map(b => ({
+              id: b.id,
+              wallId: b.wallId,
+              fiada: b.fiada,
+              dir: b.dir,
+              x: Math.round(b.x * 10) / 10,
+              y: Math.round(b.y * 10) / 10,
+              z: Math.round(b.z * 10) / 10,
+              len: b.len,
+              width: b.width,
+              height: b.height,
+              color: b.color,
+              pieceId: b.pieceId,
+              type: b.type,
+              hLeft: b.hLeft,
+              hRight: b.hRight,
+              manualOffsetCm: b.manualOffsetCm,
+              isOpening: !!b.isOpening
+            })),
+            openings: game3d.openings || [],
+            beams: game3d.beams || [],
+            activeFiada: game3d.activeFiada || 1,
+            activeWallId: game3d.activeWallId || "wall_A"
+          };
+          localStorage.setItem("dsmcad_saved_house_v1", JSON.stringify(payload));
+        } catch (err) {
+          console.warn("Auto-save failed:", err);
+        }
+      }
+
+      function game3dLoadSavedHouse() {
+        try {
+          const raw = localStorage.getItem("dsmcad_saved_house_v1");
+          if (!raw) return false;
+          const data = JSON.parse(raw);
+          if (!data || !Array.isArray(data.blocks) || data.blocks.length === 0) return false;
+
+          game3d.structureType = data.structureType || "house_full";
+          if (data.activeFamily) game3d.activeFamily = data.activeFamily;
+          game3d.walls = data.walls || [];
+          game3d.blocks = data.blocks || [];
+          game3d.openings = data.openings || [];
+          game3d.beams = data.beams || [];
+          game3d.activeFiada = data.activeFiada || 14;
+          game3d.activeWallId = data.activeWallId || (game3d.walls[0] ? game3d.walls[0].id : "wall_A");
+
+          renderGame3DWallsToolbar();
+          renderGame3DFiadasToolbar();
+          renderGame3DOpeningsList();
+          rebuildGame3DMeshes();
+          updateGame3DUI();
+          showLearningToast("💾 Suas alterações salvas da Casa Completa foram restauradas com sucesso!");
+          return true;
+        } catch (err) {
+          console.warn("Failed to load saved house:", err);
+          return false;
+        }
+      }
+
+      function game3dResetSavedHouseOriginal() {
+        try {
+          localStorage.removeItem("dsmcad_saved_house_v1");
+        } catch(e) {}
+        game3dLoadHousePlanta(true, true);
+        showLearningToast("🔄 Casa Completa original recarregada do zero!");
+      }
+
+      // ============================================================================
+      // TROCA RÁPIDA DE BLOCO SELECIONADO NA CASA COMPLETA (EDITAR TUDO DELA)
+      // ============================================================================
+      function game3dReplaceSelectedBlock(pieceId, len, pieceType) {
+        const block = game3d.selectedBlock;
+        if (!block) {
+          showLearningToast("⚠️ Clique em um bloco primeiro na tela para selecioná-lo e trocá-lo!");
+          return;
+        }
+        const oldLen = block.len;
+        block.pieceId = pieceId;
+        block.len = len;
+        block.type = pieceType;
+
+        if (pieceType === "CANALETA" || pieceType === "MEIA_CANALETA") {
+          block.color = "#0284c7";
+        } else if (pieceType === "CORNER_TIE") {
+          block.color = "#f97316";
+        } else if (pieceType === "HALF") {
+          block.color = "#10b981";
+        } else if (pieceType === "COMPENSATOR") {
+          block.color = (len <= 5) ? "#f43f5e" : "#8b5cf6";
+        }
+
+        const diff = len - oldLen;
+        if (Math.abs(diff) > 0.01) {
+          const curWall = game3d.walls.find(w => w.id === block.wallId);
+          const sign = (curWall && curWall.sign === -1) ? -1 : 1;
+          if (block.dir === "X") block.x += sign * (diff / 2);
+          else block.z += sign * (diff / 2);
+        }
+
+        selectBlockForBonding(block);
+        rebuildGame3DMeshes();
+        updateGame3DUI();
+        game3dSaveActiveHouse();
+        showLearningToast(`🔁 Bloco trocado por ${len}cm (${pieceType}) com sucesso! Salvo automaticamente.`);
+      }
+
+      // ============================================================================
+      // PAINEL FLUTUANTE, ARRASTÁVEL E REDIMENSIONÁVEL NO PC + CONTROLE DE ALTURA NO CELULAR
+      // ============================================================================
+      function restoreBuildPanelLayout() {
+        const panel = document.getElementById("buildRightDrawerPanel");
+        if (!panel) return;
+        if (window.innerWidth >= 768) {
+          // PC: Restaura posição e tamanho flutuante
+          try {
+            const posRaw = localStorage.getItem("dsmcad_pc_panel_pos");
+            if (posRaw) {
+              const pos = JSON.parse(posRaw);
+              if (pos.left && pos.top) {
+                panel.style.right = "auto";
+                panel.style.left = pos.left;
+                panel.style.top = pos.top;
+              }
+            }
+            const sizeRaw = localStorage.getItem("dsmcad_pc_panel_size");
+            if (sizeRaw) {
+              const size = JSON.parse(sizeRaw);
+              if (size.width) panel.style.width = size.width;
+              if (size.height) panel.style.height = size.height;
+            }
+          } catch(e) {}
+        } else {
+          // Celular: Restaura altura do painel inferior
+          try {
+            const h = localStorage.getItem("dsmcad_mobile_drawer_height");
+            if (h) {
+              panel.style.height = h;
+              panel.style.maxHeight = h;
+            }
+          } catch(e) {}
+        }
+      }
+
+      function resetBuildPanelPosition() {
+        const panel = document.getElementById("buildRightDrawerPanel");
+        if (!panel) return;
+        panel.style.left = "";
+        panel.style.top = "";
+        panel.style.right = "44px";
+        panel.style.width = "380px";
+        panel.style.height = "";
+        try {
+          localStorage.removeItem("dsmcad_pc_panel_pos");
+          localStorage.removeItem("dsmcad_pc_panel_size");
+        } catch(e) {}
+        showLearningToast("⟲ Painel de ferramentas reposicionado na lateral!");
+      }
+
+      function setMobileDrawerHeight(modeOrPx) {
+        const panel = document.getElementById("buildRightDrawerPanel");
+        if (!panel) return;
+        if (modeOrPx === "min") {
+          panel.style.height = "22vh";
+          panel.style.maxHeight = "22vh";
+        } else if (modeOrPx === "mid") {
+          panel.style.height = "48vh";
+          panel.style.maxHeight = "48vh";
+        } else if (modeOrPx === "max") {
+          panel.style.height = "78vh";
+          panel.style.maxHeight = "78vh";
+        } else if (typeof modeOrPx === "number") {
+          panel.style.height = `${modeOrPx}px`;
+          panel.style.maxHeight = `${modeOrPx}px`;
+        }
+        try {
+          localStorage.setItem("dsmcad_mobile_drawer_height", panel.style.height);
+        } catch(e) {}
+        onGame3DResize();
+      }
+
+      function initFloatingAndDraggablePanel() {
+        const panel = document.getElementById("buildRightDrawerPanel");
+        const header = document.getElementById("buildPanelDragHeader");
+        const mobileHandle = document.getElementById("buildMobileDrawerHandle");
+
+        if (header && panel) {
+          let isDragging = false;
+          let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+          header.addEventListener("mousedown", (e) => {
+            if (e.target.tagName === "BUTTON") return;
+            if (window.innerWidth < 768) return;
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const rect = panel.getBoundingClientRect();
+            startLeft = rect.left;
+            startTop = rect.top;
+            panel.style.right = "auto";
+            panel.style.bottom = "auto";
+            panel.style.left = `${startLeft}px`;
+            panel.style.top = `${startTop}px`;
+            document.body.style.userSelect = "none";
+          });
+
+          window.addEventListener("mousemove", (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            const newLeft = Math.max(10, Math.min(window.innerWidth - 120, startLeft + dx));
+            const newTop = Math.max(10, Math.min(window.innerHeight - 80, startTop + dy));
+            panel.style.left = `${newLeft}px`;
+            panel.style.top = `${newTop}px`;
+          });
+
+          window.addEventListener("mouseup", () => {
+            if (!isDragging) return;
+            isDragging = false;
+            document.body.style.userSelect = "";
+            try {
+              localStorage.setItem("dsmcad_pc_panel_pos", JSON.stringify({
+                left: panel.style.left,
+                top: panel.style.top
+              }));
+            } catch(e) {}
+          });
+
+          // Detecta redimensionamento manual do card e persiste largura e altura
+          if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => {
+              if (window.innerWidth >= 768 && panel.style.width) {
+                try {
+                  localStorage.setItem("dsmcad_pc_panel_size", JSON.stringify({
+                    width: panel.style.width,
+                    height: panel.style.height
+                  }));
+                } catch(e) {}
+              }
+            });
+            ro.observe(panel);
+          }
+        }
+
+        // Toque e arraste para redimensionar altura no celular
+        if (mobileHandle && panel) {
+          let touchStartY = 0, startH = 0;
+          mobileHandle.addEventListener("touchstart", (e) => {
+            if (e.touches.length !== 1) return;
+            touchStartY = e.touches[0].clientY;
+            startH = panel.getBoundingClientRect().height;
+          }, { passive: true });
+
+          mobileHandle.addEventListener("touchmove", (e) => {
+            if (e.touches.length !== 1) return;
+            const dy = e.touches[0].clientY - touchStartY;
+            const newH = Math.max(120, Math.min(window.innerHeight * 0.85, startH - dy));
+            panel.style.height = `${newH}px`;
+            panel.style.maxHeight = `${newH}px`;
+          }, { passive: true });
+
+          mobileHandle.addEventListener("touchend", () => {
+            try {
+              localStorage.setItem("dsmcad_mobile_drawer_height", panel.style.height);
+            } catch(e) {}
+            onGame3DResize();
+          }, { passive: true });
+        }
+      }
+
       function initGame3D() {
         const canvas = document.getElementById("iaGame3dCanvas");
         if (!canvas || typeof THREE === "undefined") return;
@@ -10931,6 +11252,8 @@
         renderGame3DPalette();
         renderGame3DOpeningsList();
         updateGame3DUI();
+        initFloatingAndDraggablePanel();
+        restoreBuildPanelLayout();
       }
 
       function onGame3DResize() {
@@ -12146,6 +12469,7 @@
         renderGame3DOpeningsList();
         rebuildGame3DMeshes();
         updateGame3DUI();
+        game3dSaveActiveHouse();
         showLearningToast(`${type === 'DOOR' ? '🚪 Porta' : '🪟 Janela'} ${span}cm → ${dirLabel} (a partir do bloco anterior! Clique de novo na mesma porta para girar a direção)`);
       }
 
@@ -12163,6 +12487,7 @@
         renderGame3DOpeningsList();
         rebuildGame3DMeshes();
         updateGame3DUI();
+        game3dSaveActiveHouse();
       }
 
       function game3dClearOpenings() {
@@ -12781,7 +13106,36 @@
           return;
         }
 
+        const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["14"];
+        const curWall = game3d.walls.find(w => w.id === game3d.activeWallId);
+
         if (d === "X") {
+          // Se já está na parede ativa em X, confirma direção
+          if (curWall && curWall.dir === "X") {
+            game3d.activeDir = "X";
+            updateDirButtonsUI("X");
+            return;
+          }
+
+          // Se a parede ativa atual for em Z e tem blocos (ex: quina com Canto em L), continua/vira em X a partir desta quina!
+          if (curWall && curWall.dir === "Z") {
+            const curBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && !b.isOpening);
+            if (curBlocks.length > 0) {
+              const branchX = game3d.walls.find(w => w.parentWallId === curWall.id && w.dir === "X");
+              if (branchX) {
+                game3dSetActiveWall(branchX.id);
+                game3d.activeDir = "X";
+                updateDirButtonsUI("X");
+                return;
+              }
+              // Cria automaticamente a nova parede continuando em X a partir deste canto!
+              game3dTerminarEmL();
+              game3d.activeDir = "X";
+              updateDirButtonsUI("X");
+              return;
+            }
+          }
+
           let mainWall = game3d.walls.find(w => w.id === game3d.activeWallId && w.dir === "X")
             || game3d.walls.find(w => w.id === "wall_A")
             || game3d.walls.find(w => w.dir === "X");
@@ -12796,7 +13150,31 @@
         }
 
         if (d === "Z") {
-          const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["14"];
+          // Se já está na parede ativa em Z, confirma direção
+          if (curWall && curWall.dir === "Z") {
+            game3d.activeDir = "Z";
+            updateDirButtonsUI("Z");
+            return;
+          }
+
+          // Se a parede ativa atual for em X e tem blocos, continua/vira em Z a partir desta quina!
+          if (curWall && curWall.dir === "X") {
+            const curBlocks = game3d.blocks.filter(b => b.wallId === curWall.id && !b.isOpening);
+            if (curBlocks.length > 0) {
+              const branchZ = game3d.walls.find(w => w.parentWallId === curWall.id && w.dir === "Z");
+              if (branchZ) {
+                game3dSetActiveWall(branchZ.id);
+                game3d.activeDir = "Z";
+                updateDirButtonsUI("Z");
+                return;
+              }
+              game3dTerminarEmL();
+              game3d.activeDir = "Z";
+              updateDirButtonsUI("Z");
+              return;
+            }
+          }
+
           let zWall = game3d.walls.find(w => w.id === game3d.activeWallId && w.dir === "Z")
             || game3d.walls.find(w => w.dir === "Z" && !w.id.startsWith("wall_T_"));
           if (!zWall) {
@@ -13890,17 +14268,68 @@
         if (b2) b2.classList.add("hidden");
 
         // =========================================================================
-        // REGRA DE OURO: O BLOCO NUNCA PODE ENTRAR DENTRO DE OUTRO NEM ONDE NÃO CABE!
+        // REGRA DE OURO: O BLOCO NUNCA ENTRA DENTRO DE OUTRO NEM ONDE NÃO CABE!
+        // SE HOUVER ESPAÇO LIVRE À FRENTE (NÃO É VÃO), AVANÇA LOGO APÓS A QUINA/BLOCO ANTERIOR!
         // =========================================================================
         const candHalfLen = len / 2;
         const candHalfW = wallW / 2;
-        const candXMin = (wallDir === "X") ? (posX - candHalfLen) : (posX - candHalfW);
-        const candXMax = (wallDir === "X") ? (posX + candHalfLen) : (posX + candHalfW);
-        const candZMin = (wallDir === "X") ? (posZ - candHalfW) : (posZ - candHalfLen);
-        const candZMax = (wallDir === "X") ? (posZ + candHalfW) : (posZ + candHalfLen);
 
-        // 1) Verifica se há espaço livre na parede ou se colide com outro bloco na mesma fiada
         const blocksOnSameFiada = (game3d.blocks || []).filter(b => b.fiada === fiada && !b.isOpening);
+
+        // Passo 1: Se o bloco tocar ou sobrepor a quina ou bloco de origem/trás, avança automaticamente
+        // para começar IMEDIATAMENTE após a quina/bloco existente (+1cm massa), sem acusar falso bloqueio!
+        for (let iter = 0; iter < 4; iter++) {
+          let candXMin = (wallDir === "X") ? (posX - candHalfLen) : (posX - candHalfW);
+          let candXMax = (wallDir === "X") ? (posX + candHalfLen) : (posX + candHalfW);
+          let candZMin = (wallDir === "X") ? (posZ - candHalfW) : (posZ - candHalfLen);
+          let candZMax = (wallDir === "X") ? (posZ + candHalfW) : (posZ + candHalfLen);
+
+          let adjusted = false;
+          for (const ob of blocksOnSameFiada) {
+            const obHalfLen = ob.len / 2;
+            const obHalfW = (ob.width || wallW) / 2;
+            const obXMin = (ob.dir === "X") ? (ob.x - obHalfLen) : (ob.x - obHalfW);
+            const obXMax = (ob.dir === "X") ? (ob.x + obHalfLen) : (ob.x + obHalfW);
+            const obZMin = (ob.dir === "X") ? (ob.z - obHalfW) : (ob.z - obHalfLen);
+            const obZMax = (ob.dir === "X") ? (ob.z + obHalfW) : (ob.z + obHalfLen);
+
+            const overlapX = Math.min(candXMax, obXMax) - Math.max(candXMin, obXMin);
+            const overlapZ = Math.min(candZMax, obZMax) - Math.max(candZMin, obZMin);
+
+            if (overlapX > 0.8 && overlapZ > 0.8) {
+              if (wallDir === "X") {
+                if (sign === 1 && obXMax > candXMin && obXMin <= candXMin + 2.0) {
+                  // O obstáculo está na origem/atrás (ex: bloco de canto c14_34 ou quina perpendicular)
+                  posX = obXMax + mortar + candHalfLen;
+                  adjusted = true;
+                  break;
+                } else if (sign === -1 && obXMin < candXMax && obXMax >= candXMax - 2.0) {
+                  posX = obXMin - mortar - candHalfLen;
+                  adjusted = true;
+                  break;
+                }
+              } else {
+                if (sign === 1 && obZMax > candZMin && obZMin <= candZMin + 2.0) {
+                  posZ = obZMax + mortar + candHalfLen;
+                  adjusted = true;
+                  break;
+                } else if (sign === -1 && obZMin < candZMax && obZMax >= candZMax - 2.0) {
+                  posZ = obZMin - mortar - candHalfLen;
+                  adjusted = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (!adjusted) break;
+        }
+
+        // Passo 2: Verifica colisão real À FRENTE (ex: parede ou bloco fixo bloqueando o avanço)
+        let finalXMin = (wallDir === "X") ? (posX - candHalfLen) : (posX - candHalfW);
+        let finalXMax = (wallDir === "X") ? (posX + candHalfLen) : (posX + candHalfW);
+        let finalZMin = (wallDir === "X") ? (posZ - candHalfW) : (posZ - candHalfLen);
+        let finalZMax = (wallDir === "X") ? (posZ + candHalfW) : (posZ + candHalfLen);
+
         for (const ob of blocksOnSameFiada) {
           const obHalfLen = ob.len / 2;
           const obHalfW = (ob.width || wallW) / 2;
@@ -13909,12 +14338,18 @@
           const obZMin = (ob.dir === "X") ? (ob.z - obHalfW) : (ob.z - obHalfLen);
           const obZMax = (ob.dir === "X") ? (ob.z + obHalfW) : (ob.z + obHalfLen);
 
-          const overlapX = Math.min(candXMax, obXMax) - Math.max(candXMin, obXMin);
-          const overlapZ = Math.min(candZMax, obZMax) - Math.max(candZMin, obZMin);
+          const overlapX = Math.min(finalXMax, obXMax) - Math.max(finalXMin, obXMin);
+          const overlapZ = Math.min(finalZMax, obZMax) - Math.max(finalZMin, obZMin);
 
           if (overlapX > 0.8 && overlapZ > 0.8) {
-            // Colisão física detectada! O bloco está entrando dentro de outro bloco!
-            showOpeningCollisionWarning(`🚫 BLOQUEADO: O bloco de ${len}cm NÃO pode entrar dentro de outro bloco na mesma fiada! Espaço livre insuficiente.`);
+            // Há um obstáculo real pela frente onde não cabe o bloco inteiro
+            let freeSpace = 0;
+            if (wallDir === "X") {
+              freeSpace = (sign === 1) ? Math.max(0, obXMin - mortar - finalXMin) : Math.max(0, finalXMax - obXMax - mortar);
+            } else {
+              freeSpace = (sign === 1) ? Math.max(0, obZMin - mortar - finalZMin) : Math.max(0, finalZMax - obZMax - mortar);
+            }
+            showOpeningCollisionWarning(`🚫 Espaço insuficiente (${Math.round(freeSpace)}cm livres). O bloco de ${len}cm NÃO cabe aqui! Use um bloco de tamanho menor (ex: ${Math.round(freeSpace)}cm)!`);
             return;
           }
         }
