@@ -2504,7 +2504,7 @@
     <!-- Mostra todas as modulações memorizadas automaticamente pela IA            -->
     <!-- e permite repaginar qualquer parede ou a obra inteira com 1 clique!       -->
     <!-- ========================================================================= -->
-                <div id="learnedPatternsModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col w-screen h-screen select-none"><div id="iaModalCard" class="bg-slate-900 w-full h-full text-white flex flex-col overflow-hidden">
+                <div id="learnedPatternsModal" class="hidden fixed inset-0 z-[99999] bg-slate-950 flex flex-col w-full h-full select-none" style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;min-height:100%;z-index:99999;"><div id="iaModalCard" class="bg-slate-900 w-full h-full text-white flex flex-col overflow-hidden" style="width:100%;height:100%;flex:1;display:flex;flex-direction:column;">
         
         <!-- Cabeçalho Único Ultra-Compacto com Projetos Integrados no Topo (Ocultável no Celular para Ganhar Espaço!) -->
         <div id="iaModalTopHeader" class="px-2 py-1 border-b border-slate-800 bg-slate-950 flex items-center justify-between gap-1.5 shrink-0 transition-all">
@@ -2584,10 +2584,12 @@
                     <button onclick="game3dSetCamera('top')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Superior (Planta)">📐 Topo</button>
                     <button onclick="game3dSetCamera('front')" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold" title="Vista Frontal">🧱 Frente</button>
                     <button onclick="game3dResetCamera()" class="px-1.5 py-0.5 rounded bg-indigo-700 hover:bg-indigo-600 text-white font-bold" title="Centralizar Obra">🎯 Focar</button>
+                    <div class="h-3 w-px bg-slate-700 mx-0.5"></div>
+                    <button onclick="toggle3DInternalDimsCard()" id="btnToggleDimsCard" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-emerald-300 font-bold transition active:scale-95" title="Mostrar/Ocultar Medidas dos Cômodos">📐 Cotas</button>
                   </div>
 
-                  <!-- Linha 2: Botão Pequeno e Discreto de PRA TRÁS e PRA FRENTE (Sempre acessível!) -->
-                  <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/85 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-slate-700/60 shadow text-[10px]">
+                  <!-- Linha 2: No PC apenas (no celular fica na barra de ferramentas inferior) -->
+                  <div class="hidden md:flex pointer-events-auto items-center gap-1 bg-slate-900/85 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-slate-700/60 shadow text-[10px]">
                     <button onclick="game3dStepBack()" id="btnTopUndoBlock" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-extrabold transition flex items-center gap-1 active:scale-95" title="Pra Trás (Desfazer último bloco colocado)">
                       <span>◀</span> <span>Trás</span>
                     </button>
@@ -2632,7 +2634,7 @@
               </div>
 
               <!-- QUADRADO COMPACTO DE MEDIDAS INTERNAS NO TOPO (CARD ELEGANTE EM CIMA) -->
-              <div id="game3dInternalDimsBar" class="pointer-events-auto self-start bg-slate-900/95 backdrop-blur-md border border-emerald-500/80 text-emerald-200 p-2 rounded-xl text-[10px] font-extrabold shadow-2xl flex flex-col gap-1 max-w-[270px] min-w-[170px]">
+              <div id="game3dInternalDimsBar" class="hidden pointer-events-auto self-start bg-slate-900/95 backdrop-blur-md border border-emerald-500/80 text-emerald-200 p-2 rounded-xl text-[10px] font-extrabold shadow-2xl flex flex-col gap-1 max-w-[270px] min-w-[170px]">
                 <div class="flex items-center justify-between border-b border-emerald-500/30 pb-1">
                   <span class="text-emerald-400 font-black flex items-center gap-1"><span>📐</span> <span>Medidas Internas</span></span>
                   <span class="text-[9px] px-1 py-0.2 rounded bg-emerald-950 text-emerald-300 font-mono">Livre</span>
@@ -2693,15 +2695,33 @@
             </div>
 
             <!-- Barra de Redimensionamento / Altura no Celular -->
-            <div id="buildMobileDrawerHandle" class="md:hidden flex items-center justify-between px-3 py-1.5 bg-slate-800/95 border-b border-slate-700/80 cursor-ns-resize touch-none select-none shrink-0 rounded-t-xl">
-              <div class="flex items-center gap-1.5 text-[10px] font-black text-slate-300">
-                <span class="w-8 h-1 bg-slate-500 rounded-full inline-block"></span>
-                <span>Ferramentas</span>
+            <div id="buildMobileDrawerHandle" class="md:hidden flex flex-col gap-1 px-2.5 py-1.5 bg-slate-900/95 border-b border-slate-800 select-none shrink-0 rounded-t-2xl shadow">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5 text-[11px] font-black text-amber-300">
+                  <span class="w-6 h-1 bg-amber-500/60 rounded-full inline-block"></span>
+                  <span>BUILD Studio</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button onclick="toggleMobileDrawerCollapsed()" id="btnToggleMobileDrawer" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-black border border-slate-700 shadow flex items-center gap-1 active:scale-95">
+                    <span id="lblToggleMobileDrawer">🔽 Recolher</span>
+                  </button>
+                </div>
               </div>
-              <div class="flex items-center gap-1">
-                <button onclick="setMobileDrawerHeight('min')" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-[9.5px] font-black active:scale-95">🔽 Min</button>
-                <button onclick="setMobileDrawerHeight('mid')" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-[9.5px] font-black active:scale-95">↕️ 50%</button>
-                <button onclick="setMobileDrawerHeight('max')" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-[9.5px] font-black active:scale-95">🔼 Max</button>
+
+              <!-- Abas Rápidas no Celular (Garante tela 100% despoluída!) -->
+              <div id="buildMobileNavTabs" class="flex items-center gap-1 pt-0.5">
+                <button onclick="switchMobileBuildTab(3)" id="mTab_3" class="flex-1 py-1 rounded-lg text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow text-center transition active:scale-95 flex items-center justify-center gap-1">
+                  <span>🧱</span> <span>Blocos</span>
+                </button>
+                <button onclick="switchMobileBuildTab(2)" id="mTab_2" class="flex-1 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white text-center transition active:scale-95 flex items-center justify-center gap-1">
+                  <span>📐</span> <span>Paredes</span>
+                </button>
+                <button onclick="switchMobileBuildTab(5)" id="mTab_5" class="flex-1 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white text-center transition active:scale-95 flex items-center justify-center gap-1">
+                  <span>🚪</span> <span>Vãos</span>
+                </button>
+                <button onclick="switchMobileBuildTab(1)" id="mTab_1" class="px-2 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white text-center transition active:scale-95" title="Família & Opções">
+                  ⚙️
+                </button>
               </div>
             </div>
 
@@ -10464,7 +10484,27 @@
         renderLearnedPatternsList();
         closeVaoEditor();
         const m = document.getElementById("learnedPatternsModal");
-        if (m) m.classList.remove("hidden");
+        if (m) {
+          m.classList.remove("hidden");
+          m.style.display = "flex";
+          m.style.position = "fixed";
+          m.style.top = "0";
+          m.style.left = "0";
+          m.style.right = "0";
+          m.style.bottom = "0";
+          m.style.width = "100vw";
+          m.style.height = "100vh";
+          m.style.minHeight = "100%";
+          m.style.zIndex = "99999";
+        }
+        const card = document.getElementById("iaModalCard");
+        if (card) {
+          card.style.width = "100%";
+          card.style.height = "100%";
+          card.style.flex = "1";
+          card.style.display = "flex";
+          card.style.flexDirection = "column";
+        }
 
         // No celular (< 768px): ativa Tela Inteira se suportado (mantendo cabeçalho visível por padrão)
         if (window.innerWidth < 768) {
@@ -10482,6 +10522,11 @@
 
         const wasInit = game3d.initialized;
         switchIaTab(defaultTab);
+        if (window.innerWidth < 768) {
+          setTimeout(() => {
+            if (typeof switchMobileBuildTab === 'function') switchMobileBuildTab(3);
+          }, 50);
+        }
         if (!wasInit && typeof game3dSetFamily === 'function') {
           game3dSetFamily("14");
         } else {
@@ -11162,6 +11207,76 @@
             } catch(e) {}
             onGame3DResize();
           }, { passive: true });
+        }
+      }
+
+      
+      // Alterna exibição da caixinha de medidas internas para despoluir a tela
+      function toggle3DInternalDimsCard() {
+        const bar = document.getElementById("game3dInternalDimsBar");
+        const btn = document.getElementById("btnToggleDimsCard");
+        if (!bar) return;
+        const isHidden = bar.classList.contains("hidden");
+        if (isHidden) {
+          bar.classList.remove("hidden");
+          if (btn) btn.className = "px-1.5 py-0.5 rounded bg-emerald-700 text-white font-black shadow";
+        } else {
+          bar.classList.add("hidden");
+          if (btn) btn.className = "px-1.5 py-0.5 rounded bg-slate-800 hover:bg-emerald-700 text-emerald-300 font-bold";
+        }
+      }
+
+      // Alterna abas no celular (Blocos, Paredes, Vãos, Mais) para que NUNCA fique tudo empilhado
+      function switchMobileBuildTab(tabNum) {
+        if (window.innerWidth >= 768) {
+          toggleBuildRightSection(tabNum, true);
+          return;
+        }
+        [1, 2, 3, 5, 6].forEach(n => {
+          const sec = document.getElementById("buildSec_" + n);
+          if (sec) {
+            if (n === tabNum || (tabNum === 1 && n === 6)) {
+              sec.classList.remove("hidden");
+              sec.style.display = "flex";
+            } else {
+              sec.classList.add("hidden");
+              sec.style.display = "none";
+            }
+          }
+          const tabBtn = document.getElementById("mTab_" + n);
+          if (tabBtn) {
+            if (n === tabNum) {
+              tabBtn.className = "flex-1 py-1 rounded-lg text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow text-center transition active:scale-95 flex items-center justify-center gap-1";
+            } else {
+              tabBtn.className = "flex-1 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white text-center transition active:scale-95 flex items-center justify-center gap-1";
+            }
+          }
+        });
+      }
+
+      let mobileDrawerCollapsed = false;
+      function toggleMobileDrawerCollapsed() {
+        const drawer = document.getElementById("buildRightDrawerPanel");
+        const lbl = document.getElementById("lblToggleMobileDrawer");
+        const nav = document.getElementById("buildMobileNavTabs");
+        if (!drawer) return;
+        mobileDrawerCollapsed = !mobileDrawerCollapsed;
+        if (mobileDrawerCollapsed) {
+          drawer.style.height = "42px";
+          drawer.style.maxHeight = "42px";
+          drawer.style.overflow = "hidden";
+          if (lbl) lbl.textContent = "🔼 Ferramentas";
+          if (nav) nav.classList.add("hidden");
+        } else {
+          drawer.style.height = "38vh";
+          drawer.style.maxHeight = "55vh";
+          drawer.style.overflowY = "auto";
+          if (lbl) lbl.textContent = "🔽 Recolher";
+          if (nav) nav.classList.remove("hidden");
+          switchMobileBuildTab(3);
+        }
+        if (typeof onGame3DResize === "function") {
+          setTimeout(onGame3DResize, 60);
         }
       }
 
