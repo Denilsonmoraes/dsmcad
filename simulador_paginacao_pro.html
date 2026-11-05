@@ -1143,11 +1143,11 @@
 
       <!-- BOTÃO IA & JOGO 3D LOGO NO INÍCIO DO TOPO (SEMPRE VISÍVEL NO CELULAR E NO PC!) -->
       <button id="learnedHeaderPill" onclick="openLearnedPatternsModal()"
-        class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500 via-orange-600 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 border border-amber-300/80 text-white text-xs font-black shadow-lg transition active:scale-95 shrink-0"
-        title="Abrir IA & BUILD (Construir Casa 3D Bloco a Bloco e Ensinar IA)">
-        <span class="text-sm">🧠</span>
-        <span>IA • BUILD</span>
-        <span id="learnedCountBadge" class="px-1.5 py-0.2 rounded-full bg-slate-950/80 text-amber-300 text-[9px] font-black">10</span>
+        class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 hover:text-white text-xs font-black shadow-lg transition active:scale-95 shrink-0"
+        title="Abrir BUILD (Construir Casa 3D Bloco a Bloco)">
+        <span class="text-sm">🏚️</span>
+        <span>BUILD</span>
+        <span id="learnedCountBadge" class="px-1.5 py-0.2 rounded-full bg-slate-900 text-slate-300 text-[9px] font-black">10</span>
       </button>
 
       <button id="btnUndo" onclick="performUndo()" disabled
@@ -2508,10 +2508,10 @@
         
         <!-- Cabeçalho Único Ultra-Compacto com Projetos Integrados no Topo (Ocultável no Celular para Ganhar Espaço!) -->
         <div id="iaModalTopHeader" class="px-2 py-1 border-b border-slate-800 bg-slate-950 flex items-center justify-between gap-1.5 shrink-0 transition-all">
-          <!-- Logo Compacto -->
+          <!-- Logo Compacto Cinza com Casa Incompleta -->
           <div class="flex items-center gap-1.5 shrink-0">
-            <span class="text-base">🧠</span>
-            <span class="text-[11px] md:text-xs font-black text-indigo-300 tracking-tight whitespace-nowrap">IA • BUILD</span>
+            <span class="text-base">🏚️</span>
+            <span class="text-[11px] md:text-xs font-black text-slate-200 tracking-tight whitespace-nowrap">BUILD</span>
           </div>
 
           <!-- Barra de Projetos Integrada no Topo -->
@@ -2628,10 +2628,15 @@
                 </div>
               </div>
 
-              <!-- BARRA EM TEMPO REAL DE MEDIDAS INTERNAS DOS COMPARTIMENTOS (SEMPRE MEDIDA INTERNA LIVRE, NUNCA EXTERNA!) -->
-              <div id="game3dInternalDimsBar" class="pointer-events-auto self-start max-w-full overflow-x-auto no-scrollbar bg-emerald-950/90 backdrop-blur-md border border-emerald-500/70 text-emerald-200 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold shadow-lg flex items-center gap-2 whitespace-nowrap">
-                <span class="text-emerald-400 font-black">📐 Medidas Internas (Livre):</span>
-                <span id="game3dInternalDimsText" class="font-mono text-white">Coloque blocos para ver o vão livre interno...</span>
+              <!-- QUADRADO COMPACTO DE MEDIDAS INTERNAS NO TOPO (CARD ELEGANTE EM CIMA) -->
+              <div id="game3dInternalDimsBar" class="pointer-events-auto self-start bg-slate-900/95 backdrop-blur-md border border-emerald-500/80 text-emerald-200 p-2 rounded-xl text-[10px] font-extrabold shadow-2xl flex flex-col gap-1 max-w-[270px] min-w-[170px]">
+                <div class="flex items-center justify-between border-b border-emerald-500/30 pb-1">
+                  <span class="text-emerald-400 font-black flex items-center gap-1"><span>📐</span> <span>Medidas Internas</span></span>
+                  <span class="text-[9px] px-1 py-0.2 rounded bg-emerald-950 text-emerald-300 font-mono">Livre</span>
+                </div>
+                <div id="game3dInternalDimsText" class="flex flex-col gap-0.5 text-white font-mono text-[9.5px] max-h-24 overflow-y-auto slim-scroll">
+                  <span class="text-slate-400 font-sans">Coloque blocos para ver os vãos...</span>
+                </div>
               </div>
             </div>
 
@@ -2843,63 +2848,88 @@
 
               <div class="h-px bg-slate-800 my-0.5"></div>
 
-              <!-- 3 e 4 UNIFICADOS: Escolha o Bloco (54, 39, 34 bem no alto e visíveis!) + Pra Trás / Pra Frente + Mover Bloco -->
+              <!-- 3 e 4 UNIFICADOS: Mover Bloco na Primeira Posição + Blocos 54, 39, 34, 19, 9, 4 + Canaletas e Chanfrados Minimizados -->
               <div id="buildSec_4_inner" class="flex flex-col gap-1.5">
-              <div class="flex items-center justify-between gap-1">
-                <span class="text-[11px] font-black text-amber-300">4. Escolha o Bloco:</span>
-                <!-- Botões Pequenos e Discretos de Pra Trás e Pra Frente também junto aos blocos -->
-                <div class="flex items-center gap-1">
-                  <button onclick="game3dStepBack()" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-[9px] font-black transition active:scale-95" title="Pra Trás (Desfazer Bloco)">
-                    ◀ Trás
-                  </button>
-                  <button onclick="game3dStepForward()" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 text-[9px] font-black transition active:scale-95" title="Pra Frente (Refazer / Avançar Bloco)">
-                    Frente ▶
-                  </button>
-                  <button onclick="game3dClearCurrentFiada()" class="px-1.5 py-0.5 rounded bg-rose-950/80 hover:bg-rose-800 text-rose-200 text-[9px] font-bold transition" title="Limpar fiada atual">
-                    🗑️ Fiada
-                  </button>
+                
+                <!-- 1. PRIMEIRA FUNÇÃO: MOVER BLOCO (1, 5, 10, 20 cm) -->
+                <div class="px-2 py-1.5 rounded-xl bg-slate-900/95 border border-emerald-500/50 flex flex-col gap-1 text-[9px] shadow-md">
+                  <div class="flex items-center justify-between">
+                    <span class="font-black text-emerald-300 text-[10px]">🧱 1. Mover Bloco (cm):</span>
+                    <span id="game3dMoveBlockTargetLbl" class="text-[9px] text-slate-400 font-mono truncate max-w-[140px]">Alvo: Último Bloco</span>
+                  </div>
+                  <div class="grid grid-cols-8 gap-0.5">
+                    <button onclick="game3dMoveBlock(-20)" id="btnMoveBlk_m20" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-20</button>
+                    <button onclick="game3dMoveBlock(-10)" id="btnMoveBlk_m10" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-10</button>
+                    <button onclick="game3dMoveBlock(-5)" id="btnMoveBlk_m5" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-5</button>
+                    <button onclick="game3dMoveBlock(-1)" id="btnMoveBlk_m1" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-1</button>
+                    <button onclick="game3dMoveBlock(1)" id="btnMoveBlk_p1" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+1</button>
+                    <button onclick="game3dMoveBlock(5)" id="btnMoveBlk_p5" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+5</button>
+                    <button onclick="game3dMoveBlock(10)" id="btnMoveBlk_p10" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+10</button>
+                    <button onclick="game3dMoveBlock(20)" id="btnMoveBlk_p20" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+20</button>
+                  </div>
+                  <div class="flex items-center justify-between gap-1 pt-0.5">
+                    <span id="game3dBondStatusHint" class="text-[8.5px] text-emerald-400 font-bold truncate">✨ Corrige amarração na fiada seguinte</span>
+                    <button onclick="game3dTriggerNextFiadaBondCorrection()" id="btnFixNextFiadaBond" class="px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[9px] shrink-0 shadow transition">
+                      🔧 Corrigir Amarração
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <!-- MOVER BLOCO (1, 5, 10, 20 cm) + CORREÇÃO AUTOMÁTICA DE AMARRAÇÃO NA FIADA SEGUINTE -->
-              <div class="px-1.5 py-1 rounded bg-slate-900/95 border border-emerald-500/40 flex flex-col gap-1 text-[9px]">
-                <div class="flex items-center justify-between">
-                  <span class="font-extrabold text-emerald-300">🧱 Mover Bloco (cm):</span>
-                  <span id="game3dMoveBlockTargetLbl" class="text-[9px] text-slate-400 font-mono truncate max-w-[140px]">Alvo: Último Bloco</span>
+                <!-- 2. ESCOLHA O BLOCO: COMANDO DE TRÁS / FRENTE / LIMPAR FIADA -->
+                <div class="flex items-center justify-between gap-1 pt-0.5">
+                  <span class="text-[11px] font-black text-amber-300">🧱 4. Blocos Principais (54, 39, 34, 19, 9, 4):</span>
+                  <div class="flex items-center gap-1">
+                    <button onclick="game3dStepBack()" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-[9px] font-black transition active:scale-95" title="Pra Trás (Desfazer Bloco ou 2 Fiadas)">
+                      ◀ Trás
+                    </button>
+                    <button onclick="game3dStepForward()" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 text-[9px] font-black transition active:scale-95" title="Pra Frente (Refazer)">
+                      Frente ▶
+                    </button>
+                    <button onclick="game3dClearCurrentFiada()" class="px-1.5 py-0.5 rounded bg-rose-950/80 hover:bg-rose-800 text-rose-200 text-[9px] font-bold transition" title="Limpar fiada atual">
+                      🗑️ Fiada
+                    </button>
+                  </div>
                 </div>
-                <div class="grid grid-cols-8 gap-0.5">
-                  <button onclick="game3dMoveBlock(-20)" id="btnMoveBlk_m20" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-20</button>
-                  <button onclick="game3dMoveBlock(-10)" id="btnMoveBlk_m10" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-10</button>
-                  <button onclick="game3dMoveBlock(-5)" id="btnMoveBlk_m5" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-5</button>
-                  <button onclick="game3dMoveBlock(-1)" id="btnMoveBlk_m1" class="py-0.5 rounded bg-slate-800 hover:bg-rose-600 text-white font-black transition active:scale-90">-1</button>
-                  <button onclick="game3dMoveBlock(1)" id="btnMoveBlk_p1" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+1</button>
-                  <button onclick="game3dMoveBlock(5)" id="btnMoveBlk_p5" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+5</button>
-                  <button onclick="game3dMoveBlock(10)" id="btnMoveBlk_p10" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+10</button>
-                  <button onclick="game3dMoveBlock(20)" id="btnMoveBlk_p20" class="py-0.5 rounded bg-slate-800 hover:bg-emerald-600 text-white font-black transition active:scale-90">+20</button>
-                </div>
-                <div class="flex items-center justify-between gap-1">
-                  <span id="game3dBondStatusHint" class="text-[8.5px] text-emerald-400 font-bold truncate">✨ Corrige amarração na fiada seguinte</span>
-                  <button onclick="game3dTriggerNextFiadaBondCorrection()" id="btnFixNextFiadaBond" class="px-1.5 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[9px] shrink-0 shadow transition">
-                    🔧 Corrigir Fiada Seguinte
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Container dinâmico com os botões das peças da família (54, 39, 34 no topo!) -->
-              <div id="game3dPiecesContainer" class="flex flex-col gap-1">
-                <!-- Inserido dinamicamente via JS -->
-              </div>
 
-              <!-- Ajuste compacto de Bloco Chanfrado e Canaleta -->
-              <div class="px-1.5 py-1 rounded bg-slate-900/90 border border-amber-500/30 flex items-center justify-between gap-1 text-[9px]">
-                <span class="text-amber-300 font-bold shrink-0">📐 Chanfrado (cm):</span>
-                <input id="game3dChamferLow" type="number" min="1" max="19" value="4" class="w-10 px-1 py-0.5 rounded bg-slate-950 border border-slate-700 text-white font-bold text-center" title="Altura Baixa (cm)" />
-                <span class="text-slate-500">→</span>
-                <input id="game3dChamferHigh" type="number" min="4" max="19" value="19" class="w-10 px-1 py-0.5 rounded bg-slate-950 border border-slate-700 text-white font-bold text-center" title="Altura Alta (cm)" />
-                <button onclick="game3dFillFiada14Canaletas()" class="px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-black shadow shrink-0" title="Assenta Canaletas em toda a 14ª fiada">
-                  🟦 14ª Canaleta
-                </button>
-              </div>
+                <!-- 6 BLOCOS EXPOSTOS (54, 39, 34, 19, 9, 4) DIRETOS NA TELA -->
+                <div id="game3dPiecesContainer" class="flex flex-col gap-1">
+                  <!-- Inserido dinamicamente via JS (Apenas 54, 39, 34, 19, 9, 4) -->
+                </div>
+
+                <!-- CANALETAS 39 E 19 MINIMIZADAS COM CLIQUE -->
+                <details id="detailsCanaletas" class="group rounded-xl bg-slate-900/90 border border-blue-500/40 p-1.5 text-xs shadow">
+                  <summary class="cursor-pointer list-none flex items-center justify-between text-[10px] font-black text-blue-300 hover:text-white">
+                    <span class="flex items-center gap-1"><span>🟦</span> <span>Canaletas Estruturais (39 e 19 cm)</span></span>
+                    <span class="text-[9px] text-blue-400 group-open:rotate-180 transition">▼</span>
+                  </summary>
+                  <div id="game3dCanaletasContainer" class="pt-1.5 flex flex-col gap-1">
+                    <!-- Preenchido dinamicamente via JS -->
+                  </div>
+                </details>
+
+                <!-- BLOCOS CHANFRADOS & CAÍDA DO TELHADO MINIMIZADOS COM CLIQUE -->
+                <details id="detailsChanfrados" class="group rounded-xl bg-slate-900/90 border border-amber-500/40 p-1.5 text-xs shadow">
+                  <summary class="cursor-pointer list-none flex items-center justify-between text-[10px] font-black text-amber-300 hover:text-white">
+                    <span class="flex items-center gap-1"><span>📐</span> <span>Blocos Chanfrados & Telhado (Oitão)</span></span>
+                    <span class="text-[9px] text-amber-400 group-open:rotate-180 transition">▼</span>
+                  </summary>
+                  <div class="pt-1.5 flex flex-col gap-1.5">
+                    <div id="game3dChanfradosContainer" class="flex flex-col gap-1">
+                      <!-- Preenchido dinamicamente via JS -->
+                    </div>
+                    <!-- Campos para fazer os chanfres -->
+                    <div class="px-2 py-1 rounded-lg bg-slate-950 border border-amber-500/30 flex items-center justify-between gap-1 text-[9px]">
+                      <span class="text-amber-300 font-bold shrink-0">📐 Chanfro (cm):</span>
+                      <input id="game3dChamferLow" type="number" min="1" max="19" value="4" class="w-10 px-1 py-0.5 rounded bg-slate-900 border border-slate-700 text-white font-bold text-center" title="Altura Baixa (cm)" />
+                      <span class="text-slate-500">→</span>
+                      <input id="game3dChamferHigh" type="number" min="4" max="19" value="19" class="w-10 px-1 py-0.5 rounded bg-slate-900 border border-slate-700 text-white font-bold text-center" title="Altura Alta (cm)" />
+                      <button onclick="game3dFillFiada14Canaletas()" class="px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-black shadow shrink-0" title="Assenta Canaletas em toda a 14ª fiada">
+                        🟦 14ª Canaleta
+                      </button>
+                    </div>
+                  </div>
+                </details>
+
               </div>
             </div>
 
@@ -12686,12 +12716,17 @@
         return copiedCount;
       }
 
+      if (!window.game3dActionStack) window.game3dActionStack = [];
+      if (!window.game3dRedoActionStack) window.game3dRedoActionStack = [];
+
       function game3dReplicateTwoFiadasAbove() {
         const nonOpen = (game3d.blocks || []).filter(b => !b.isOpening);
         if (nonOpen.length === 0) {
           showLearningToast("⚠️ Faça a 1ª e 2ª fiadas da casa primeiro para replicar acima!");
           return;
         }
+        const prevBlocksSnapshot = [...game3d.blocks];
+        const prevFiada = game3d.activeFiada;
         const maxF = Math.max(...nonOpen.map(b => b.fiada));
         const nextF1 = Math.min(18, maxF + 1);
         const nextF2 = Math.min(18, maxF + 2);
@@ -12706,6 +12741,15 @@
 
         const finalF = nextF2 > nextF1 ? nextF2 : nextF1;
         game3dSetFiada(finalF);
+
+        window.game3dActionStack.push({
+          type: "REPLICATE_2F",
+          fiadas: [nextF1, nextF2],
+          prevBlocks: prevBlocksSnapshot,
+          prevFiada: prevFiada
+        });
+        window.game3dRedoActionStack = [];
+
         renderGame3DWallsToolbar();
         rebuildGame3DMeshes();
         updateGame3DUI();
@@ -13440,25 +13484,44 @@
       }
 
       function renderGame3DPalette() {
-        const c = document.getElementById("game3dPiecesContainer");
-        if (!c) return;
+        const cMain = document.getElementById("game3dPiecesContainer");
+        const cCan = document.getElementById("game3dCanaletasContainer");
+        const cChan = document.getElementById("game3dChanfradosContainer");
+        if (!cMain) return;
         const spec = game3dFamilySpecs[game3d.activeFamily] || game3dFamilySpecs["14"];
-        let html = "";
-        spec.pieces.forEach((p, idx) => {
-          html += `
-            <div class="flex items-center gap-1 w-full">
-              <button onclick="game3dPlacePiece('${p.id}', ${p.len}, '${p.type}')" class="flex-1 px-2.5 py-1.5 rounded-lg ${p.color} hover:brightness-110 text-white text-[11px] font-black shadow flex items-center justify-between transition active:scale-95">
-                <span class="flex items-center gap-1 text-left truncate"><span>➕</span> ${p.name}</span>
-                <span class="font-mono text-[9.5px] bg-black/30 px-1.5 py-0.2 rounded shrink-0">${p.label}</span>
-              </button>
-              <div class="flex items-center gap-0.5 shrink-0">
-                <button onclick="game3dMovePiece(${idx}, -1)" class="px-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[8px] font-bold transition active:scale-90" title="Subir na lista">▲</button>
-                <button onclick="game3dMovePiece(${idx}, 1)" class="px-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[8px] font-bold transition active:scale-90" title="Descer na lista">▼</button>
-              </div>
+
+        const makePieceBtn = (p, idx) => `
+          <div class="flex items-center gap-1 w-full">
+            <button onclick="game3dPlacePiece('${p.id}', ${p.len}, '${p.type}')" class="flex-1 px-2.5 py-1.5 rounded-lg ${p.color} hover:brightness-110 text-white text-[10.5px] font-black shadow flex items-center justify-between transition active:scale-95">
+              <span class="flex items-center gap-1 text-left truncate"><span>➕</span> ${p.name}</span>
+              <span class="font-mono text-[9px] bg-black/30 px-1.5 py-0.2 rounded shrink-0">${p.label}</span>
+            </button>
+            <div class="flex items-center gap-0.5 shrink-0">
+              <button onclick="game3dMovePiece(${idx}, -1)" class="px-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[8px] font-bold transition active:scale-90" title="Subir">▲</button>
+              <button onclick="game3dMovePiece(${idx}, 1)" class="px-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[8px] font-bold transition active:scale-90" title="Descer">▼</button>
             </div>
-          `;
+          </div>
+        `;
+
+        let htmlMain = "";
+        let htmlCan = "";
+        let htmlChan = "";
+
+        spec.pieces.forEach((p, idx) => {
+          const t = p.type || "";
+          if (t === "CANALETA" || t === "MEIA_CANALETA") {
+            htmlCan += makePieceBtn(p, idx);
+          } else if (t.startsWith("CHAMFER")) {
+            htmlChan += makePieceBtn(p, idx);
+          } else {
+            // Blocos principais expostos: 54, 39, 34, 19, 9, 4
+            htmlMain += makePieceBtn(p, idx);
+          }
         });
-        c.innerHTML = html;
+
+        cMain.innerHTML = htmlMain;
+        if (cCan) cCan.innerHTML = htmlCan;
+        if (cChan) cChan.innerHTML = htmlChan;
       }
 
       // ============================================================================
@@ -13826,6 +13889,36 @@
         const b2 = document.getElementById("game3dViewportAlert");
         if (b2) b2.classList.add("hidden");
 
+        // =========================================================================
+        // REGRA DE OURO: O BLOCO NUNCA PODE ENTRAR DENTRO DE OUTRO NEM ONDE NÃO CABE!
+        // =========================================================================
+        const candHalfLen = len / 2;
+        const candHalfW = wallW / 2;
+        const candXMin = (wallDir === "X") ? (posX - candHalfLen) : (posX - candHalfW);
+        const candXMax = (wallDir === "X") ? (posX + candHalfLen) : (posX + candHalfW);
+        const candZMin = (wallDir === "X") ? (posZ - candHalfW) : (posZ - candHalfLen);
+        const candZMax = (wallDir === "X") ? (posZ + candHalfW) : (posZ + candHalfLen);
+
+        // 1) Verifica se há espaço livre na parede ou se colide com outro bloco na mesma fiada
+        const blocksOnSameFiada = (game3d.blocks || []).filter(b => b.fiada === fiada && !b.isOpening);
+        for (const ob of blocksOnSameFiada) {
+          const obHalfLen = ob.len / 2;
+          const obHalfW = (ob.width || wallW) / 2;
+          const obXMin = (ob.dir === "X") ? (ob.x - obHalfLen) : (ob.x - obHalfW);
+          const obXMax = (ob.dir === "X") ? (ob.x + obHalfLen) : (ob.x + obHalfW);
+          const obZMin = (ob.dir === "X") ? (ob.z - obHalfW) : (ob.z - obHalfLen);
+          const obZMax = (ob.dir === "X") ? (ob.z + obHalfW) : (ob.z + obHalfLen);
+
+          const overlapX = Math.min(candXMax, obXMax) - Math.max(candXMin, obXMin);
+          const overlapZ = Math.min(candZMax, obZMax) - Math.max(candZMin, obZMin);
+
+          if (overlapX > 0.8 && overlapZ > 0.8) {
+            // Colisão física detectada! O bloco está entrando dentro de outro bloco!
+            showOpeningCollisionWarning(`🚫 BLOQUEADO: O bloco de ${len}cm NÃO pode entrar dentro de outro bloco na mesma fiada! Espaço livre insuficiente.`);
+            return;
+          }
+        }
+
         // Alturas do bloco chanfrado (se aplicável)
         let hLeft = spec.height;
         let hRight = spec.height;
@@ -13880,6 +13973,36 @@
 
       function game3dUndo() {
         game3dClearSnapBond();
+        if (!window.game3dActionStack) window.game3dActionStack = [];
+        if (!window.game3dRedoActionStack) window.game3dRedoActionStack = [];
+
+        // DESFAZER RÁPIDO BASEADO EM AÇÃO:
+        // Se a última ação foi a replicação de 2 fiadas, apaga as 2 fiadas inteiras em 1 único clique rápido!
+        if (window.game3dActionStack.length > 0) {
+          const act = window.game3dActionStack.pop();
+          window.game3dRedoActionStack.push(act);
+
+          if (act.type === "REPLICATE_2F" || act.type === "REPLICATE_ODD") {
+            game3d.blocks = act.prevBlocks;
+            game3dSetFiada(act.prevFiada || Math.max(1, (act.fiadas[0] || 2) - 1));
+            renderGame3DWallsToolbar();
+            rebuildGame3DMeshes();
+            updateGame3DUI();
+            showLearningToast(`↩️ Voltar rápido: ${act.fiadas.join("ª e ")}ª Fiadas apagadas da casa inteira!`);
+            return;
+          } else if (act.type === "WALL") {
+            game3d.walls = game3d.walls.filter(w => w.id !== act.wallId);
+            game3d.blocks = game3d.blocks.filter(b => b.wallId !== act.wallId);
+            game3dSetActiveWall(act.prevWallId || "wall_A");
+            renderGame3DWallsToolbar();
+            rebuildGame3DMeshes();
+            updateGame3DUI();
+            showLearningToast("↩️ Voltar: Parede desfeita!");
+            return;
+          }
+        }
+
+        // Se foi bloco individual, remove o último bloco colocado
         if (game3d.blocks.length === 0) return;
         if (!game3d.redoStack) game3d.redoStack = [];
         const removed = game3d.blocks.pop();
@@ -14551,21 +14674,19 @@
             dimSegments.raycast = NOOP_RAYCAST;
             dimSegments.userData = { isInternalDim: true };
             game3d.meshGroup.add(dimSegments);
-
-            // Placa 3D Flutuante com a Medida Interna Livre
-            const midCoord = (m.innerStart + m.innerEnd) / 2;
-            const sprite = createInternalDimSprite(`📏 Interna: ${m.internalCm}cm (${mFormatted})`);
-            sprite.position.set(
-              isX ? midCoord : (m.orthoCoord + 16),
-              m.y + 8,
-              isX ? (m.orthoCoord + 14) : midCoord
-            );
-            sprite.userData = { isInternalDim: true, internalCm: m.internalCm };
-            game3d.meshGroup.add(sprite);
           });
 
+          // Atualiza o Quadrado Compacto de Medidas Internas no Topo com visual limpo e organizado
           if (dimBarTxt) {
-            dimBarTxt.textContent = summaryParts.join("  |  ");
+            dimBarTxt.innerHTML = internalMeasures.map(m => {
+              const mFormatted = (m.internalCm / 100).toFixed(2) + "m";
+              return `
+                <div class="flex items-center justify-between gap-1.5 py-0.5 border-b border-slate-800/60 last:border-0">
+                  <span class="text-slate-300 truncate max-w-[160px]">${m.label}:</span>
+                  <span class="font-bold text-emerald-300 shrink-0">${m.internalCm}cm (${mFormatted})</span>
+                </div>
+              `;
+            }).join("");
           }
         }
 
