@@ -9929,6 +9929,15 @@
       setTimeout(resizeCanvas, 100);
       setTimeout(resizeCanvas, 300);
 
+      // Abre diretamente no BUILD 3D se requisitado via hash/query ou se aberto no App Android nativo (igual ao .exe)
+      if (window.location.hash === '#build' || window.location.search.includes('build') || typeof window.AndroidBridge !== 'undefined') {
+        setTimeout(() => {
+          if (typeof openLearnedPatternsModal === 'function') {
+            openLearnedPatternsModal('game3d');
+          }
+        }, 150);
+      }
+
       if (window.location.hash === '#openParedeA' || window.location.hash === '#openSvg') {
         const aWall = walls.find(w => w.label === 'A');
         if (aWall) {
@@ -10457,19 +10466,18 @@
         const m = document.getElementById("learnedPatternsModal");
         if (m) m.classList.remove("hidden");
 
-        // No celular (< 768px): esconde automaticamente o cabeçalho superior e ativa Tela Inteira (sem navbar do Android)!
+        // No celular (< 768px): ativa Tela Inteira se suportado (mantendo cabeçalho visível por padrão)
         if (window.innerWidth < 768) {
-          const docEl = document.documentElement;
-          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-            if (docEl.requestFullscreen) {
-              docEl.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
-            } else if (docEl.webkitRequestFullscreen) {
-              try { docEl.webkitRequestFullscreen(); } catch (e) {}
+          try {
+            const docEl = document.documentElement;
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+              if (docEl.requestFullscreen) {
+                docEl.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+              } else if (docEl.webkitRequestFullscreen) {
+                docEl.webkitRequestFullscreen();
+              }
             }
-          }
-          if (typeof toggleMobile3DTopBars === "function") {
-            toggleMobile3DTopBars(true);
-          }
+          } catch(e) {}
         }
 
         const wasInit = game3d.initialized;
@@ -10855,10 +10863,10 @@
         const viewVaos = document.getElementById("iaTabContent_vaos");
 
         if (tab === "game3d") {
-          btnGame.className = "px-3.5 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow flex items-center gap-2 transition active:scale-95";
-          btnVaos.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1.5 transition";
-          viewGame.classList.remove("hidden");
-          viewVaos.classList.add("hidden");
+          if (btnGame) btnGame.className = "px-3.5 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow flex items-center gap-2 transition active:scale-95";
+          if (btnVaos) btnVaos.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1.5 transition";
+          if (viewGame) viewGame.classList.remove("hidden");
+          if (viewVaos) viewVaos.classList.add("hidden");
           initGame3D();
           onGame3DResize();
           setTimeout(() => {
@@ -10866,10 +10874,10 @@
             onGame3DResize();
           }, 80);
         } else {
-          btnGame.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1.5 transition";
-          btnVaos.className = "px-3.5 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white shadow flex items-center gap-1.5 transition";
-          viewGame.classList.add("hidden");
-          viewVaos.classList.remove("hidden");
+          if (btnGame) btnGame.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1.5 transition";
+          if (btnVaos) btnVaos.className = "px-3.5 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white shadow flex items-center gap-1.5 transition";
+          if (viewGame) viewGame.classList.add("hidden");
+          if (viewVaos) viewVaos.classList.remove("hidden");
           renderLearnedPatternsList();
         }
       }
@@ -11069,6 +11077,9 @@
         const panel = document.getElementById("buildRightDrawerPanel");
         const header = document.getElementById("buildPanelDragHeader");
         const mobileHandle = document.getElementById("buildMobileDrawerHandle");
+
+        if (panel && panel._floatingInitialized) return;
+        if (panel) panel._floatingInitialized = true;
 
         if (header && panel) {
           let isDragging = false;

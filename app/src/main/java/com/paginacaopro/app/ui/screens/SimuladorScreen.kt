@@ -53,6 +53,7 @@ fun SimuladorScreen(onExit: () -> Unit) {
             WebView(ctx).apply {
                 setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
                 WebView.setWebContentsDebuggingEnabled(true)
+                clearCache(true)
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true // Persistência dos padrões aprendidos (localStorage)
                 settings.databaseEnabled = true
@@ -63,7 +64,7 @@ fun SimuladorScreen(onExit: () -> Unit) {
                 settings.builtInZoomControls = true
                 settings.displayZoomControls = false
                 settings.setSupportZoom(true)
-                settings.cacheMode = WebSettings.LOAD_DEFAULT
+                settings.cacheMode = WebSettings.LOAD_NO_CACHE
                 settings.mediaPlaybackRequiresUserGesture = false
                 webViewClient = WebViewClient()
                 webChromeClient = object : WebChromeClient() {
@@ -73,7 +74,7 @@ fun SimuladorScreen(onExit: () -> Unit) {
                     }
                 }
                 addJavascriptInterface(SimuladorBridge(ctx, onExit), "AndroidBridge")
-                loadUrl("file:///android_asset/simulador.html")
+                loadUrl("file:///android_asset/simulador.html#build")
                 webViewRef = this
             }
         }
